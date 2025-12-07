@@ -1,0 +1,35 @@
+{
+  "name": "seodrift",
+  "version": "1.0.0",
+  "description": "A Spring Boot-based tool offering YouTube SEO tag generation, thumbnail fetching, and video downloading features.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite build --watch",
+    "build": "vite build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prancodes/SEODrift.git"
+  },
+  "keywords": [
+    "Spring Boot",
+    "YouTube SEO",
+    "tag generation",
+    "thumbnail fetching",
+    "video downloading"
+  ],
+  "author": "Pranjal Singh",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/prancodes/SEODrift/issues"
+  },
+  "homepage": "https://github.com/prancodes/SEODrift#readme",
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.1.17",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.17",
+    "vite": "^7.2.6"
+  }
+}

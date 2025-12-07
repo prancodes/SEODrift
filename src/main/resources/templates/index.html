@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html th:replace="~{fragments/layout :: layout(title='Dashboard', content=~{::section})}">
+<body>
+<section>
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white mb-4">
+            Master Your YouTube Strategy
+        </h1>
+        <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            All-in-one toolkit to optimize tags, download thumbnails, and save videos for your content creation workflow.
+        </p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-8">
+        
+        <div class="group bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl hover:border-brand-500 transition-all duration-300">
+            <div class="h-12 w-12 bg-brand-100 dark:bg-brand-900/30 text-brand-600 rounded-lg flex items-center justify-center mb-4 text-2xl">
+                <i class="ph-fill ph-hash"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-2">SEO Tag Generator</h3>
+            <p class="text-gray-500 dark:text-gray-400 mb-6 text-sm">
+                Extract high-ranking tags from competitors or generate new ones based on keywords.
+            </p>
+            <a href="/tags" class="inline-flex items-center text-brand-600 font-semibold group-hover:translate-x-1 transition-transform">
+                Start Generating <i class="ph-bold ph-arrow-right ml-2"></i>
+            </a>
+        </div>
+
+        <div class="group bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl hover:border-brand-500 transition-all duration-300">
+            <div class="h-12 w-12 bg-orange-100 dark:bg-orange-900/30 text-orange-600 rounded-lg flex items-center justify-center mb-4 text-2xl">
+                <i class="ph-fill ph-image"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-2">Thumbnail Grabber</h3>
+            <p class="text-gray-500 dark:text-gray-400 mb-6 text-sm">
+                Get high-quality thumbnails (HD, SD, MaxRes) from any YouTube video instantly.
+            </p>
+            <a href="/thumbnail" class="inline-flex items-center text-orange-600 font-semibold group-hover:translate-x-1 transition-transform">
+                Fetch Thumbnails <i class="ph-bold ph-arrow-right ml-2"></i>
+            </a>
+        </div>
+
+        <div class="group bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl hover:border-brand-500 transition-all duration-300">
+            <div class="h-12 w-12 bg-green-100 dark:bg-green-900/30 text-green-600 rounded-lg flex items-center justify-center mb-4 text-2xl">
+                <i class="ph-fill ph-download-simple"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-2">Video Downloader</h3>
+            <p class="text-gray-500 dark:text-gray-400 mb-6 text-sm">
+                Download videos in various formats and qualities for offline viewing or editing.
+            </p>
+            <a href="/video" class="inline-flex items-center text-green-600 font-semibold group-hover:translate-x-1 transition-transform">
+                Download Now <i class="ph-bold ph-arrow-right ml-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+</body>
+</html>

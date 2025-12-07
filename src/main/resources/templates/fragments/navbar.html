@@ -1,0 +1,19 @@
+<nav th:fragment="navbar" class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
+    <div class="container mx-auto px-4 h-16 flex items-center justify-between">
+        <a href="/" class="flex items-center gap-2 font-bold text-xl text-brand-600 dark:text-brand-500">
+            <i class="ph-fill ph-rocket-launch text-2xl"></i>
+            SEODrift
+        </a>
+
+        <div class="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600 dark:text-gray-300">
+            <a href="/tags" class="hover:text-brand-600 dark:hover:text-brand-400 transition">Tag Generator</a>
+            <a href="/thumbnail" class="hover:text-brand-600 dark:hover:text-brand-400 transition">Thumbnail</a>
+            <a href="/video" class="hover:text-brand-600 dark:hover:text-brand-400 transition">Video DL</a>
+        </div>
+
+        <button id="theme-toggle" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+            <i class="ph ph-moon dark:hidden"></i>
+            <i class="ph ph-sun hidden dark:block text-yellow-400"></i>
+        </button>
+    </div>
+</nav>

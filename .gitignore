@@ -31,3 +31,55 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Mac ###
+.DS_Store
+### Windows ###
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+
+### Node.js ###
+node_modules/
+npm-debug.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+### Vite ###
+dist/
+.vite/
+.env
+.env.local
+
+### Frontend Build ###
+src/main/resources/static/dist/
+*.css.map
+
+### IDE ###
+.editorconfig
+*.swp
+*.swo
+*~
+.DS_Store
+
+### OS ###
+.AppleDouble
+.LSOverride
+*.tmp
+*.log
+
+### Project Specific ###
+.gradle/
+*.jar
+!mvnw
+!mvnw.cmd
+
