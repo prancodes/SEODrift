@@ -1,5 +1,10 @@
-<footer th:fragment="footer" class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-auto py-6">
-    <div class="container mx-auto px-4 text-center text-sm text-gray-500 dark:text-gray-400">
-        <p>&copy; 2025 SEODrift. Built with Spring Boot & Tailwind.</p>
+<footer th:fragment="footer" class="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 mt-auto py-8 transition-colors duration-300">
+    <div class="container mx-auto px-4 flex flex-col items-center justify-center gap-3">
+        <div class="flex items-center gap-2 text-brand-600 dark:text-brand-500 font-bold opacity-80">
+            <i class="ph-fill ph-rocket-launch"></i> SEODrift
+        </div>
+        <p class="text-sm text-gray-500 dark:text-gray-400 text-center">
+            &copy; <span th:text="${#dates.year(#dates.createNow())}">2025</span> SEODrift. Built with Spring Boot & Tailwind CSS.
+        </p>
     </div>
 </footer>

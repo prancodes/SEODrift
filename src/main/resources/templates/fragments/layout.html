@@ -1,4 +1,5 @@
-<html th:fragment="layout(title, content)" lang="en" xmlns:th="http://www.thymeleaf.org" class="light">
+<!DOCTYPE html>
+<html th:fragment="layout(title, content)" lang="en" xmlns:th="http://www.thymeleaf.org" class="antialiased">
 
 <head>
     <meta charset="UTF-8">
@@ -8,34 +9,18 @@
     <link rel="stylesheet" th:href="@{/dist/styles.css}">
     
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    
-    <script>
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    </script>
+    <script th:src="@{/js/theme.js}"></script>
 </head>
 
-<body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 flex flex-col min-h-screen transition-colors duration-300">
+<body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 flex flex-col min-h-screen transition-colors duration-300 font-sans selection:bg-brand-500 selection:text-white">
 
     <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-    <main class="grow container mx-auto px-4 py-8">
+    <main class="grow container mx-auto px-4 py-8 md:py-12 animate-fade-in">
         <div th:replace="${content}"></div>
     </main>
 
     <div th:replace="~{fragments/footer :: footer}"></div>
-
-    <script>
-        const toggleBtn = document.getElementById('theme-toggle');
-        const html = document.documentElement;
-
-        toggleBtn.addEventListener('click', () => {
-            html.classList.toggle('dark');
-            localStorage.theme = html.classList.contains('dark') ? 'dark' : 'light';
-        });
-    </script>
+    
 </body>
 </html>

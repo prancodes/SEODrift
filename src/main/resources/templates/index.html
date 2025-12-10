@@ -2,53 +2,56 @@
 <html th:replace="~{fragments/layout :: layout(title='Dashboard', content=~{::section})}">
 <body>
 <section>
-    <div class="text-center mb-12">
-        <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white mb-4">
-            Master Your YouTube Strategy
+    <div class="text-center mb-16 space-y-4">
+        <span class="inline-block py-1 px-3 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 text-xs font-bold tracking-wide uppercase">
+            Optimization Toolkit
+        </span>
+        <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+            Master Your <span class="text-transparent bg-clip-text bg-linear-to-r from-brand-600 to-purple-600 dark:from-brand-400 dark:to-purple-400">YouTube Strategy</span>
         </h1>
-        <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            All-in-one toolkit to optimize tags, download thumbnails, and save videos for your content creation workflow.
+        <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
+            The all-in-one platform for modern content creators. Generate tags, grab high-res thumbnails, and manage video assets seamlessly.
         </p>
     </div>
 
     <div class="grid md:grid-cols-3 gap-8">
         
-        <div class="group bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl hover:border-brand-500 transition-all duration-300">
-            <div class="h-12 w-12 bg-brand-100 dark:bg-brand-900/30 text-brand-600 rounded-lg flex items-center justify-center mb-4 text-2xl">
+        <div class="group card-base p-8 hover:-translate-y-2 hover:shadow-brand-500/10">
+            <div class="h-14 w-14 bg-linear-to-br from-brand-500 to-brand-700 text-white rounded-2xl flex items-center justify-center mb-6 text-2xl shadow-lg shadow-brand-500/30 group-hover:scale-110 transition-transform duration-300">
                 <i class="ph-fill ph-hash"></i>
             </div>
-            <h3 class="text-xl font-bold mb-2">SEO Tag Generator</h3>
-            <p class="text-gray-500 dark:text-gray-400 mb-6 text-sm">
-                Extract high-ranking tags from competitors or generate new ones based on keywords.
+            <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">SEO Tag Generator</h3>
+            <p class="text-gray-500 dark:text-gray-400 mb-8 text-sm leading-relaxed">
+                Boost discoverability by extracting high-ranking tags from competitors or generating smart keywords.
             </p>
-            <a href="/tags" class="inline-flex items-center text-brand-600 font-semibold group-hover:translate-x-1 transition-transform">
-                Start Generating <i class="ph-bold ph-arrow-right ml-2"></i>
+            <a href="/tags" class="inline-flex items-center text-brand-600 dark:text-brand-400 font-semibold group-hover:gap-2 transition-all">
+                Start Generating <i class="ph-bold ph-arrow-right ml-1"></i>
             </a>
         </div>
 
-        <div class="group bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl hover:border-brand-500 transition-all duration-300">
-            <div class="h-12 w-12 bg-orange-100 dark:bg-orange-900/30 text-orange-600 rounded-lg flex items-center justify-center mb-4 text-2xl">
+        <div class="group card-base p-8 hover:-translate-y-2 hover:shadow-orange-500/10">
+            <div class="h-14 w-14 bg-linear-to-br from-orange-400 to-orange-600 text-white rounded-2xl flex items-center justify-center mb-6 text-2xl shadow-lg shadow-orange-500/30 group-hover:scale-110 transition-transform duration-300">
                 <i class="ph-fill ph-image"></i>
             </div>
-            <h3 class="text-xl font-bold mb-2">Thumbnail Grabber</h3>
-            <p class="text-gray-500 dark:text-gray-400 mb-6 text-sm">
-                Get high-quality thumbnails (HD, SD, MaxRes) from any YouTube video instantly.
+            <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">Thumbnail Grabber</h3>
+            <p class="text-gray-500 dark:text-gray-400 mb-8 text-sm leading-relaxed">
+                Instantly download MaxRes, HD, and SD thumbnails for analysis, inspiration, or archiving.
             </p>
-            <a href="/thumbnail" class="inline-flex items-center text-orange-600 font-semibold group-hover:translate-x-1 transition-transform">
-                Fetch Thumbnails <i class="ph-bold ph-arrow-right ml-2"></i>
+            <a href="/thumbnail" class="inline-flex items-center text-orange-600 dark:text-orange-400 font-semibold group-hover:gap-2 transition-all">
+                Fetch Thumbnails <i class="ph-bold ph-arrow-right ml-1"></i>
             </a>
         </div>
 
-        <div class="group bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl hover:border-brand-500 transition-all duration-300">
-            <div class="h-12 w-12 bg-green-100 dark:bg-green-900/30 text-green-600 rounded-lg flex items-center justify-center mb-4 text-2xl">
+        <div class="group card-base p-8 hover:-translate-y-2 hover:shadow-green-500/10">
+            <div class="h-14 w-14 bg-linear-to-br from-green-500 to-green-700 text-white rounded-2xl flex items-center justify-center mb-6 text-2xl shadow-lg shadow-green-500/30 group-hover:scale-110 transition-transform duration-300">
                 <i class="ph-fill ph-download-simple"></i>
             </div>
-            <h3 class="text-xl font-bold mb-2">Video Downloader</h3>
-            <p class="text-gray-500 dark:text-gray-400 mb-6 text-sm">
-                Download videos in various formats and qualities for offline viewing or editing.
+            <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">Video Downloader</h3>
+            <p class="text-gray-500 dark:text-gray-400 mb-8 text-sm leading-relaxed">
+                Save videos securely in various formats (MP4, WEBM) and qualities for your content workflow.
             </p>
-            <a href="/video" class="inline-flex items-center text-green-600 font-semibold group-hover:translate-x-1 transition-transform">
-                Download Now <i class="ph-bold ph-arrow-right ml-2"></i>
+            <a href="/video" class="inline-flex items-center text-green-600 dark:text-green-400 font-semibold group-hover:gap-2 transition-all">
+                Download Now <i class="ph-bold ph-arrow-right ml-1"></i>
             </a>
         </div>
     </div>

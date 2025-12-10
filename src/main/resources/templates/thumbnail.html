@@ -1,33 +1,59 @@
 <!DOCTYPE html>
-<html th:replace="~{fragments/layout :: layout(title='Thumbnail Downloader', content=~{::section})}">
+<html th:replace="~{fragments/layout :: layout(title='Thumbnail Grabber', content=~{::section})}">
 <body>
 <section class="max-w-4xl mx-auto">
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
-        <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
-            <i class="ph-fill ph-image text-orange-500"></i> Thumbnail Downloader
-        </h2>
+    <div class="card-base p-8 md:p-10">
+        <div class="mb-8 border-b border-gray-100 dark:border-gray-700 pb-6">
+            <h2 class="text-2xl font-bold flex items-center gap-3 text-gray-900 dark:text-white">
+                <div class="p-2 rounded-lg bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400">
+                    <i class="ph-fill ph-image text-2xl"></i>
+                </div>
+                Thumbnail Grabber
+            </h2>
+            <p class="mt-2 text-gray-500 dark:text-gray-400 text-sm ml-12">Extract high-quality thumbnails from any YouTube video.</p>
+        </div>
 
-        <form class="flex gap-4 mb-8">
-            <input type="text" placeholder="https://www.youtube.com/watch?v=..." 
-                   class="flex-1 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl px-5 py-3 focus:ring-2 focus:ring-orange-500 focus:outline-none transition">
-            <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white font-medium px-8 py-3 rounded-xl shadow-lg shadow-orange-500/30 transition">
-                Fetch
+        <form class="flex flex-col md:flex-row gap-4 mb-10">
+            <div class="relative flex-1">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <i class="ph ph-link text-gray-400 text-lg"></i>
+                </div>
+                <input type="text" placeholder="https://www.youtube.com/watch?v=..." 
+                       class="input-field pl-11 focus:ring-orange-500">
+            </div>
+            <button type="submit" class="btn-primary bg-orange-600 hover:bg-orange-700 dark:bg-orange-600 dark:hover:bg-orange-500 shadow-orange-500/20 flex items-center justify-center gap-2">
+                <i class="ph-bold ph-download"></i> Fetch
             </button>
         </form>
 
-        <div class="grid md:grid-cols-2 gap-6">
-            <div class="space-y-3">
-                <img src="https://placehold.co/600x400/png" alt="Thumbnail" class="w-full rounded-lg shadow-sm">
+        <div class="grid md:grid-cols-2 gap-8">
+            <div class="space-y-4 group">
+                <div class="relative overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-900 aspect-video shadow-inner">
+                    <img src="https://placehold.co/640x360/png" alt="Thumbnail" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    <div class="absolute top-3 left-3 bg-black/70 backdrop-blur-sm text-white text-xs font-bold px-2 py-1 rounded">
+                        HD (1280x720)
+                    </div>
+                </div>
                 <div class="flex justify-between items-center">
-                    <span class="text-sm font-medium text-gray-500">Max Resolution (1280x720)</span>
-                    <a href="#" class="text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 px-3 py-1.5 rounded-lg transition">Download</a>
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Max Resolution</span>
+                    <a href="#" class="text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+                        Download <i class="ph-bold ph-arrow-down"></i>
+                    </a>
                 </div>
             </div>
-            <div class="space-y-3">
-                <img src="https://placehold.co/600x400/png" alt="Thumbnail" class="w-full rounded-lg shadow-sm">
+            
+            <div class="space-y-4 group">
+                <div class="relative overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-900 aspect-video shadow-inner">
+                    <img src="https://placehold.co/480x360/png" alt="Thumbnail" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    <div class="absolute top-3 left-3 bg-black/70 backdrop-blur-sm text-white text-xs font-bold px-2 py-1 rounded">
+                        SD (640x480)
+                    </div>
+                </div>
                 <div class="flex justify-between items-center">
-                    <span class="text-sm font-medium text-gray-500">High Quality (640x480)</span>
-                    <a href="#" class="text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 px-3 py-1.5 rounded-lg transition">Download</a>
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">High Quality</span>
+                    <a href="#" class="text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+                        Download <i class="ph-bold ph-arrow-down"></i>
+                    </a>
                 </div>
             </div>
         </div>

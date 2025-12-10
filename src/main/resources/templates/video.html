@@ -2,49 +2,72 @@
 <html th:replace="~{fragments/layout :: layout(title='Video Downloader', content=~{::section})}">
 <body>
 <section class="max-w-3xl mx-auto">
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
-        <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
-            <i class="ph-fill ph-download-simple text-green-500"></i> YouTube Video Downloader
-        </h2>
+    <div class="card-base p-8 md:p-10">
+        <div class="mb-8 border-b border-gray-100 dark:border-gray-700 pb-6">
+            <h2 class="text-2xl font-bold flex items-center gap-3 text-gray-900 dark:text-white">
+                <div class="p-2 rounded-lg bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400">
+                    <i class="ph-fill ph-download-simple text-2xl"></i>
+                </div>
+                Video Downloader
+            </h2>
+            <p class="mt-2 text-gray-500 dark:text-gray-400 text-sm ml-12">Download videos for offline viewing or backup.</p>
+        </div>
 
-        <form class="flex gap-4 mb-8">
-            <input type="text" placeholder="Paste Video URL here..." 
-                   class="flex-1 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl px-5 py-3 focus:ring-2 focus:ring-green-500 focus:outline-none transition">
-            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-medium px-8 py-3 rounded-xl shadow-lg shadow-green-500/30 transition">
-                Get Options
+        <form class="flex flex-col md:flex-row gap-4 mb-10">
+            <div class="relative flex-1">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <i class="ph ph-youtube-logo text-gray-400 text-lg"></i>
+                </div>
+                <input type="text" placeholder="Paste Video URL here..." 
+                       class="input-field pl-11 focus:ring-green-500">
+            </div>
+            <button type="submit" class="btn-primary bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-500 shadow-green-500/20 flex items-center justify-center gap-2">
+                <i class="ph-bold ph-faders"></i> Get Options
             </button>
         </form>
 
-        <div class="space-y-3">
-            <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Available Formats</h3>
+        <div class="space-y-4">
+            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 pl-1">Available Formats</h3>
             
-            <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700">
-                <div class="flex items-center gap-3">
-                    <div class="bg-green-100 dark:bg-green-900/30 text-green-600 p-2 rounded-lg">
-                        <i class="ph-fill ph-video"></i>
+            <div class="flex items-center justify-between p-5 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800 hover:border-green-200 dark:hover:border-green-900 transition-colors">
+                <div class="flex items-center gap-4">
+                    <div class="bg-white dark:bg-gray-800 text-green-600 dark:text-green-400 p-3 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
+                        <i class="ph-fill ph-video text-xl"></i>
                     </div>
                     <div>
-                        <p class="font-bold text-gray-800 dark:text-gray-200">1080p (MP4)</p>
-                        <p class="text-xs text-gray-500">Video + Audio • 45.2 MB</p>
+                        <p class="font-bold text-gray-800 dark:text-gray-200 text-lg">1080p Full HD</p>
+                        <p class="text-xs text-gray-500 font-medium mt-0.5 flex items-center gap-2">
+                            <span class="bg-gray-200 dark:bg-gray-700 px-1.5 rounded text-[10px]">MP4</span>
+                            <span>•</span>
+                            <span>Video + Audio</span>
+                            <span>•</span>
+                            <span>45.2 MB</span>
+                        </p>
                     </div>
                 </div>
-                <button class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition">
-                    Download
+                <button class="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg shadow-lg shadow-green-600/20 transition-all active:scale-95 flex items-center gap-2">
+                    <i class="ph-bold ph-download-simple"></i> Download
                 </button>
             </div>
 
-            <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700">
-                <div class="flex items-center gap-3">
-                    <div class="bg-green-100 dark:bg-green-900/30 text-green-600 p-2 rounded-lg">
-                        <i class="ph-fill ph-video"></i>
+            <div class="flex items-center justify-between p-5 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800 hover:border-green-200 dark:hover:border-green-900 transition-colors">
+                <div class="flex items-center gap-4">
+                    <div class="bg-white dark:bg-gray-800 text-green-600 dark:text-green-400 p-3 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
+                        <i class="ph-fill ph-video text-xl"></i>
                     </div>
                     <div>
-                        <p class="font-bold text-gray-800 dark:text-gray-200">720p (MP4)</p>
-                        <p class="text-xs text-gray-500">Video + Audio • 22.8 MB</p>
+                        <p class="font-bold text-gray-800 dark:text-gray-200 text-lg">720p HD</p>
+                        <p class="text-xs text-gray-500 font-medium mt-0.5 flex items-center gap-2">
+                            <span class="bg-gray-200 dark:bg-gray-700 px-1.5 rounded text-[10px]">MP4</span>
+                            <span>•</span>
+                            <span>Video + Audio</span>
+                            <span>•</span>
+                            <span>22.8 MB</span>
+                        </p>
                     </div>
                 </div>
-                <button class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition">
-                    Download
+                <button class="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg shadow-lg shadow-green-600/20 transition-all active:scale-95 flex items-center gap-2">
+                    <i class="ph-bold ph-download-simple"></i> Download
                 </button>
             </div>
         </div>

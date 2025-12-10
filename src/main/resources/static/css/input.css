@@ -1,1 +1,41 @@
 @import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Custom Brand Color Palette (Indigo-Violet) */
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bfdbfe;
+  --color-brand-300: #93c5fd;
+  --color-brand-400: #60a5fa;
+  --color-brand-500: #3b82f6; /* Primary Light */
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --color-brand-800: #1e40af;
+  --color-brand-900: #1e3a8a; /* Primary Dark */
+  --color-brand-950: #172554;
+  
+  /* Animation Utilities */
+  --animate-fade-in: fade-in 0.5s ease-in-out;
+  
+  @keyframes fade-in {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+}
+
+/* Custom Component Classes */
+@layer components {
+  .btn-primary {
+    @apply bg-brand-600 text-white hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-400 transition-all duration-300 font-medium px-6 py-2.5 rounded-xl shadow-lg shadow-brand-500/20 active:scale-95;
+  }
+  
+  .card-base {
+    @apply bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-xl shadow-gray-200/50 dark:shadow-none transition-all duration-300;
+  }
+  
+  .input-field {
+    @apply w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-xl px-5 py-3 focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none transition-all;
+  }
+}
