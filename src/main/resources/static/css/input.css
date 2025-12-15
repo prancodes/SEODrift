@@ -23,6 +23,14 @@
     0% { opacity: 0; transform: translateY(10px); }
     100% { opacity: 1; transform: translateY(0); }
   }
+
+  /* shine effect */
+  --animate-shine: shine 0.7s forwards;
+
+  @keyframes shine {
+    0% { transform: translateX(-100%) skewX(-15deg); }
+    100% { transform: translateX(200%) skewX(-15deg); }
+  }
 }
 
 /* Custom Component Classes */
