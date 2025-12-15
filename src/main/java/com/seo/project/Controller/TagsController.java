@@ -4,11 +4,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-public class WebController {
+public class TagsController {
 
-    @GetMapping({"/", "/home"})
-    public String homePage() {
-        return "index";
+    @GetMapping("/tags")
+    public String showTagsPage() {
+        return "tags";
     }
 
 }
