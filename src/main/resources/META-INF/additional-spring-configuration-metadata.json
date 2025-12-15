@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "youtube.api.key",
+      "type": "java.lang.String",
+      "description": "API Key for accessing YouTube Data API."
+    }
+  ]
+}
