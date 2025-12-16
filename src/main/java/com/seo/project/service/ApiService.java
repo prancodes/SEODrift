@@ -1,4 +1,4 @@
-package com.seo.project.Service;
+package com.seo.project.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
