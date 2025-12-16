@@ -44,6 +44,21 @@
         
         <!-- Thumbnail Results -->
         <div th:if="${thumbnailOptions}" class="animate-fade-in space-y-10">
+
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm flex items-start gap-3">
+                <div class="p-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-500 rounded-lg shrink-0">
+                    <i class="ph-fill ph-youtube-logo text-xl"></i>
+                </div>
+                <div>
+                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+                        <i class="ph-fill ph-user-circle text-xl"></i> <span th:text="${channelName}">Channel Name</span>
+                    </span>
+                    <h3 class="font-bold text-gray-900 dark:text-gray-100 text-lg leading-tight mt-1" th:text="${videoTitle}">
+                        Video Title Placeholder
+                    </h3>
+                </div>
+            </div>
+            
             <div class="grid md:grid-cols-2 gap-8">
                 <div th:each="option, stat : ${thumbnailOptions}" th:if="${stat.index < 2}" class="space-y-4 group">
                     <div class="relative overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-900 aspect-video shadow-xl border border-gray-200 dark:border-gray-800">
@@ -61,7 +76,7 @@
                         <span class="text-sm font-medium text-gray-500 dark:text-gray-400"
                               th:text="${option.sizeInfo}">1280x720</span>
                         
-                        <a th:href="@{/thumbnail/download(imageUrl=${option.imageUrl})}"
+                        <a th:href="@{/thumbnail/download(imageUrl=${option.imageUrl}, title=${videoTitle})}"
                            class="flex items-center gap-2 px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-xl shadow-lg shadow-orange-500/20 active:scale-95 transition-all">
                             Download <i class="ph-bold ph-arrow-down"></i>
                         </a>
@@ -88,14 +103,14 @@
                             
                             <div class="relative aspect-video rounded-lg overflow-hidden bg-gray-100">
                                 <img th:src="${option.imageUrl}" class="w-full h-full object-cover">
-                                <div class="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-1.5 rounded">
+                                <div class="absolute bottom-1 right-1 bg-black/60 backdrop-blur-sm text-white text-[10px] px-2 text-xs font-bold py-1 rounded-md shadow-sm">
                                     <span th:text="${option.resolutionKey}">360p</span>
                                 </div>
                             </div>
         
                             <div class="flex justify-between items-center mt-auto">
                                 <span class="text-xs text-gray-400" th:text="${option.sizeInfo}">480x360</span>
-                                <a th:href="@{/thumbnail/download(imageUrl=${option.imageUrl})}"
+                                <a th:href="@{/thumbnail/download(imageUrl=${option.imageUrl}, title=${videoTitle})}"
                                     class="text-xs font-bold text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 flex items-center gap-1">
                                     Download <i class="ph-bold ph-arrow-down"></i>
                                 </a>

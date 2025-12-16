@@ -1,22 +1,24 @@
 package com.seo.project.service;
 
-import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.regex.Pattern;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 
 @Service
 public class ThumbnailService {
 
-    private final RestTemplate restTemplate;
+    private final WebClient webClient;
 
-    public ThumbnailService(RestTemplateBuilder builder) {
-        this.restTemplate = builder.build();
+    // Inject WebClient.Builder to allow reuse and better performance
+    public ThumbnailService(WebClient.Builder builder) {
+        this.webClient = builder.build();
     }
 
     /*
@@ -58,11 +60,45 @@ public class ThumbnailService {
         return null;
     }
 
-    // Downloads image bytes from the URL
-    public ResponseEntity<byte[]> downloadImage(String imageUrl) {
+    // Fetch Video Metadata (using oembed)
+    @SuppressWarnings("unchecked")
+    public Map<String,String> fetchVideoMetadata(String videoId) {
+        Map<String,String> metadata = new HashMap<>();
+
+        // Default values in case fetch fails
+        metadata.put("title", "video-" + videoId);
+        metadata.put("author_name", "yt-Video" + videoId);
+
+        try{
+            String oembedUrl = "https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=" + videoId + "&format=json";
+            // .block() calls it synchronously (keeps it simple for the current Controller)
+            Map<String,Object> response = webClient.get()
+                    .uri(oembedUrl)
+                    .retrieve()
+                    .bodyToMono(Map.class)
+                    .block();
+
+            if (response != null && response.containsKey("title")) {
+                metadata.put("title", (String) response.get("title"));
+            }
+            if (response != null && response.containsKey("author_name")) {
+                metadata.put("author_name", (String) response.get("author_name"));
+            }
+        } catch (Exception e) {
+            System.out.println("Error fetching video title: " + e.getMessage());
+        }
+        return metadata;
+    }
+
+    // Downloads image bytes from the URL, with proper filename as videoTitle
+    public ResponseEntity<byte[]> downloadImage(String imageUrl, String fileName) {
         try {
-            // 3. Use the injected restTemplate (efficient reuse)
-            byte[] imageBytes = restTemplate.getForObject(imageUrl, byte[].class);
+            // 3. Use the injected webClient (efficient reuse)
+            byte[] imageBytes = webClient.get()
+                    .uri(imageUrl)
+                    .retrieve()
+                    .bodyToMono(byte[].class)
+                    .block(); // Blocking here to return simple bytes to the browser
 
             if (imageBytes == null) {
                 return ResponseEntity.notFound().build();
@@ -70,21 +106,26 @@ public class ThumbnailService {
 
             // 4. Smart Content-Type Detection
             MediaType contentType = MediaType.IMAGE_JPEG; // Default
-            String fileName = "thumbnail.jpg";
+            String fileExtension = ".jpg";
 
             if (imageUrl.contains(".webp")) {
                 contentType = MediaType.parseMediaType("image/webp");
-                fileName = "thumbnail.webp";
+                fileExtension = ".webp";
             } else if (imageUrl.contains(".png")) {
                 contentType = MediaType.IMAGE_PNG;
-                fileName = "thumbnail.png";
+                fileExtension = ".png";
             }
+
+            // Sanitize filename (remove illegal characters for Windows/Linux)
+            String safeFilename = fileName.replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
+            String fullFileName = safeFilename + fileExtension;
+            // System.out.println("Downloading image as: " + fullFileName);
 
             // 5. Build Headers
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(contentType);
             // "attachment" forces the browser to show the 'Save As' dialog
-            headers.setContentDispositionFormData("attachment", fileName);
+            headers.setContentDispositionFormData("attachment", fullFileName);
 
             return ResponseEntity.ok()
                     .headers(headers)

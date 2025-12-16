@@ -2,6 +2,7 @@ package com.seo.project.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +39,17 @@ public class ThumbnailController {
         String videoId = service.extractVideoId(videoUrl);
 
         if (videoId != null && !videoId.isEmpty()) {
+
+            // Fetch Metadata (Title + Channel) for better filename during download
+            Map<String,String> metadata = service.fetchVideoMetadata(videoId);
+
+            String videoTitle = metadata.get("title");
+            String channelName = metadata.get("author_name");
+
+            model.addAttribute("videoTitle", videoTitle);
+            model.addAttribute("channelName", channelName);
+
+            // Prepare Thumbnail Options
             List<ThumbnailOptions> options = new ArrayList<>();
 
             // 1. Max Resolution (1280x720) - "1080p"
@@ -71,8 +83,10 @@ public class ThumbnailController {
     // Endpoint to download the thumbnail image
     @GetMapping("/thumbnail/download")
     @ResponseBody
-    public ResponseEntity<byte[]> downlaodThumbnail(@RequestParam String imageUrl) {
-        return service.downloadImage(imageUrl);
+    public ResponseEntity<byte[]> downloadThumbnail(
+        @RequestParam String imageUrl, 
+        @RequestParam(defaultValue = "thumbnail") String title) {
+        return service.downloadImage(imageUrl, title);
     }
 
 }
