@@ -8,7 +8,7 @@ A modern **Spring Boot** application designed to streamline YouTube content crea
 
 ## ✨ Features
 
-### 🏷️ **SEO Tag Generator**
+### 🏷️ **SEO Tags Generator**
 - Extract high-ranking tags from competitor videos or generate new ones based on keywords
 - Optimize your video metadata for better YouTube visibility
 - Analyze and suggest tags to boost your video's searchability
@@ -153,7 +153,7 @@ Spring DevTools is included for automatic restart during development:
 ### Navigate to the Dashboard
 Open your browser and visit `http://localhost:8080` to see the main dashboard with three feature cards:
 
-1. **SEO Tag Generator** (`/tags`)
+1. **SEO Tags Generator** (`/tags`)
    - Enter a YouTube video URL or keywords
    - Get optimized tag suggestions
    - Copy tags for use in your video metadata
