@@ -1,9 +1,12 @@
-{
-  "properties": [
-    {
-      "name": "youtube.api.key",
-      "type": "java.lang.String",
-      "description": "API Key for accessing YouTube Data API."
-    }
-  ]
-}
+{"properties": [
+  {
+    "name": "youtube.api.key",
+    "type": "java.lang.String",
+    "description": "API Key for accessing YouTube Data API."
+  },
+  {
+    "name": "base.url",
+    "type": "java.lang.String",
+    "description": "Google API base URL for YouTube services."
+  }
+]}
