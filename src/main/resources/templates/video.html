@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html th:replace="~{fragments/layout :: layout(title='Video Downloader', content=~{::section})}">
 <body>
-<section class="max-w-3xl mx-auto">
+<section class="max-w-4xl mx-auto">
     <div class="card-base p-8 md:p-10">
         <div class="mb-8 border-b border-gray-100 dark:border-gray-700 pb-6">
             <h2 class="text-2xl font-bold flex items-center gap-3 text-gray-900 dark:text-white">
@@ -13,62 +13,93 @@
             <p class="mt-2 text-gray-500 dark:text-gray-400 text-sm ml-12">Download videos for offline viewing or backup.</p>
         </div>
 
-        <form class="flex flex-col md:flex-row gap-4 mb-10">
+        <form th:action="@{/video}" th:object="${videoRequest}" method="post" class="flex flex-col md:flex-row gap-4 mb-10">
             <div class="relative flex-1">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <i class="ph ph-youtube-logo text-gray-400 text-lg"></i>
                 </div>
-                <input type="text" placeholder="Paste Video URL here..." 
-                       class="input-field pl-11 focus:ring-green-500">
+                <input type="text" th:field="*{url}" placeholder="Paste YouTube Video URL here..." 
+                       class="input-field pl-11 focus:ring-green-500" required>
             </div>
-            <button type="submit" class="btn-primary bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-500 shadow-green-500/20 flex items-center justify-center gap-2">
-                <i class="ph-bold ph-faders"></i> Get Options
+            <button type="submit" class="btn-primary bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-500 shadow-green-500/20 group relative overflow-hidden px-8">
+                <span class="relative z-10 flex items-center justify-center gap-2">
+                    <i class="ph-bold ph-faders"></i> Get Options
+                </span>
+                <div class="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:animate-shine"></div>
             </button>
         </form>
 
-        <div class="space-y-4">
-            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 pl-1">Available Formats</h3>
+        <div th:if="${error}" class="animate-fade-in mb-8 flex items-start gap-4 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 text-red-600 dark:text-red-400">
+            <i class="ph-bold ph-warning-octagon text-xl mt-0.5"></i>
+            <span th:text="${error}">Error message</span>
+        </div>
+
+        <div th:if="${videoInfo}" class="animate-fade-in space-y-8">
             
-            <div class="flex items-center justify-between p-5 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800 hover:border-green-200 dark:hover:border-green-900 transition-colors">
-                <div class="flex items-center gap-4">
-                    <div class="bg-white dark:bg-gray-800 text-green-600 dark:text-green-400 p-3 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
-                        <i class="ph-fill ph-video text-xl"></i>
-                    </div>
-                    <div>
-                        <p class="font-bold text-gray-800 dark:text-gray-200 text-lg">1080p Full HD</p>
-                        <p class="text-xs text-gray-500 font-medium mt-0.5 flex items-center gap-2">
-                            <span class="bg-gray-200 dark:bg-gray-700 px-1.5 rounded text-[10px]">MP4</span>
-                            <span>•</span>
-                            <span>Video + Audio</span>
-                            <span>•</span>
-                            <span>45.2 MB</span>
-                        </p>
-                    </div>
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm flex items-start gap-4">
+                <img th:src="${videoInfo.thumbnail}" class="w-24 h-16 object-cover rounded-lg shadow-sm">
+                <div>
+                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+                        <i class="ph-fill ph-user-circle"></i> <span th:text="${videoInfo.channel}">Channel</span>
+                    </span>
+                    <h3 class="font-bold text-gray-900 dark:text-gray-100 text-lg leading-tight mt-1 line-clamp-1" th:text="${videoInfo.title}">
+                        Title
+                    </h3>
                 </div>
-                <button class="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg shadow-lg shadow-green-600/20 transition-all active:scale-95 flex items-center gap-2">
-                    <i class="ph-bold ph-download-simple"></i> Download
-                </button>
             </div>
 
-            <div class="flex items-center justify-between p-5 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800 hover:border-green-200 dark:hover:border-green-900 transition-colors">
-                <div class="flex items-center gap-4">
-                    <div class="bg-white dark:bg-gray-800 text-green-600 dark:text-green-400 p-3 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
-                        <i class="ph-fill ph-video text-xl"></i>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div th:each="fmt : ${mainFormats}" class="p-5 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800 hover:border-green-300 dark:hover:border-green-700 transition-colors group">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="bg-white dark:bg-gray-800 text-green-600 dark:text-green-400 p-3 rounded-lg shadow-sm">
+                            <i class="ph-fill ph-video text-2xl"></i>
+                        </div>
+                        <span class="text-xs font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-1 rounded" th:text="${fmt.format}">MP4</span>
                     </div>
-                    <div>
-                        <p class="font-bold text-gray-800 dark:text-gray-200 text-lg">720p HD</p>
-                        <p class="text-xs text-gray-500 font-medium mt-0.5 flex items-center gap-2">
-                            <span class="bg-gray-200 dark:bg-gray-700 px-1.5 rounded text-[10px]">MP4</span>
-                            <span>•</span>
-                            <span>Video + Audio</span>
-                            <span>•</span>
-                            <span>22.8 MB</span>
+                    
+                    <div class="mb-4">
+                        <p class="font-bold text-gray-800 dark:text-gray-200 text-xl" th:text="${fmt.quality}">1080p</p>
+                        <p class="text-sm text-gray-500 font-medium flex items-center gap-2 mt-1">
+                            <span th:text="${fmt.size}">45 MB</span>
+                            <span th:if="${fmt.hasAudio}" class="text-green-500 flex items-center text-xs gap-1"><i class="ph-fill ph-speaker-high"></i> Audio</span>
+                            <span th:unless="${fmt.hasAudio}" class="text-orange-500 flex items-center text-xs gap-1"><i class="ph-fill ph-speaker-slash"></i> Muted</span>
                         </p>
                     </div>
+
+                    <a th:href="@{/video/download(videoUrl=${videoInfo.formats()[0].downloadUrl}, title=${videoInfo.title}, formatId=${fmt.format})}" 
+                       class="w-full flex items-center justify-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow-lg shadow-green-600/20 active:scale-95 transition-all">
+                        Download <i class="ph-bold ph-download-simple"></i>
+                    </a>
                 </div>
-                <button class="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg shadow-lg shadow-green-600/20 transition-all active:scale-95 flex items-center gap-2">
-                    <i class="ph-bold ph-download-simple"></i> Download
-                </button>
+            </div>
+
+            <div th:if="${otherFormats}" class="max-w-4xl mx-auto">
+                <details class="group/accordion bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden transition-all">
+                    <summary class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors select-none">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-lg">
+                                <i class="ph-fill ph-list-plus"></i>
+                            </div>
+                            <span class="font-semibold text-gray-700 dark:text-gray-200">Other Qualities & Audio</span>
+                        </div>
+                        <i class="ph-bold ph-caret-down text-gray-400 group-open/accordion:rotate-180 transition-transform"></i>
+                    </summary>
+                    
+                    <div class="border-t border-gray-100 dark:border-gray-700 divide-y divide-gray-100 dark:divide-gray-800">
+                        <div th:each="fmt : ${otherFormats}" class="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                            <div class="flex items-center gap-4">
+                                <div class="text-sm">
+                                    <p class="font-bold text-gray-800 dark:text-gray-200" th:text="${fmt.quality}">360p</p>
+                                    <p class="text-xs text-gray-500" th:text="${fmt.format} + ' • ' + ${fmt.size}">MP4 • 15MB</p>
+                                </div>
+                            </div>
+                            <a th:href="@{/video/download(videoUrl=${videoInfo.formats()[0].downloadUrl}, title=${videoInfo.title}, formatId=${fmt.format})}" 
+                               class="text-xs font-bold text-green-600 hover:text-green-700 dark:text-green-400 flex items-center gap-1 bg-green-50 dark:bg-green-900/20 px-3 py-1.5 rounded-lg border border-green-100 dark:border-green-800 hover:border-green-300 transition-all">
+                                Download <i class="ph-bold ph-arrow-down"></i>
+                            </a>
+                        </div>
+                    </div>
+                </details>
             </div>
         </div>
     </div>
