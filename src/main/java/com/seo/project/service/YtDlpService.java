@@ -2,43 +2,42 @@ package com.seo.project.service;
 
 import com.seo.project.dto.VideoFormat;
 import com.seo.project.dto.VideoInfo;
-
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Service
 public class YtDlpService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+    // ✅ Use a Desktop User-Agent to ensure we get all formats (1080p, etc.)
+    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36";
 
     public VideoInfo fetchVideoInfo(String videoUrl) {
         try {
-            // Run yt-dlp to dump JSON metadata
             ProcessBuilder builder = new ProcessBuilder(
                 "yt-dlp", 
-                "--no-warnings",    // Silence warnings
-                "--extractor-args", "youtube:player_client=android", // ✅ CRITICAL FIX: Use Android API
+                "--no-warnings",
+                "--user-agent", USER_AGENT,
                 "-J",               // Dump JSON
-                "--no-playlist",    // Single video only
-                "--flat-playlist",  // Don't expand playlists if url is mixed
+                "--no-playlist",
+                "--flat-playlist",
                 videoUrl
             );
 
-            // Merge error output into standard output
             builder.redirectErrorStream(true);
-            
             Process process = builder.start();
 
-            // Read the Output
-            // Use UTF-8 to handle emojis in titles correctly
             BufferedReader reader = new BufferedReader(
                 new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8)
             );
@@ -46,30 +45,20 @@ public class YtDlpService {
             StringBuilder jsonOutput = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
-                // 🛡️ CRITICAL FIX: Ignore any line that isn't the JSON start
-                if (!line.trim().startsWith("{")) {
-                    // Optional: Print ignored lines to console for debugging
-                    // System.out.println("Ignored log: " + line);
-                    continue; 
-                }
+                if (!line.trim().startsWith("{")) continue; 
                 jsonOutput.append(line);
             }
 
-            // Wait max 15 seconds to prevent hanging threads
-            if (!process.waitFor(15, TimeUnit.SECONDS)) {
+            if (!process.waitFor(20, TimeUnit.SECONDS)) {
                 process.destroy();
                 throw new RuntimeException("yt-dlp timed out");
             }
 
             if (jsonOutput.length() > 0) {
                 return parseJsonToDto(jsonOutput.toString());
-            } else {
-                // Log this to see what happened in the console
-                System.err.println("❌ yt-dlp returned NO JSON. Try running the command manually to debug.");
             }
-
         } catch (Exception e) {
-            System.err.println("yt-dlp execution failed: " + e.getMessage());
+            System.err.println("yt-dlp error: " + e.getMessage());
         }
         return null;
     }
@@ -78,69 +67,104 @@ public class YtDlpService {
         try {
             JsonNode root = objectMapper.readTree(json);
 
-            String title = root.path("title").asString("Unknown Title");
-            String channel = root.path("uploader").asString("Unknown Channel");
-            // Get the best thumbnail (last in the list usually, or just 'thumbnail' field)
-            String thumbnail = root.path("thumbnail").asString("");
+            String title = getSafeText(root.path("title"));
+            String channel = getSafeText(root.path("uploader"));
+            String thumbnail = getSafeText(root.path("thumbnail"));
 
-            List<VideoFormat> formats = new ArrayList<>();
+            List<InternalFormat> rawFormats = new ArrayList<>();
             JsonNode formatsNode = root.path("formats");
 
             if (formatsNode.isArray()) {
                 for (JsonNode f : formatsNode) {
-                    // Extract technical details
-                    String url = f.path("url").asString("");
-                    String ext = f.path("ext").asString("");
-                    String protocol = f.path("protocol").asString(""); // http, https, m3u8...
-                    
-                    // Filter: We want direct HTTP/HTTPS links (not m3u8 manifests)
+                    String url = getSafeText(f.path("url"));
+                    String ext = getSafeText(f.path("ext"));
+                    String protocol = getSafeText(f.path("protocol"));
+                    String formatId = getSafeText(f.path("format_id"));
+                    String vcodec = getSafeText(f.path("vcodec"));
+
+                    // Filter: We want direct HTTP/HTTPS links
                     if (!protocol.startsWith("http")) continue;
 
-                    // Extract Metadata
                     long fileSize = f.path("filesize").asLong(0);
                     if (fileSize == 0) fileSize = f.path("filesize_approx").asLong(0);
                     
-                    String note = f.path("format_note").asString("");
                     int height = f.path("height").asInt(0);
-                    String quality = (note != null && !note.isEmpty()) ? note : height + "p";
+                    String note = getSafeText(f.path("format_note"));
+                    String quality = (height > 0) ? height + "p" : (note.isEmpty() ? "Unknown" : note);
 
-                    // Check Streams
-                    boolean hasVideo = !f.path("vcodec").asString("").equals("none");
-                    boolean hasAudio = !f.path("acodec").asString("").equals("none");
+                    boolean hasVideo = !vcodec.equals("none") && !vcodec.isEmpty();
+                    boolean hasAudio = !getSafeText(f.path("acodec")).equals("none");
 
-                    // LOGIC: What do we display?
-                    // 1. MP4 Video with Audio (Standard 360p, 720p)
-                    // 2. High Res Video Only (1080p, 4K) -> User sees "Muted" icon
-                    // 3. Audio Only (m4a)
-                    // 4. WebM and other container formats as fallbacks
+                    // Extract Headers
+                    Map<String, String> headers = new HashMap<>();
+                    JsonNode headersNode = f.path("http_headers");
                     
-                    // Accept MP4, M4A, WebM, and other common containers
+                    if (headersNode.isObject()) {
+                        // Jackson 3.0 uses properties()
+                        for (Map.Entry<String, JsonNode> entry : headersNode.properties()) {
+                            headers.put(entry.getKey(), getSafeText(entry.getValue()));
+                        }
+                    }
+
                     if (ext.equals("mp4") || ext.equals("m4a") || ext.equals("webm") || 
                         ext.equals("mkv") || ext.equals("flv")) {
-                        formats.add(new VideoFormat(
-                            quality,
-                            ext.toUpperCase(),
-                            formatBytes(fileSize),
-                            url,
-                            hasAudio,
-                            hasVideo
+                        
+                        rawFormats.add(new InternalFormat(
+                            new VideoFormat(
+                                formatId, 
+                                quality, 
+                                ext.toUpperCase(), 
+                                formatBytes(fileSize), 
+                                url, 
+                                hasAudio, 
+                                hasVideo, 
+                                vcodec,
+                                headers
+                            ),
+                            height,
+                            fileSize
                         ));
                     }
                 }
             }
 
-            // Sort: Best quality first (Simplified sorting)
-            Collections.reverse(formats);
+            // Smart Sorting
+            List<VideoFormat> sortedFormats = new ArrayList<>();
+            rawFormats.stream().filter(f -> f.dto.hasVideo() && f.dto.hasAudio())
+                .sorted(Comparator.comparingInt((InternalFormat f) -> f.height).reversed())
+                .forEach(f -> sortedFormats.add(f.dto));
+            rawFormats.stream().filter(f -> f.dto.hasVideo() && !f.dto.hasAudio())
+                .sorted(Comparator.comparingInt((InternalFormat f) -> f.height).reversed())
+                .forEach(f -> sortedFormats.add(f.dto));
+            rawFormats.stream().filter(f -> !f.dto.hasVideo() && f.dto.hasAudio())
+                .sorted(Comparator.comparingLong((InternalFormat f) -> f.size).reversed())
+                .forEach(f -> sortedFormats.add(f.dto));
 
-            return new VideoInfo(title, channel, thumbnail, formats);
+            return new VideoInfo(title, channel, thumbnail, sortedFormats);
 
         } catch (Exception e) {
-            System.err.println("JSON Parsing error: " + e.getMessage());
+            System.err.println("JSON Parse Error: " + e.getMessage());
             return null;
         }
     }
 
-    // Helper: 1048576 -> "1.0 MB"
+    private String getSafeText(JsonNode node) {
+        if (node == null || node.isMissingNode()) return "";
+        // Try asText() if available (Jackson 2.x/3.x standard), fallback to toString() cleanup
+        try {
+            return node.asString(""); // Jackson standard
+        } catch (Exception e) {
+            // Fallback for weird versions
+            String s = node.toString(); 
+            if (s.startsWith("\"") && s.endsWith("\"")) {
+                return s.substring(1, s.length() - 1);
+            }
+            return s;
+        }
+    }
+
+    private record InternalFormat(VideoFormat dto, int height, long size) {}
+
     private String formatBytes(long bytes) {
         if (bytes <= 0) return "N/A";
         if (bytes < 1024) return bytes + " B";
