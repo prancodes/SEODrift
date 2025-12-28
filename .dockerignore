@@ -1,0 +1,9 @@
+target/
+*.cmd
+node_modules/
+dist/
+.git
+.idea
+.vscode
+.DS_Store
+help.md
