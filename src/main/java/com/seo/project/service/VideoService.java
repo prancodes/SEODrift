@@ -76,6 +76,9 @@ public class VideoService {
                 // Determine extension
                 String ext = outputFormat; // e.g. "mp4" or "m4a"
                 tempFile = Files.createTempFile("seodrift_" + token, "." + ext);
+
+                // ✅ FIX: Delete the empty file immediately so yt-dlp creates it fresh
+                Files.deleteIfExists(tempFile);
                 task.filePath = tempFile;
 
                 List<String> command = new ArrayList<>();
