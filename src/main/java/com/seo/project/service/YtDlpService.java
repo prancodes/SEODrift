@@ -7,69 +7,79 @@ import tools.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
+// import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+// import java.util.concurrent.TimeUnit;
 
 @Service
 public class YtDlpService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    // ✅ Use a Desktop User-Agent to ensure we get all formats (1080p, etc.)
+    // ✅ Use a Desktop User-Agent to ensure we get all formats
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36";
 
     public VideoInfo fetchVideoInfo(String videoUrl) {
+        Process process = null;
         try {
             ProcessBuilder builder = new ProcessBuilder(
                 "yt-dlp", 
-                "--no-warnings",
+                "--no-warnings",             // Critical: Keep stderr clean
+                "--no-playlist",             // Reduce JSON size (no playlist metadata)
+                "--ignore-config",           // Production safety: Ignore any ~/.config/yt-dlp/config
                 "--user-agent", USER_AGENT,
-                "-J",               // Dump JSON
-                "--no-playlist",
-                "--flat-playlist",
+                "-J",                        // Dump JSON
                 videoUrl
             );
 
-            builder.redirectErrorStream(true);
-            Process process = builder.start();
-
-            BufferedReader reader = new BufferedReader(
-                new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8)
-            );
+            // ✅ FIX 1: Do NOT merge stderr. We need pure JSON on stdout.
+            // Merging them risks corrupting the JSON if a warning slips through.
+            builder.redirectErrorStream(false); 
             
-            StringBuilder jsonOutput = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (!line.trim().startsWith("{")) continue; 
-                jsonOutput.append(line);
+            process = builder.start();
+
+            // ✅ FIX 2: Consume Stderr in background to prevent process hanging (Deadlock prevention)
+            consumeStream(process.getErrorStream());
+
+            // ✅ FIX 3: STREAM the JSON. Do not buffer it into a StringBuilder.
+            // Jackson can parse directly from the InputStream, using tiny buffers.
+            try (InputStream inputStream = process.getInputStream()) {
+                return parseJsonToDto(inputStream);
             }
 
-            if (!process.waitFor(20, TimeUnit.SECONDS)) {
-                process.destroy();
-                throw new RuntimeException("yt-dlp timed out");
-            }
-
-            if (jsonOutput.length() > 0) {
-                return parseJsonToDto(jsonOutput.toString());
-            }
         } catch (Exception e) {
             System.err.println("yt-dlp error: " + e.getMessage());
+            return null;
+        } finally {
+            if (process != null && process.isAlive()) {
+                process.destroy();
+            }
         }
-        return null;
     }
 
-    private VideoInfo parseJsonToDto(String json) {
+    // Helper to drain stderr without blocking main thread
+    private void consumeStream(InputStream stream) {
+        new Thread(() -> {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
+                while (reader.readLine() != null) { /* Ignore stderr or log if needed */ }
+            } catch (Exception ignored) {}
+        }).start();
+    }
+
+    // ✅ Updated Signature: Accepts InputStream instead of String
+    private VideoInfo parseJsonToDto(InputStream inputStream) {
         try {
-            JsonNode root = objectMapper.readTree(json);
+            // ✅ Streaming Parse: Reads tokens one by one. huge memory savings.
+            JsonNode root = objectMapper.readTree(inputStream);
 
             String title = getSafeText(root.path("title"));
             String channel = getSafeText(root.path("uploader"));
-            String thumbnail = getSafeText(root.path("thumbnail"));
+            String thumbnail = getSafeText(root.path("thumbnail")); // yt-dlp -J usually has high-res thumbnails
 
             List<InternalFormat> rawFormats = new ArrayList<>();
             JsonNode formatsNode = root.path("formats");
@@ -100,10 +110,10 @@ public class YtDlpService {
                     JsonNode headersNode = f.path("http_headers");
                     
                     if (headersNode.isObject()) {
-                        // Jackson 3.0 uses properties()
-                        for (Map.Entry<String, JsonNode> entry : headersNode.properties()) {
-                            headers.put(entry.getKey(), getSafeText(entry.getValue()));
-                        }
+                         // Jackson 3.0 compatible iteration
+                         headersNode.properties().forEach(entry -> 
+                            headers.put(entry.getKey(), getSafeText(entry.getValue()))
+                         );
                     }
 
                     if (ext.equals("mp4") || ext.equals("m4a") || ext.equals("webm") || 
@@ -130,12 +140,15 @@ public class YtDlpService {
 
             // Smart Sorting
             List<VideoFormat> sortedFormats = new ArrayList<>();
+            // Prefer high res video+audio
             rawFormats.stream().filter(f -> f.dto.hasVideo() && f.dto.hasAudio())
                 .sorted(Comparator.comparingInt((InternalFormat f) -> f.height).reversed())
                 .forEach(f -> sortedFormats.add(f.dto));
+            // Then video only
             rawFormats.stream().filter(f -> f.dto.hasVideo() && !f.dto.hasAudio())
                 .sorted(Comparator.comparingInt((InternalFormat f) -> f.height).reversed())
                 .forEach(f -> sortedFormats.add(f.dto));
+            // Then audio only (sorted by size approx quality)
             rawFormats.stream().filter(f -> !f.dto.hasVideo() && f.dto.hasAudio())
                 .sorted(Comparator.comparingLong((InternalFormat f) -> f.size).reversed())
                 .forEach(f -> sortedFormats.add(f.dto));
@@ -148,9 +161,9 @@ public class YtDlpService {
         }
     }
 
+    // Keep helper methods (getSafeText, formatBytes, InternalFormat record) as they were
     private String getSafeText(JsonNode node) {
         if (node == null || node.isMissingNode()) return "";
-        // Try asText() if available (Jackson 2.x/3.x standard), fallback to toString() cleanup
         try {
             return node.asString(""); // Jackson standard
         } catch (Exception e) {
