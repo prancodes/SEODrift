@@ -21,7 +21,7 @@ public class YtDlpService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     // ✅ Use a Desktop User-Agent to ensure we get all formats (1080p, etc.)
-    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36";
+    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36";
 
     public VideoInfo fetchVideoInfo(String videoUrl) {
         try {
