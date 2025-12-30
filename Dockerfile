@@ -41,7 +41,12 @@ COPY --from=frontend /app/src/main/resources/static/dist ./src/main/resources/st
 RUN ./mvnw clean package -DskipTests
 
 # ==========================================
-# STAGE 3: Production Runtime
+# STAGE 3: Get Deno (Critical Fix)
+# ==========================================
+FROM denoland/deno:bin AS deno
+
+# ==========================================
+# STAGE 4: Production Runtime
 # ==========================================
 FROM eclipse-temurin:25-jre-noble
 WORKDIR /app
@@ -66,16 +71,19 @@ RUN curl -L https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-stati
 RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp && \
     chmod a+rx /usr/local/bin/yt-dlp
 
-# 4. Create app directory and downloads folder
+# 4. ✅ INSTALL DENO (Required for BotGuard)
+COPY --from=deno /deno /usr/local/bin/deno
+
+# 5. Create app directory and downloads folder
 RUN mkdir -p /app/downloads && \
     groupadd -r spring && useradd -r -g spring spring && \
     chown -R spring:spring /app
 
-# 5. Copy Application
+# 6. Copy Application
 COPY --from=backend --chown=spring:spring /app/target/*.jar app.jar
 USER spring:spring
 
-# 6. Set environment - Production Profile
+# 7. Set environment - Production Profile
 ENV SPRING_PROFILES_ACTIVE=prod
 ENV PORT=8080
 EXPOSE 8080
