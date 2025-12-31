@@ -11,7 +11,7 @@ RUN npm ci
 # Copy configuration
 COPY vite.config.js postcss.config.mjs ./
 
-# ✅ CRITICAL FIX: Copy BOTH CSS and Templates so Tailwind can scan the HTML
+# ✅ Copy BOTH CSS and Templates so Tailwind can scan the HTML
 COPY src/main/resources/static/css ./src/main/resources/static/css
 COPY src/main/resources/templates ./src/main/resources/templates
 
@@ -69,7 +69,8 @@ RUN curl -L https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-stati
 
 # 3. Install Latest yt-dlp
 RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp && \
-    chmod a+rx /usr/local/bin/yt-dlp
+    chmod a+rx /usr/local/bin/yt-dlp && \
+    yt-dlp --version  # Verify installation
 
 # 4. ✅ INSTALL DENO (Required for BotGuard)
 COPY --from=deno /deno /usr/local/bin/deno
