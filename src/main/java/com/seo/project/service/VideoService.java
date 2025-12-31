@@ -84,6 +84,7 @@ public class VideoService {
                 List<String> command = new ArrayList<>();
                 command.add("yt-dlp");
                 command.add("--no-warnings");
+                command.add("--force-ipv4"); // ✅ FIX: Force IPv4 for reliable downloads on Render
                 command.add("--newline"); // ✅ CRITICAL FIX: Forces real-time output for Java to read
                 command.add("--user-agent"); command.add(USER_AGENT);
                 

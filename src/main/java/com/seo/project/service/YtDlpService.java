@@ -32,6 +32,8 @@ public class YtDlpService {
                 "--no-warnings",             // Critical: Keep stderr clean
                 "--no-playlist",             // Reduce JSON size (no playlist metadata)
                 "--ignore-config",           // Production safety: Ignore any ~/.config/yt-dlp/config
+                "--force-ipv4",              // ✅ FIX: Force IPv4 to prevent timeouts on Render/Cloud (Fixes 502 Error)
+                "--socket-timeout", "15",    // ✅ FIX: Fail fast if YouTube is unresponsive
                 "--user-agent", USER_AGENT,
                 "-J",                        // Dump JSON
                 videoUrl
