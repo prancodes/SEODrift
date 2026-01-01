@@ -22,11 +22,42 @@ public class YtDlpService {
     private final ObjectMapper objectMapper = new ObjectMapper();
     // ✅ FIXED: Switch to Android User-Agent to match the player_client=android bypass
     private static final String USER_AGENT = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.6723.102 Mobile Safari/537.36";
+    
+    // ✅ PRODUCTION FIX: Retry configuration for bot detection bypass
+    private static final int MAX_RETRIES = 5;
+    private static final long INITIAL_RETRY_DELAY_MS = 2000; // 2 seconds
 
     /**
      * ✅ FIXED: Added Android client emulation to bypass "Sign in to confirm you're not a bot"
+     * ✅ PRODUCTION FIX: Added retry logic with exponential backoff for bot detection
      */
     public VideoInfo fetchVideoInfo(String videoUrl) {
+        for (int attempt = 0; attempt < MAX_RETRIES; attempt++) {
+            VideoInfo result = fetchVideoInfoAttempt(videoUrl, attempt);
+            if (result != null) {
+                return result;
+            }
+            
+            // If not the last attempt, wait before retrying
+            if (attempt < MAX_RETRIES - 1) {
+                long delayMs = INITIAL_RETRY_DELAY_MS * (long) Math.pow(2, attempt);
+                System.out.println("Retry attempt " + (attempt + 2) + "/" + MAX_RETRIES + " after " + delayMs + "ms");
+                try {
+                    Thread.sleep(delayMs);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return null;
+                }
+            }
+        }
+        System.err.println("All retry attempts exhausted for: " + videoUrl);
+        return null;
+    }
+
+    /**
+     * ✅ PRODUCTION FIX: Single attempt to fetch video info with bot detection bypass
+     */
+    private VideoInfo fetchVideoInfoAttempt(String videoUrl, int attemptNumber) {
         Process process = null;
         try {
             ProcessBuilder builder = new ProcessBuilder(
@@ -36,15 +67,28 @@ public class YtDlpService {
                 "--ignore-config",           // Production safety: Ignore any ~/.config/yt-dlp/config
                 "--force-ipv4",              // ✅ FIX: Force IPv4 to prevent timeouts on Render/Cloud
                 "--socket-timeout", "30",    // ✅ INCREASED: 30 seconds for slow networks
-                "--retries", "3",            // Retry 3 times on failure
-                "--fragment-retries", "3",   // Retry fragment fetching
+                "--retries", "2",            // Reduce internal retries (we handle retries externally)
+                "--fragment-retries", "2",   // Reduce fragment retries
                 "--http-chunk-size", "10485760", // 10MB chunks for large downloads
-                // ✅ CRITICAL BYPASS: Force YouTube to treat this as an Android App request
-                "--extractor-args", "youtube:player_client=android", 
+                "--extractor-args", "youtube:player_client=android&hl=en", // ✅ Android client + language
                 "--user-agent", USER_AGENT,
-                "-J",                        // Dump JSON
-                videoUrl
+                "--encoding", "utf-8"        // ✅ PRODUCTION FIX: Explicit encoding for stability
             );
+            
+            // ✅ PRODUCTION FIX: Add cookies file if it exists (for YouTube authentication)
+            String cookiesFile = getCookiesPath();
+            java.nio.file.Path cookiesPath = java.nio.file.Paths.get(cookiesFile);
+            
+            if (java.nio.file.Files.exists(cookiesPath)) {
+                builder.command().add("--cookies");
+                builder.command().add(cookiesFile);
+                System.out.println("Using cookies from: " + cookiesFile);
+            } else if (attemptNumber == 0) {
+                System.out.println("⚠️  WARNING: Cookies file not found. For production, consider mounting YouTube cookies to bypass bot detection.");
+            }
+
+            // ✅ PRODUCTION FIX: Add better headers to avoid bot detection
+            builder.command().add("-J");    // Dump JSON
 
             // Do NOT merge stderr. We need pure JSON on stdout.
             builder.redirectErrorStream(false); 
@@ -52,7 +96,7 @@ public class YtDlpService {
             process = builder.start();
 
             // Consume Stderr in background to prevent process hanging (Deadlock prevention)
-            consumeStream(process.getErrorStream());
+            consumeStream(process.getErrorStream(), attemptNumber);
 
             // STREAM the JSON. Do not buffer it into a StringBuilder.
             try (InputStream inputStream = process.getInputStream()) {
@@ -61,8 +105,8 @@ public class YtDlpService {
                 // Wait for process to complete
                 int exitCode = process.waitFor();
                 if (exitCode != 0) {
-                    System.err.println("yt-dlp exit code: " + exitCode);
-                    return result; // Still return what we got
+                    System.err.println("yt-dlp exit code: " + exitCode + " (attempt " + (attemptNumber + 1) + "/" + MAX_RETRIES + ")");
+                    return null; // Return null to trigger retry
                 }
                 
                 return result;
@@ -70,10 +114,10 @@ public class YtDlpService {
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            System.err.println("yt-dlp interrupted: " + e.getMessage());
+            System.err.println("yt-dlp interrupted (attempt " + (attemptNumber + 1) + "/" + MAX_RETRIES + "): " + e.getMessage());
             return null;
         } catch (Exception e) {
-            System.err.println("yt-dlp error: " + e.getMessage());
+            System.err.println("yt-dlp error (attempt " + (attemptNumber + 1) + "/" + MAX_RETRIES + "): " + e.getMessage());
             e.printStackTrace();
             return null;
         } finally {
@@ -84,13 +128,15 @@ public class YtDlpService {
     }
 
     // Helper to drain stderr without blocking main thread
-    private void consumeStream(InputStream stream) {
+    private void consumeStream(InputStream stream, int attemptNumber) {
         new Thread(() -> {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    // Log only errors, suppress warnings
-                    if (line.contains("[error]") || line.contains("ERROR")) {
+                    // Log bot detection errors for debugging
+                    if (line.contains("Sign in to confirm")) {
+                        System.err.println("🤖 BOT DETECTION (attempt " + (attemptNumber + 1) + "/" + MAX_RETRIES + "): " + line);
+                    } else if (line.contains("[error]") || line.contains("ERROR")) {
                         System.err.println("yt-dlp stderr: " + line);
                     }
                 }
@@ -254,5 +300,20 @@ public class YtDlpService {
         int exp = (int) (Math.log(bytes) / Math.log(1024));
         String pre = "KMGTPE".charAt(exp - 1) + "";
         return String.format("%.1f %sB", bytes / Math.pow(1024, exp), pre);
+    }
+
+    /**
+     * ✅ Helper method to determine the correct cookies file path.
+     * Checks for the Render secret path first, then falls back to a non-existent local path
+     * to safely skip authentication on localhost.
+     */
+    private String getCookiesPath() {
+        // 1. Production: Check Render Secret Path
+        if (java.nio.file.Files.exists(java.nio.file.Paths.get("/etc/secrets/cookies.txt"))) {
+            return "/etc/secrets/cookies.txt";
+        }
+        // 2. Local: Return a non-existent path so Files.exists() fails gracefully
+        // This prevents the "empty file" crash on localhost
+        return "/app/ignore_cookies"; 
     }
 }

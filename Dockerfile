@@ -72,19 +72,23 @@ RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o 
     chmod a+rx /usr/local/bin/yt-dlp && \
     yt-dlp --version  # Verify installation
 
-# 4. ✅ INSTALL DENO (Required for BotGuard)
+# 5. ✅ INSTALL DENO (Required for BotGuard)
 COPY --from=deno /deno /usr/local/bin/deno
 
-# 5. Create app directory and downloads folder
+# 6. Create app directory and downloads folder
 RUN mkdir -p /app/downloads && \
     groupadd -r spring && useradd -r -g spring spring && \
     chown -R spring:spring /app
 
-# 6. Copy Application
+# ✅ PRODUCTION FIX: Create empty cookies file for YouTube authentication
+# This allows mounting cookies.txt at runtime without breaking the build
+RUN touch /app/cookies.txt && chmod 644 /app/cookies.txt
+
+# 7. Copy Application
 COPY --from=backend --chown=spring:spring /app/target/*.jar app.jar
 USER spring:spring
 
-# 7. Set environment - Production Profile
+# 8. Set environment - Production Profile
 ENV SPRING_PROFILES_ACTIVE=prod
 ENV PORT=8080
 EXPOSE 8080
