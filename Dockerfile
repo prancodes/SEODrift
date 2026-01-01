@@ -89,4 +89,6 @@ ENV SPRING_PROFILES_ACTIVE=prod
 ENV PORT=8080
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# ✅ FIXED: Added Heap Limits to prevent OOM in 512MB Container
+# -Xmx300m: Max Heap 300MB (leaves ~200MB for yt-dlp + OS)
+ENTRYPOINT ["java", "-Xmx300m", "-Xss512k", "-jar", "app.jar"]

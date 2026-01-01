@@ -2,7 +2,8 @@ package com.seo.project.service;
 
 import com.seo.project.dto.VideoFormat;
 import com.seo.project.dto.VideoInfo;
-import tools.jackson.databind.JsonNode;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import tools.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
@@ -103,74 +104,47 @@ public class YtDlpService {
      * ✅ FIXED: More robust JSON parsing with better error handling
      * - Handles incomplete JSON gracefully
      * - Better validation of format data
-     * - Improved memory efficiency
+     * - Improved memory efficiency via Streaming API
      */
     private VideoInfo parseJsonToDto(InputStream inputStream) {
-        try {
-            // Streaming Parse: Reads tokens one by one. Huge memory savings.
-            JsonNode root = objectMapper.readTree(inputStream);
+        String title = "Unknown Title";
+        String channel = "Unknown Channel";
+        String thumbnail = "";
+        List<InternalFormat> rawFormats = new ArrayList<>();
 
-            String title = getSafeText(root.path("title"));
-            String channel = getSafeText(root.path("uploader"));
-            String thumbnail = getSafeText(root.path("thumbnail"));
+        try (JsonParser parser = objectMapper.createParser(inputStream)) {
+            // Must start with an Object
+            if (parser.nextToken() != JsonToken.START_OBJECT) {
+                return null;
+            }
 
-            List<InternalFormat> rawFormats = new ArrayList<>();
-            JsonNode formatsNode = root.path("formats");
+            // Loop through top-level fields
+            while (parser.nextToken() != JsonToken.END_OBJECT) {
+                String fieldName = parser.currentName();
+                parser.nextToken(); // Move to value
 
-            if (formatsNode.isArray()) {
-                for (JsonNode f : formatsNode) {
-                    String url = getSafeText(f.path("url"));
-                    String ext = getSafeText(f.path("ext"));
-                    String protocol = getSafeText(f.path("protocol"));
-                    String formatId = getSafeText(f.path("format_id"));
-                    String vcodec = getSafeText(f.path("vcodec"));
-
-                    // Filter: We want direct HTTP/HTTPS links
-                    if (url.isEmpty() || protocol.isEmpty() || !protocol.startsWith("http")) continue;
-
-                    long fileSize = f.path("filesize").asLong(0);
-                    if (fileSize == 0) fileSize = f.path("filesize_approx").asLong(0);
-                    
-                    int height = f.path("height").asInt(0);
-                    String note = getSafeText(f.path("format_note"));
-                    String quality = (height > 0) ? height + "p" : (note.isEmpty() ? "Unknown" : note);
-
-                    boolean hasVideo = !vcodec.equals("none") && !vcodec.isEmpty();
-                    boolean hasAudio = !getSafeText(f.path("acodec")).equals("none");
-
-                    // Skip formats with neither video nor audio
-                    if (!hasVideo && !hasAudio) continue;
-
-                    // Extract Headers
-                    Map<String, String> headers = new HashMap<>();
-                    JsonNode headersNode = f.path("http_headers");
-                    
-                    if (headersNode.isObject()) {
-                        headersNode.properties().forEach(entry -> 
-                            headers.put(entry.getKey(), getSafeText(entry.getValue()))
-                        );
+                if ("title".equals(fieldName)) {
+                    title = parser.getValueAsString("Unknown Title");
+                } else if ("uploader".equals(fieldName)) {
+                    channel = parser.getValueAsString("Unknown Channel");
+                } else if ("thumbnail".equals(fieldName)) {
+                    thumbnail = parser.getValueAsString("");
+                } else if ("formats".equals(fieldName)) {
+                    if (parser.currentToken() == JsonToken.START_ARRAY) {
+                        while (parser.nextToken() != JsonToken.END_ARRAY) {
+                            if (parser.currentToken() == JsonToken.START_OBJECT) {
+                                InternalFormat fmt = parseFormat(parser);
+                                if (fmt != null) rawFormats.add(fmt);
+                            } else {
+                                parser.skipChildren();
+                            }
+                        }
+                    } else {
+                        parser.skipChildren();
                     }
-
-                    // ✅ FIXED: Support more container formats for large downloads
-                    if (ext.equals("mp4") || ext.equals("m4a") || ext.equals("webm") || 
-                        ext.equals("mkv") || ext.equals("flv") || ext.equals("mov")) {
-                        
-                        rawFormats.add(new InternalFormat(
-                            new VideoFormat(
-                                formatId, 
-                                quality, 
-                                ext.toUpperCase(), 
-                                formatBytes(fileSize), 
-                                url, 
-                                hasAudio, 
-                                hasVideo, 
-                                vcodec,
-                                headers
-                            ),
-                            height,
-                            fileSize
-                        ));
-                    }
+                } else {
+                    // Skip unknown fields efficiently without loading them
+                    parser.skipChildren();
                 }
             }
 
@@ -204,18 +178,81 @@ public class YtDlpService {
         }
     }
 
-    // Keep helper methods (getSafeText, formatBytes, InternalFormat record)
-    private String getSafeText(JsonNode node) {
-        if (node == null || node.isMissingNode()) return "";
-        try {
-            return node.asString("").trim();
-        } catch (Exception e) {
-            String s = node.toString(); 
-            if (s.startsWith("\"") && s.endsWith("\"")) {
-                return s.substring(1, s.length() - 1);
+    private InternalFormat parseFormat(JsonParser parser) throws Exception {
+        String url = "";
+        String ext = "";
+        String protocol = "";
+        String formatId = "";
+        String vcodec = "none";
+        String acodec = "none";
+        String formatNote = "";
+        long fileSize = 0;
+        long fileSizeApprox = 0;
+        int height = 0;
+        Map<String, String> headers = new HashMap<>();
+
+        while (parser.nextToken() != JsonToken.END_OBJECT) {
+            String name = parser.currentName();
+            parser.nextToken(); // Move to value
+
+            if ("url".equals(name)) url = parser.getValueAsString("");
+            else if ("ext".equals(name)) ext = parser.getValueAsString("");
+            else if ("protocol".equals(name)) protocol = parser.getValueAsString("");
+            else if ("format_id".equals(name)) formatId = parser.getValueAsString("");
+            else if ("vcodec".equals(name)) vcodec = parser.getValueAsString("none");
+            else if ("acodec".equals(name)) acodec = parser.getValueAsString("none");
+            else if ("format_note".equals(name)) formatNote = parser.getValueAsString("");
+            else if ("filesize".equals(name)) fileSize = parser.getValueAsLong(0);
+            else if ("filesize_approx".equals(name)) fileSizeApprox = parser.getValueAsLong(0);
+            else if ("height".equals(name)) height = parser.getValueAsInt(0);
+            else if ("http_headers".equals(name)) {
+                if (parser.currentToken() == JsonToken.START_OBJECT) {
+                    while (parser.nextToken() != JsonToken.END_OBJECT) {
+                        String hName = parser.currentName();
+                        parser.nextToken();
+                        headers.put(hName, parser.getValueAsString(""));
+                    }
+                } else {
+                    parser.skipChildren();
+                }
+            } else {
+                parser.skipChildren();
             }
-            return s;
         }
+
+        // Filter: We want direct HTTP/HTTPS links
+        if (url.isEmpty() || protocol.isEmpty() || !protocol.startsWith("http")) return null;
+
+        long finalSize = (fileSize > 0) ? fileSize : fileSizeApprox;
+        String quality = (height > 0) ? height + "p" : (formatNote.isEmpty() ? "Unknown" : formatNote);
+
+        boolean hasVideo = !vcodec.equals("none") && !vcodec.isEmpty();
+        boolean hasAudio = !acodec.equals("none") && !acodec.isEmpty();
+
+        // Skip formats with neither video nor audio
+        if (!hasVideo && !hasAudio) return null;
+
+        // ✅ FIXED: Support more container formats for large downloads
+        if (ext.equals("mp4") || ext.equals("m4a") || ext.equals("webm") || 
+            ext.equals("mkv") || ext.equals("flv") || ext.equals("mov")) {
+            
+            return new InternalFormat(
+                new VideoFormat(
+                    formatId, 
+                    quality, 
+                    ext.toUpperCase(), 
+                    formatBytes(finalSize), 
+                    url, 
+                    hasAudio, 
+                    hasVideo, 
+                    vcodec,
+                    headers
+                ),
+                height,
+                finalSize
+            );
+        }
+        return null;
     }
 
     private record InternalFormat(VideoFormat dto, int height, long size) {}
