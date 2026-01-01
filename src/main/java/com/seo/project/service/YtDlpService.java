@@ -20,14 +20,11 @@ import java.util.Map;
 public class YtDlpService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    // ✅ Use a Desktop User-Agent to ensure we get all formats
-    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36";
+    // ✅ FIXED: Switch to Android User-Agent to match the player_client=android bypass
+    private static final String USER_AGENT = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.6723.102 Mobile Safari/537.36";
 
     /**
-     * ✅ FIXED: Enhanced metadata fetching with better timeout handling
-     * - Increased socket timeout for slow networks
-     * - Better error handling and fallback
-     * - More robust JSON parsing
+     * ✅ FIXED: Added Android client emulation to bypass "Sign in to confirm you're not a bot"
      */
     public VideoInfo fetchVideoInfo(String videoUrl) {
         Process process = null;
@@ -38,10 +35,12 @@ public class YtDlpService {
                 "--no-playlist",             // Reduce JSON size (no playlist metadata)
                 "--ignore-config",           // Production safety: Ignore any ~/.config/yt-dlp/config
                 "--force-ipv4",              // ✅ FIX: Force IPv4 to prevent timeouts on Render/Cloud
-                "--socket-timeout", "30",    // ✅ INCREASED: 30 seconds (was 15) for slow networks
+                "--socket-timeout", "30",    // ✅ INCREASED: 30 seconds for slow networks
                 "--retries", "3",            // Retry 3 times on failure
                 "--fragment-retries", "3",   // Retry fragment fetching
                 "--http-chunk-size", "10485760", // 10MB chunks for large downloads
+                // ✅ CRITICAL BYPASS: Force YouTube to treat this as an Android App request
+                "--extractor-args", "youtube:player_client=android", 
                 "--user-agent", USER_AGENT,
                 "-J",                        // Dump JSON
                 videoUrl
@@ -56,7 +55,6 @@ public class YtDlpService {
             consumeStream(process.getErrorStream());
 
             // STREAM the JSON. Do not buffer it into a StringBuilder.
-            // Jackson can parse directly from the InputStream, using tiny buffers.
             try (InputStream inputStream = process.getInputStream()) {
                 VideoInfo result = parseJsonToDto(inputStream);
                 
@@ -101,10 +99,7 @@ public class YtDlpService {
     }
 
     /**
-     * ✅ FIXED: More robust JSON parsing with better error handling
-     * - Handles incomplete JSON gracefully
-     * - Better validation of format data
-     * - Improved memory efficiency via Streaming API
+     * ✅ FIXED: More robust JSON parsing
      */
     private VideoInfo parseJsonToDto(InputStream inputStream) {
         String title = "Unknown Title";
@@ -143,12 +138,11 @@ public class YtDlpService {
                         parser.skipChildren();
                     }
                 } else {
-                    // Skip unknown fields efficiently without loading them
                     parser.skipChildren();
                 }
             }
 
-            // Smart Sorting: Prefer high res video+audio, then video only, then audio only
+            // Smart Sorting
             List<VideoFormat> sortedFormats = new ArrayList<>();
             
             // Prefer high res video+audio
@@ -163,7 +157,7 @@ public class YtDlpService {
                 .sorted(Comparator.comparingInt((InternalFormat f) -> f.height).reversed())
                 .forEach(f -> sortedFormats.add(f.dto));
             
-            // Then audio only (sorted by size approx quality)
+            // Then audio only
             rawFormats.stream()
                 .filter(f -> !f.dto.hasVideo() && f.dto.hasAudio())
                 .sorted(Comparator.comparingLong((InternalFormat f) -> f.size).reversed())
@@ -220,7 +214,6 @@ public class YtDlpService {
             }
         }
 
-        // Filter: We want direct HTTP/HTTPS links
         if (url.isEmpty() || protocol.isEmpty() || !protocol.startsWith("http")) return null;
 
         long finalSize = (fileSize > 0) ? fileSize : fileSizeApprox;
@@ -229,10 +222,8 @@ public class YtDlpService {
         boolean hasVideo = !vcodec.equals("none") && !vcodec.isEmpty();
         boolean hasAudio = !acodec.equals("none") && !acodec.isEmpty();
 
-        // Skip formats with neither video nor audio
         if (!hasVideo && !hasAudio) return null;
 
-        // ✅ FIXED: Support more container formats for large downloads
         if (ext.equals("mp4") || ext.equals("m4a") || ext.equals("webm") || 
             ext.equals("mkv") || ext.equals("flv") || ext.equals("mov")) {
             

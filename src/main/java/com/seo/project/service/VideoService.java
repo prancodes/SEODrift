@@ -24,7 +24,8 @@ public class VideoService {
 
     private final WebClient webClient;
     private final YtDlpService ytDlpService;
-    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36";
+    // ✅ FIXED: Updated to Android User-Agent
+    private static final String USER_AGENT = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.6723.102 Mobile Safari/537.36";
 
     // Task Store
     private final Map<String, DownloadTask> tasks = new ConcurrentHashMap<>();
@@ -65,10 +66,6 @@ public class VideoService {
 
     /**
      * ✅ FIXED: Unified Background Downloader for large Video & Audio files
-     * - Optimized yt-dlp parameters for heavy downloads
-     * - Better error handling and status reporting
-     * - Support for resumable downloads
-     * - Memory-efficient streaming
      */
     public void startMergeTask(String token, String originalUrl, String formatId, String outputFormat, boolean isAudio) {
         DownloadTask task = new DownloadTask();
@@ -97,11 +94,14 @@ public class VideoService {
                 command.add("5");
                 command.add("--fragment-retries");     // Retry fragment fetching for HLS/DASH
                 command.add("5");
-                command.add("--http-chunk-size");      // ✅ FIXED: 25MB chunks for large downloads (was default 10MB)
+                command.add("--http-chunk-size");      // ✅ FIXED: 25MB chunks for large downloads
                 command.add("26214400");               // 25MB in bytes
                 command.add("--buffer-size");          // Increase buffer size
                 command.add("20480");                  // 20KB buffer
                 command.add("--newline");              // Forces real-time output for Java to read
+                // ✅ CRITICAL BYPASS: Force YouTube to treat this as an Android App request
+                command.add("--extractor-args");       
+                command.add("youtube:player_client=android");
                 command.add("--user-agent");
                 command.add(USER_AGENT);
                 
@@ -202,11 +202,6 @@ public class VideoService {
 
     // --- STANDARD STREAMING (Backup/Direct Link) ---
     
-    /**
-     * ✅ FIXED: Stream large video files without loading into memory
-     * - Uses reactive Flux for non-blocking I/O
-     * - Proper timeout and error handling
-     */
     public ResponseEntity<Flux<DataBuffer>> streamVideo(String remoteUrl, String filename, Map<String, String> customHeaders) {
         try {
             var requestSpec = webClient.get().uri(URI.create(remoteUrl));
@@ -221,6 +216,7 @@ public class VideoService {
                 }
             }
             
+            // Ensure Android UA is used here too if not provided
             if (!uaSet) requestSpec.header(HttpHeaders.USER_AGENT, USER_AGENT);
             
             Flux<DataBuffer> videoStream = requestSpec.retrieve()
