@@ -20,9 +20,9 @@ import java.util.Map;
 public class YtDlpService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    // ✅ FIXED: Switch to Android User-Agent to match the player_client=android bypass
-    private static final String USER_AGENT = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.6723.102 Mobile Safari/537.36";
-    
+    // Updated to match a Desktop Browser (Windows/Chrome)
+    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+
     // ✅ PRODUCTION FIX: Retry configuration for bot detection bypass
     private static final int MAX_RETRIES = 5;
     private static final long INITIAL_RETRY_DELAY_MS = 2000; // 2 seconds
@@ -70,7 +70,7 @@ public class YtDlpService {
                 "--retries", "2",            // Reduce internal retries (we handle retries externally)
                 "--fragment-retries", "2",   // Reduce fragment retries
                 "--http-chunk-size", "10485760", // 10MB chunks for large downloads
-                "--extractor-args", "youtube:player_client=android&hl=en", // ✅ Android client + language
+                // "--extractor-args", "youtube:player_client=android&hl=en", // ✅ Android client + language
                 "--user-agent", USER_AGENT,
                 "--encoding", "utf-8"        // ✅ PRODUCTION FIX: Explicit encoding for stability
             );

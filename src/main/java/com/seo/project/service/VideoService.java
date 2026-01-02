@@ -25,9 +25,9 @@ public class VideoService {
 
     private final WebClient webClient;
     private final YtDlpService ytDlpService;
-    // ✅ FIXED: Updated to Android User-Agent
-    private static final String USER_AGENT = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.6723.102 Mobile Safari/537.36";
-    
+    // Updated to match a Desktop Browser (Windows/Chrome)
+    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+
     // ✅ PRODUCTION FIX: Retry configuration
     private static final int MAX_RETRIES = 5;
     private static final long INITIAL_RETRY_DELAY_MS = 3000; // 3 seconds for downloads (longer than fetch)
@@ -145,8 +145,8 @@ public class VideoService {
             command.add("--encoding");
             command.add("utf-8");                  // ✅ PRODUCTION FIX: Explicit encoding
             // ✅ CRITICAL BYPASS: Force YouTube to treat this as an Android App request
-            command.add("--extractor-args");       
-            command.add("youtube:player_client=android&hl=en");
+            // command.add("--extractor-args");       
+            // command.add("youtube:player_client=android&hl=en");
             command.add("--user-agent");
             command.add(USER_AGENT);
             
