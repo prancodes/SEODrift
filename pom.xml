@@ -5,12 +5,12 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.0.1</version>
+		<version>4.0.2</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.seo</groupId>
 	<artifactId>SEODrift</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>SEODrift</name>
 	<description>A Spring Boot-based tool offering YouTube SEO tag generation, thumbnail fetching, and video downloading features.</description>
 	<url/>

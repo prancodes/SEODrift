@@ -8,10 +8,5 @@
     "name": "base.url",
     "type": "java.lang.String",
     "description": "Google API base URL for YouTube services."
-  },
-  {
-    "name": "app.public.url",
-    "type": "java.lang.String",
-    "description": "The public URL of the application used by the KeepAliveService."
   }
 ]}
