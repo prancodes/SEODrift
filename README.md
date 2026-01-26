@@ -1,27 +1,33 @@
 # 🎬 SEODrift
 
-> All-in-one toolkit to optimize tags, download thumbnails, and save videos for your YouTube content creation workflow.
+> All-in-one toolkit for SEO optimization: generate tags, grab thumbnails, and analyze video performance metrics.
 
-A modern **Spring Boot** application designed to streamline YouTube content creators' workflow with powerful SEO and video management tools.
+A modern **Spring Boot** application designed to streamline your workflow with powerful SEO optimization and analytics tools.
 
 ---
 
 ## ✨ Features
 
 ### 🏷️ **SEO Tags Generator**
-- Extract high-ranking tags from competitor videos or generate new ones based on keywords
-- Optimize your video metadata for better YouTube visibility
-- Analyze and suggest tags to boost your video's searchability
+- Extract high-ranking tags from competitor videos or generate optimized ones based on keywords
+- Analyze video metadata for better YouTube visibility
+- Copy tags instantly for use in your video metadata
+- View related videos with suggested tags for inspiration
 
 ### 🖼️ **Thumbnail Grabber**
 - Download high-quality thumbnails from any YouTube video instantly
-- Multiple quality options: HD, SD, and MaxRes resolution
+- Multiple quality options: MaxRes (1280x720), HD (720x480), SD (480x360), and more
 - Perfect for inspiration, analysis, or content research
+- Direct download with proper filename handling
 
-### 📥 **Video Downloader**
-- Download YouTube videos in multiple formats and quality options
-- Support for various resolutions and audio/video combinations
-- Streamline your content archival and backup workflow
+### 📊 **Video Intelligence Dashboard**
+- Deep-dive analytics: view counts, likes, comments, and hidden dislike counts
+- Sentiment analysis showing audience approval percentage
+- Comprehensive SEO health audit with actionable recommendations
+- Engagement rate calculations
+- Title optimization analysis
+- Tag presence and keyword synergy detection
+- Description quality review
 
 ---
 
@@ -29,21 +35,24 @@ A modern **Spring Boot** application designed to streamline YouTube content crea
 
 ### Backend
 - **Java 25** - Latest Java version for modern language features
-- **Spring Boot 4.0.0** - Production-ready framework
-- **Spring MVC** - Web framework for request handling
-- **Spring WebFlux** - Reactive programming support
-- **Thymeleaf** - Server-side template engine
-- **Jackson** - JSON data binding and processing
+- **Spring Boot 4.0.2** - Production-ready framework
+- **Spring MVC** - Traditional web framework for request handling
+- **Spring WebFlux** - Reactive programming support for non-blocking I/O
+- **Thymeleaf** - Server-side template engine with fragment support
+- **Jackson 3.0.0** - JSON data binding and processing
 
 ### Frontend
-- **Tailwind CSS 4.1.17** - Utility-first CSS framework
-- **PostCSS 8.5.6** - CSS transformations
-- **Vite 7.2.6** - Lightning-fast build tool
+- **Tailwind CSS 4.1.17** - Utility-first CSS framework with dark mode
+- **PostCSS 8.5.6** - CSS transformations and processing
+- **Vite 7.2.6** - Lightning-fast build tool for frontend assets
+- **Phosphor Icons** - Beautiful icon library
 
-### Build Tools
-- **Maven** - Dependency management and project build
+### Build & DevOps
+- **Maven 3.9.11** - Dependency management and project build
 - **Lombok** - Reduce boilerplate code
 - **Spring DevTools** - Hot reload during development
+- **Docker** - Multi-stage containerization for production
+- **Docker Compose** - Local development environment
 
 ---
 
@@ -54,33 +63,59 @@ SEODrift/
 ├── src/
 │   ├── main/
 │   │   ├── java/com/seo/project/
-│   │   │   ├── SeoDriftApplication.java      # Spring Boot entry point
-│   │   │   └── Controller/
-│   │   │       └── WebController.java        # Web request handlers
+│   │   │   ├── SeoDriftApplication.java          # Spring Boot entry point
+│   │   │   ├── controller/
+│   │   │   │   ├── WebController.java            # Home page handler
+│   │   │   │   ├── TagsController.java           # Tags generator
+│   │   │   │   ├── ThumbnailController.java      # Thumbnail downloader
+│   │   │   │   └── AnalyticsController.java      # Video analytics
+│   │   │   ├── service/
+│   │   │   │   ├── TagsService.java              # Tags generation logic
+│   │   │   │   ├── ThumbnailService.java         # Thumbnail extraction
+│   │   │   │   ├── AnalyticsService.java         # Video analytics
+│   │   │   │   └── ApiService.java               # API configuration
+│   │   │   └── dto/
+│   │   │       ├── VideoTagsInfo.java            # Tags DTO
+│   │   │       ├── VideoAnalytics.java           # Analytics DTO
+│   │   │       ├── ThumbnailRequest.java         # Request model
+│   │   │       ├── ThumbnailOptions.java         # Thumbnail options
+│   │   │       └── TagsGeneratorResponse.java    # Response model
 │   │   └── resources/
-│   │       ├── application.properties        # Application configuration
+│   │       ├── application.properties            # Main configuration
+│   │       ├── application-dev.properties        # Development profile
+│   │       ├── application-prod.properties       # Production profile
 │   │       ├── static/
 │   │       │   ├── css/
-│   │       │   │   └── input.css            # Tailwind CSS input
-│   │       │   ├── js/                      # JavaScript assets
-│   │       │   └── dist/                    # Compiled CSS (generated)
+│   │       │   │   └── input.css                # Tailwind CSS input
+│   │       │   ├── js/
+│   │       │   │   ├── theme.js                 # Dark/light mode toggle
+│   │       │   │   └── copy.js                  # Copy to clipboard utility
+│   │       │   └── dist/
+│   │       │       └── styles.css               # Compiled CSS (generated)
 │   │       └── templates/
-│   │           ├── index.html               # Dashboard landing page
-│   │           ├── tags.html                # SEO tag generator page
-│   │           ├── thumbnail.html           # Thumbnail grabber page
-│   │           ├── video.html               # Video downloader page
+│   │           ├── index.html                   # Dashboard landing page
+│   │           ├── tags.html                    # SEO tags generator
+│   │           ├── thumbnail.html               # Thumbnail grabber
+│   │           ├── analytics.html               # Video analytics dashboard
 │   │           └── fragments/
-│   │               ├── layout.html          # Base layout template
-│   │               ├── navbar.html          # Navigation component
-│   │               └── footer.html          # Footer component
+│   │               ├── layout.html              # Base layout template
+│   │               ├── navbar.html              # Navigation component
+│   │               └── footer.html              # Footer component
 │   └── test/
 │       └── java/com/seo/project/
 │           └── SeoDriftApplicationTests.java
-├── pom.xml                                   # Maven configuration
-├── package.json                              # NPM configuration
-├── vite.config.js                           # Vite build configuration
-├── postcss.config.mjs                       # PostCSS configuration
-└── README.md                                # Project documentation
+├── .mvn/
+│   └── wrapper/
+│       └── maven-wrapper.properties
+├── pom.xml                                       # Maven configuration
+├── package.json                                  # NPM dependencies
+├── vite.config.js                               # Vite build configuration
+├── postcss.config.mjs                           # PostCSS configuration
+├── Dockerfile                                    # Multi-stage Docker build
+├── docker-compose.yml                           # Development environment
+├── .gitignore                                   # Git ignore rules
+├── .dockerignore                                # Docker ignore rules
+└── README.md                                    # Project documentation
 ```
 
 ---
@@ -88,10 +123,11 @@ SEODrift/
 ## ⚙️ Installation
 
 ### Prerequisites
-- **Java 25**
-- **Maven 3.6+**
-- **Node.js 18+** (for frontend assets)
-- **npm 9+**
+- **Java 25** - [Download](https://www.oracle.com/java/technologies/downloads/)
+- **Maven 3.6+** - [Download](https://maven.apache.org/download.cgi)
+- **Node.js 20+** - [Download](https://nodejs.org/)
+- **npm 9+** - (comes with Node.js)
+- **YouTube API Key** - [Get one](https://developers.google.com/youtube/registering_an_application)
 
 ### Setup Steps
 
@@ -101,18 +137,31 @@ SEODrift/
    cd SEODrift
    ```
 
-2. **Install Node dependencies** (for frontend build tools)
+2. **Create environment file**
+   ```bash
+   # Copy the example and fill in your API key
+   cp .env.example .env
+   ```
+   
+   Update `.env` with your YouTube API credentials:
+   ```env
+   YT_API_KEY=your_youtube_api_key_here
+   BASE_URL=https://www.googleapis.com/youtube/v3
+   ```
+
+3. **Install Node dependencies** (for frontend build tools)
    ```bash
    npm install
    ```
 
-3. **Build the project with Maven**
+4. **Build frontend assets**
    ```bash
-   ./mvnw clean package
+   npm run build
    ```
 
-4. **Run the application**
+5. **Build and run with Maven**
    ```bash
+   ./mvnw clean package
    ./mvnw spring-boot:run
    ```
 
@@ -122,24 +171,41 @@ The application will start on `http://localhost:8080` by default.
 
 ## 🛠️ Development
 
+### Local Development Setup
+
+1. **Install dependencies**
+   ```bash
+   npm install
+   ./mvnw dependency:go-offline
+   ```
+
+2. **Run in development mode**
+   ```bash
+   # Terminal 1: Watch CSS changes
+   npm run dev
+   
+   # Terminal 2: Run Spring Boot with hot reload
+   ./mvnw spring-boot:run
+   ```
+
 ### Building CSS Assets
-The project uses Tailwind CSS with Vite for fast CSS compilation:
+The project uses Tailwind CSS v4 with Vite for fast compilation:
 
 ```bash
-# Watch mode - Automatically rebuild CSS on changes
+# Watch mode - Automatically rebuild CSS on file changes
 npm run dev
 
-# Production build
+# Production build with optimization
 npm run build
 ```
 
-This compiles `src/main/resources/static/css/input.css` to `src/main/resources/static/dist/styles.css`.
+This processes `src/main/resources/static/css/input.css` and outputs to `src/main/resources/static/dist/styles.css`.
 
-### Hot Reload
-Spring DevTools is included for automatic restart during development:
-- Modify Java files → Automatic recompilation
-- Modify templates → Auto-refresh (use browser live reload)
-- Modify CSS → Rebuild with `npm run dev`
+### Features in Development
+- **Spring DevTools** - Automatic server restart on Java changes
+- **Hot CSS Reload** - CSS changes reflect immediately via Vite
+- **Template Caching Disabled** - Thymeleaf templates reload on change
+- **Debug Logging** - Enhanced logging for troubleshooting
 
 ### Running Tests
 ```bash
@@ -148,70 +214,99 @@ Spring DevTools is included for automatic restart during development:
 
 ---
 
-## 🌐 Usage
+## 🐳 Docker Deployment
 
-### Navigate to the Dashboard
-Open your browser and visit `http://localhost:8080` to see the main dashboard with three feature cards:
+### Build and Run with Docker Compose
 
-1. **SEO Tags Generator** (`/tags`)
-   - Enter a YouTube video URL or keywords
-   - Get optimized tag suggestions
-   - Copy tags for use in your video metadata
+```bash
+# Set environment variables
+export YT_API_KEY="your_api_key"
+export BASE_URL="https://www.googleapis.com/youtube/v3"
 
-2. **Thumbnail Grabber** (`/thumbnail`)
-   - Paste a YouTube video URL
-   - Download high-quality thumbnails
-   - Choose from HD, SD, or MaxRes options
+# Build and start the container
+docker-compose up --build
 
-3. **Video Downloader** (`/video`)
-   - Paste a YouTube video URL
-   - Select your preferred format and quality
-   - Download video files for offline access
+# Access the app
+open http://localhost:8080
+```
 
----
+### Dockerfile Details
+- **Stage 1**: Frontend build with Node.js and Vite
+- **Stage 2**: Backend build with Maven
+- **Stage 3**: Production runtime with optimized JRE
+- **Features**:
+  - Multi-stage build for minimal image size
+  - Non-root user for security
+  - Health check included
+  - JVM heap limits (300MB max)
 
-## 🏗️ Build Configuration
-
-### Maven (`pom.xml`)
-- **Group ID**: `com.seo`
-- **Artifact ID**: `SEODrift`
-- **Version**: `0.0.1-SNAPSHOT`
-- **Parent**: Spring Boot Starter Parent 4.0.0
-
-### Vite (`vite.config.js`)
-- Input: `src/main/resources/static/css/input.css`
-- Output: `src/main/resources/static/dist/styles.css`
-- Auto-cleanup of output directory
+### Environment Variables
+```env
+YT_API_KEY=your_youtube_api_key          # Required: YouTube Data API key
+BASE_URL=https://www.googleapis.com/youtube/v3  # YouTube API endpoint
+PORT=8080                                 # Server port
+SPRING_PROFILES_ACTIVE=prod              # Active profile (dev/prod)
+```
 
 ---
 
 ## 📦 Dependencies
 
-### Key Backend Dependencies
-- `spring-boot-starter-thymeleaf` - Template rendering
-- `spring-boot-starter-webflux` - Reactive web framework
-- `spring-boot-starter-webmvc` - Traditional web framework
-- `jackson-databind` - JSON processing
-- `spring-boot-devtools` - Development tooling
-- `projectlombok` - Boilerplate reduction
+### Backend Dependencies
+| Dependency | Version | Purpose |
+|------------|---------|---------|
+| Spring Boot Starter Web | 4.0.2 | Web framework |
+| Spring Boot Starter WebFlux | 4.0.2 | Reactive programming |
+| Spring Boot Starter Thymeleaf | 4.0.2 | Template engine |
+| Jackson Databind | 3.0.0 | JSON processing |
+| Spring Boot DevTools | 4.0.2 | Development tools |
+| Lombok | Latest | Boilerplate reduction |
 
-### Key Frontend Dependencies
-- `tailwindcss@4.1.17` - CSS framework
-- `vite@7.2.6` - Build tool
-- `postcss@8.5.6` - CSS processing
+### Frontend Dependencies
+| Package | Version | Purpose |
+|---------|---------|---------|
+| Tailwind CSS | 4.1.17 | Utility CSS framework |
+| Vite | 7.2.6 | Build tool |
+| PostCSS | 8.5.6 | CSS transformations |
+| @tailwindcss/postcss | 4.1.17 | Tailwind PostCSS plugin |
 
 ---
 
-## 🔗 Resources
+## 🤝 Contributing
+
+Contributions are welcome! Here's how:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 📚 Resources
 
 - [Spring Boot Documentation](https://spring.io/projects/spring-boot)
-- [Tailwind CSS Documentation](https://tailwindcss.com)
-- [Vite Documentation](https://vitejs.dev)
-- [Thymeleaf Documentation](https://www.thymeleaf.org)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [Vite Documentation](https://vitejs.dev/guide/)
+- [Thymeleaf Documentation](https://www.thymeleaf.org/)
+- [YouTube Data API](https://developers.google.com/youtube/v3)
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ---
 
 ## 👨‍💻 Author
 
 **Pranjal Singh** - [@prancodes](https://github.com/prancodes)
+
+---
+
+## ⭐ Show Your Support
+
+If you find this project helpful, please consider giving it a star on GitHub!
 

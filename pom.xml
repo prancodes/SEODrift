@@ -12,7 +12,7 @@
 	<artifactId>SEODrift</artifactId>
 	<version>1.0.0</version>
 	<name>SEODrift</name>
-	<description>A Spring Boot-based tool offering YouTube SEO tag generation, thumbnail fetching, and video downloading features.</description>
+	<description>A Spring Boot-based tool offering YouTube SEO tag generation, thumbnail fetching, and video analytics features.</description>
 	<url/>
 	<licenses>
 		<license/>

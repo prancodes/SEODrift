@@ -17,10 +17,10 @@
     "YouTube SEO",
     "tag generation",
     "thumbnail fetching",
-    "video downloading"
+    "video analytics"
   ],
   "author": "Pranjal Singh",
-  "license": "ISC",
+  "license": "MIT",
   "type": "commonjs",
   "bugs": {
     "url": "https://github.com/prancodes/SEODrift/issues"
