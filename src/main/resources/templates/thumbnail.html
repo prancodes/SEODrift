@@ -1,159 +1,156 @@
 <!DOCTYPE html>
 <html th:replace="~{fragments/layout :: layout(title='Thumbnail Grabber', content=~{::section})}">
 <body>
-<section class="max-w-4xl mx-auto">
-    <div class="card-base p-8 md:p-10">
-        <div class="mb-8 border-b border-gray-100 dark:border-gray-700 pb-6">
-            <h2 class="text-2xl font-bold flex items-center gap-3 text-gray-900 dark:text-white">
-                <div class="p-2 rounded-lg bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400">
+<section class="max-w-6xl mx-auto px-4">
+    <div class="card-base p-6 md:p-10 mb-10 relative overflow-hidden">
+        <div class="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
+            <i class="ph-fill ph-image text-9xl text-orange-600"></i>
+        </div>
+
+        <div class="mb-8 border-b border-gray-100 dark:border-gray-700 pb-6 relative z-10">
+            <h2 class="text-3xl md:text-4xl font-extrabold flex items-center gap-3 text-gray-900 dark:text-white">
+                <div class="p-2.5 rounded-xl bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400 shadow-sm">
                     <i class="ph-fill ph-image text-2xl"></i>
                 </div>
                 Thumbnail Grabber
             </h2>
-            <p class="mt-2 text-gray-500 dark:text-gray-400 text-sm ml-12">Extract high-quality thumbnails from any YouTube video.</p>
+            <p class="mt-3 text-gray-500 dark:text-gray-400 text-lg ml-1 md:ml-14 max-w-2xl leading-relaxed">
+                Extract high-quality thumbnails from any YouTube video. Perfect for inspiration, research, or asset management.
+            </p>
         </div>
 
-        <!-- Thumbnail Form -->
-        <form th:action="@{/thumbnail}" th:object="${thumbnailRequest}" method="post" class="flex flex-col md:flex-row gap-4 mb-10">
-            <div class="relative flex-1">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <i class="ph ph-link text-gray-400 text-lg"></i>
+        <form th:action="@{/thumbnail}" th:object="${thumbnailRequest}" method="post" class="flex flex-col md:flex-row gap-4 relative z-10">
+            <div class="relative flex-1 group">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 transition-colors group-focus-within:text-orange-500">
+                    <i class="ph ph-link text-xl"></i>
                 </div>
                 <input type="text" th:field="*{url}" placeholder="https://www.youtube.com/watch?v=..." 
-                       class="input-field pl-11 focus:ring-orange-500" required>
+                       class="input-field pl-11 py-4 text-lg shadow-sm focus:ring-orange-500 transition-all" required>
             </div>
             
-            <button type="submit" class="btn-primary bg-orange-600 hover:bg-orange-700 dark:bg-orange-600 dark:hover:bg-orange-500 shadow-orange-500/20 relative overflow-hidden group px-8">
-                <span class="relative z-10 flex items-center justify-center gap-2">
-                    <i class="ph-bold ph-download"></i> Fetch
+            <button type="submit" class="btn-primary bg-orange-600 hover:bg-orange-700 dark:bg-orange-600 dark:hover:bg-orange-500 shadow-orange-500/20 px-8 py-4 text-lg">
+                <span class="flex items-center justify-center gap-2">
+                    <i class="ph-bold ph-download"></i> Fetch Assets
                 </span>
-                <div class="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:animate-shine"></div>
             </button>
         </form>
 
-        <!-- Error Message -->
-        <div th:if="${error}" class="animate-fade-in mb-8 flex items-start gap-4 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 text-red-600 dark:text-red-400">
+        <div th:if="${error}" class="mt-6 animate-fade-in flex items-start gap-4 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 text-red-600 dark:text-red-400">
             <div class="p-2 bg-red-100 dark:bg-red-900/50 rounded-lg shrink-0">
                  <i class="ph-bold ph-warning-octagon text-xl"></i>
             </div>
             <div>
-                <h3 class="font-bold text-sm">Unable to Fetch Thumbnail</h3>
+                <h3 class="font-extrabold text-sm">Unable to Fetch Thumbnail</h3>
                 <p class="text-sm opacity-90 mt-0.5" th:text="${error}">Invalid URL or private video.</p>
             </div>
         </div>
-        
-        <!-- Thumbnail Results -->
-        <div th:if="${thumbnailOptions}" class="animate-fade-in space-y-10">
+    </div>
+    
+    <div th:if="${thumbnailOptions}" class="animate-fade-in space-y-12 pb-16">
 
-            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm flex items-start gap-3">
-                <div class="p-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-500 rounded-lg shrink-0">
-                    <i class="ph-fill ph-youtube-logo text-xl"></i>
-                </div>
-                <div>
-                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
-                        <i class="ph-fill ph-user-circle text-xl"></i> <span th:text="${channelName}">Channel Name</span>
-                    </span>
-                    <h3 class="font-bold text-gray-900 dark:text-gray-100 text-lg leading-tight mt-1" th:text="${videoTitle}">
-                        Video Title Placeholder
-                    </h3>
-                </div>
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-lg flex flex-col md:flex-row items-center gap-4 text-center md:text-left">
+            <div class="p-3 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-500 rounded-2xl shrink-0">
+                <i class="ph-fill ph-youtube-logo text-3xl"></i>
             </div>
-            
-            <div class="grid md:grid-cols-2 gap-8">
-                <div th:each="option, stat : ${thumbnailOptions}" th:if="${stat.index < 2}" class="space-y-4 group">
-                    <div class="relative overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-900 aspect-video shadow-xl border border-gray-200 dark:border-gray-800">
-                        <img th:src="${option.imageUrl}" alt="Thumbnail"
-                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
-                        
-                        <div class="absolute top-3 left-3 bg-black/70 backdrop-blur-sm text-white text-xs font-bold px-2.5 py-1 rounded-md shadow-sm">
-                            <span th:text="${option.resolutionKey}">720p</span>
-                        </div>
-        
-                        <div class="absolute inset-0 block bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:animate-shine z-10 pointer-events-none"></div>
-                    </div>
-        
-                    <div class="flex justify-between items-center px-1">
-                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400"
-                              th:text="${option.sizeInfo}">1280x720</span>
-                        
-                        <a th:href="@{/thumbnail/download(imageUrl=${option.imageUrl}, title=${videoTitle})}"
-                           class="flex items-center gap-2 px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-xl shadow-lg shadow-orange-500/20 active:scale-95 transition-all">
-                            Download <i class="ph-bold ph-arrow-down"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        
-            <div th:if="${thumbnailOptions.size() > 2}" class="max-w-4xl mx-auto">
-                <details class="group/accordion bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden transition-all duration-300">
-                    <summary class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors select-none">
-                        <div class="flex items-center gap-3">
-                            <div class="p-2 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-lg">
-                                <i class="ph-fill ph-list-plus"></i>
-                            </div>
-                            <span class="font-semibold text-gray-700 dark:text-gray-200">Other Formats</span>
-                        </div>
-                        <i class="ph-bold ph-caret-down text-gray-400 group-open/accordion:rotate-180 transition-transform duration-300"></i>
-                    </summary>
-                    
-                    <div class="p-4 pt-0 grid grid-cols-2 md:grid-cols-3 gap-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50">
-                        <div th:each="option, stat : ${thumbnailOptions}" 
-                             th:if="${stat.index >= 2}" 
-                             class="mt-4 bg-white dark:bg-gray-800 p-3 rounded-xl border border-gray-100 dark:border-gray-700 hover:border-orange-300 dark:hover:border-orange-700 transition-colors group flex flex-col gap-3">
-                            
-                            <div class="relative aspect-video rounded-lg overflow-hidden bg-gray-100">
-                                <img th:src="${option.imageUrl}" class="w-full h-full object-cover">
-                                <div class="absolute bottom-1 right-1 bg-black/60 backdrop-blur-sm text-white text-[10px] px-2 text-xs font-bold py-1 rounded-md shadow-sm">
-                                    <span th:text="${option.resolutionKey}">360p</span>
-                                </div>
-                            </div>
-        
-                            <div class="flex justify-between items-center mt-auto">
-                                <span class="text-xs text-gray-400" th:text="${option.sizeInfo}">480x360</span>
-                                <a th:href="@{/thumbnail/download(imageUrl=${option.imageUrl}, title=${videoTitle})}"
-                                    class="text-xs font-bold text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 flex items-center gap-1">
-                                    Download <i class="ph-bold ph-arrow-down"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </details>
+            <div class="min-w-0 flex-1">
+                <span class="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center justify-center md:justify-start gap-2 mb-1">
+                    <i class="ph-fill ph-user-circle text-lg text-brand-500"></i> <span th:text="${channelName}">Channel Name</span>
+                </span>
+                <h3 class="text-xl md:text-2xl font-extrabold text-gray-900 dark:text-gray-100 leading-tight" th:text="${videoTitle}">
+                    Video Title Placeholder
+                </h3>
             </div>
         </div>
-
-        <!-- Placeholder Content -->
-        <div th:unless="${thumbnailOptions}"
-            class="animate-fade-in flex flex-col items-center justify-center py-20 px-6 bg-gray-50/50 dark:bg-gray-800/50 rounded-3xl border-3 border-dashed border-gray-200 dark:border-gray-700 text-center transition-all hover:border-orange-300 dark:hover:border-orange-700 group cursor-default">
         
-            <div class="mb-6 p-5 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-500 rounded-full shadow-sm ring-4 ring-orange-50 dark:ring-orange-900/10 group-hover:scale-110 transition-transform duration-500">
-                <i class="ph-duotone ph-image text-5xl"></i>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div th:each="option, stat : ${thumbnailOptions}" th:if="${stat.index < 2}" class="space-y-4 group">
+                <div class="relative overflow-hidden rounded-3xl bg-gray-100 dark:bg-gray-900 aspect-video shadow-2xl border-4 border-transparent group-hover:border-orange-500/30 transition-all duration-500">
+                    <img th:src="${option.imageUrl}" alt="Thumbnail"
+                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
+                    
+                    <div class="absolute top-4 left-4 bg-black/70 backdrop-blur-md text-white text-xs font-black px-3 py-1.5 rounded-xl shadow-lg border border-white/10">
+                        <span th:text="${option.resolutionKey}">720p</span>
+                    </div>
+                    <div class="shine-overlay"></div>
+                </div>
+    
+                <div class="flex justify-between items-center px-2">
+                    <span class="text-sm font-bold text-gray-500 dark:text-gray-400 tracking-tight"
+                          th:text="${option.sizeInfo}">1280x720</span>
+                    
+                    <a th:href="@{/thumbnail/download(imageUrl=${option.imageUrl}, title=${videoTitle})}"
+                       class="btn-primary bg-orange-600 hover:bg-orange-700 text-white shadow-orange-500/20 active:scale-95">
+                        Download <i class="ph-bold ph-arrow-down"></i>
+                    </a>
+                </div>
             </div>
-        
-            <h3 class="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white mb-3 tracking-tight">
-                Ready to Grab Thumbnails?
-            </h3>
-        
-            <p class="text-lg text-gray-600 dark:text-gray-300 max-w-lg leading-relaxed mb-8">
-                Paste a YouTube URL above and hit <strong class="text-orange-600 dark:text-orange-400">Fetch</strong> to
-                instantly unlock high-resolution assets.
-            </p>
-        
-            <div class="flex flex-wrap justify-center gap-x-8 gap-y-3">
-                <div
-                    class="flex items-center gap-2 text-sm font-bold text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-900 px-4 py-2 rounded-full border border-gray-100 dark:border-gray-700 shadow-sm">
-                    <i class="ph-fill ph-check-circle text-green-500 text-lg"></i>
-                    <span>Max Res (HD)</span>
+        </div>
+    
+        <div th:if="${thumbnailOptions.size() > 2}" class="max-w-6xl mx-auto">
+            <details class="group/accordion bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-3xl overflow-hidden transition-all duration-300">
+                <summary class="flex items-center justify-between p-6 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors select-none">
+                    <div class="flex items-center gap-4">
+                        <div class="p-2.5 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-xl">
+                            <i class="ph-fill ph-list-plus text-xl"></i>
+                        </div>
+                        <span class="text-lg font-extrabold text-gray-700 dark:text-gray-200">View All Resolutions</span>
+                    </div>
+                    <i class="ph-bold ph-caret-down text-gray-400 group-open/accordion:rotate-180 transition-transform duration-300 text-xl"></i>
+                </summary>
+                
+                <div class="p-6 pt-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50">
+                    <div th:each="option, stat : ${thumbnailOptions}" 
+                         th:if="${stat.index >= 2}" 
+                         class="mt-6 bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 hover:border-orange-300 dark:hover:border-orange-700 transition-all group flex flex-col gap-4">
+                        
+                        <div class="relative aspect-video rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-900">
+                            <img th:src="${option.imageUrl}" class="w-full h-full object-cover">
+                            <div class="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md text-white text-[10px] px-2.5 py-1.5 rounded-lg font-black shadow-sm border border-white/5">
+                                <span th:text="${option.resolutionKey}">360p</span>
+                            </div>
+                            <div class="shine-overlay"></div>
+                        </div>
+    
+                        <div class="flex justify-between items-center mt-auto">
+                            <span class="text-xs font-bold text-gray-400" th:text="${option.sizeInfo}">480x360</span>
+                            <a th:href="@{/thumbnail/download(imageUrl=${option.imageUrl}, title=${videoTitle})}"
+                                class="text-sm font-extrabold text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 flex items-center gap-1">
+                                Download <i class="ph-bold ph-arrow-down"></i>
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                <div
-                    class="flex items-center gap-2 text-sm font-bold text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-900 px-4 py-2 rounded-full border border-gray-100 dark:border-gray-700 shadow-sm">
-                    <i class="ph-fill ph-check-circle text-green-500 text-lg"></i>
-                    <span>High Quality</span>
-                </div>
-                <div
-                    class="flex items-center gap-2 text-sm font-bold text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-900 px-4 py-2 rounded-full border border-gray-100 dark:border-gray-700 shadow-sm">
-                    <i class="ph-fill ph-check-circle text-green-500 text-lg"></i>
-                    <span>Standard</span>
-                </div>
+            </details>
+        </div>
+    </div>
+
+    <div th:unless="${thumbnailOptions}"
+        class="animate-fade-in flex flex-col items-center justify-center py-24 px-6 bg-gray-50/50 dark:bg-gray-800/50 rounded-[2.5rem] border-4 border-dashed border-gray-200 dark:border-gray-700 text-center transition-all hover:border-orange-300 dark:hover:border-orange-700 group cursor-default">
+    
+        <div class="mb-8 p-6 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-500 rounded-full shadow-lg ring-8 ring-orange-50 dark:ring-orange-900/10 group-hover:scale-110 transition-transform duration-500">
+            <i class="ph-duotone ph-image text-6xl"></i>
+        </div>
+    
+        <h3 class="text-3xl md:text-4xl font-black text-gray-900 dark:text-white mb-4 tracking-tight">
+            Ready to Grab Thumbnails?
+        </h3>
+    
+        <p class="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-xl leading-relaxed mb-10">
+            Paste a YouTube URL above and hit <strong class="text-orange-600 dark:text-orange-400">Fetch Assets</strong> to instantly unlock high-resolution content for your projects.
+        </p>
+    
+        <div class="flex flex-wrap justify-center gap-4">
+            <div class="flex items-center gap-2.5 text-sm font-black text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-900 px-5 py-2.5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                <i class="ph-fill ph-check-circle text-green-500 text-xl"></i>
+                <span>Max Res (1080p)</span>
+            </div>
+            <div class="flex items-center gap-2.5 text-sm font-black text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-900 px-5 py-2.5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                <i class="ph-fill ph-check-circle text-green-500 text-xl"></i>
+                <span>High Definition</span>
+            </div>
+            <div class="flex items-center gap-2.5 text-sm font-black text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-900 px-5 py-2.5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                <i class="ph-fill ph-check-circle text-green-500 text-xl"></i>
+                <span>Fast Downloads</span>
             </div>
         </div>
         

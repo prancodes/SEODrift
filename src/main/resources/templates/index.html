@@ -1,58 +1,61 @@
 <!DOCTYPE html>
 <html th:replace="~{fragments/layout :: layout(title='Dashboard', content=~{::section})}">
 <body>
-<section>
-    <div class="text-center mb-16 space-y-4">
-        <span class="inline-block py-1 px-3 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 text-xs font-bold tracking-wide uppercase">
+<section class="max-w-7xl mx-auto px-4">
+    <div class="text-center mb-12 md:mb-20 space-y-6 animate-fade-in">
+        <span class="inline-block py-1.5 px-4 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 text-xs md:text-sm font-black tracking-widest uppercase border border-brand-100 dark:border-brand-800">
             Optimization Toolkit
         </span>
-        <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+        <h1 class="text-4xl md:text-6xl lg:text-7xl font-black text-gray-900 dark:text-white tracking-tighter leading-tight">
             Master Your <span class="text-transparent bg-clip-text bg-linear-to-r from-brand-600 to-purple-600 dark:from-brand-400 dark:to-purple-400">YouTube Strategy</span>
         </h1>
-        <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            The all-in-one platform for modern content creators. Generate tags, grab high-res thumbnails, and manage video assets seamlessly.
+        <p class="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed font-medium">
+            The all-in-one platform for modern content creators. Generate tags, grab high-res thumbnails, and analyze performance with precision.
         </p>
     </div>
 
-    <div class="grid md:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 pb-12">
         
-        <div class="group card-base p-8 hover:-translate-y-2 hover:shadow-brand-500/10">
-            <div class="h-14 w-14 bg-linear-to-br from-brand-500 to-brand-700 text-white rounded-2xl flex items-center justify-center mb-6 text-2xl shadow-lg shadow-brand-500/30 group-hover:scale-110 transition-transform duration-300">
+        <div class="group card-base p-8 md:p-10 hover:-translate-y-2 hover:shadow-brand-500/20 border-2 border-transparent hover:border-brand-500/30 relative">
+            <div class="h-16 w-16 bg-linear-to-br from-brand-500 to-brand-700 text-white rounded-2xl flex items-center justify-center mb-8 text-3xl shadow-lg shadow-brand-500/30 group-hover:scale-110 transition-transform duration-500">
                 <i class="ph-fill ph-hash"></i>
             </div>
-            <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">SEO Tags Generator</h3>
-            <p class="text-gray-500 dark:text-gray-400 mb-8 text-sm leading-relaxed">
-                Boost discoverability by extracting high-ranking tags from competitors or generating smart keywords.
+            <h3 class="text-2xl font-black mb-4 text-gray-900 dark:text-white">SEO Tags Generator</h3>
+            <p class="text-gray-500 dark:text-gray-400 mb-10 text-base leading-relaxed">
+                Boost discoverability by extracting high-ranking tags from competitors or generating smart keywords automatically.
             </p>
-            <a href="/tags" class="inline-flex items-center text-brand-600 dark:text-brand-400 font-semibold group-hover:gap-2 transition-all">
+            <a href="/tags" class="btn-primary w-full shadow-none">
                 Start Generating <i class="ph-bold ph-arrow-right ml-1"></i>
             </a>
+            <div class="shine-overlay"></div>
         </div>
 
-        <div class="group card-base p-8 hover:-translate-y-2 hover:shadow-orange-500/10">
-            <div class="h-14 w-14 bg-linear-to-br from-orange-400 to-orange-600 text-white rounded-2xl flex items-center justify-center mb-6 text-2xl shadow-lg shadow-orange-500/30 group-hover:scale-110 transition-transform duration-300">
+        <div class="group card-base p-8 md:p-10 hover:-translate-y-2 hover:shadow-orange-500/20 border-2 border-transparent hover:border-orange-500/30 relative">
+            <div class="h-16 w-16 bg-linear-to-br from-orange-400 to-orange-600 text-white rounded-2xl flex items-center justify-center mb-8 text-3xl shadow-lg shadow-orange-500/30 group-hover:scale-110 transition-transform duration-500">
                 <i class="ph-fill ph-image"></i>
             </div>
-            <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">Thumbnail Grabber</h3>
-            <p class="text-gray-500 dark:text-gray-400 mb-8 text-sm leading-relaxed">
-                Instantly download MaxRes, HD, and SD thumbnails for analysis, inspiration, or archiving.
+            <h3 class="text-2xl font-black mb-4 text-gray-900 dark:text-white">Thumbnail Grabber</h3>
+            <p class="text-gray-500 dark:text-gray-400 mb-10 text-base leading-relaxed">
+                Instantly download MaxRes, HD, and SD thumbnails for inspiration, archiving, or high-quality research.
             </p>
-            <a href="/thumbnail" class="inline-flex items-center text-orange-600 dark:text-orange-400 font-semibold group-hover:gap-2 transition-all">
+            <a href="/thumbnail" class="btn-primary bg-orange-600 hover:bg-orange-700 dark:bg-orange-600 dark:hover:bg-orange-500 shadow-none">
                 Fetch Thumbnails <i class="ph-bold ph-arrow-right ml-1"></i>
             </a>
+            <div class="shine-overlay"></div>
         </div>
 
-        <div class="group card-base p-8 hover:-translate-y-2 hover:shadow-green-500/10">
-            <div class="h-14 w-14 bg-linear-to-br from-green-500 to-green-700 text-white rounded-2xl flex items-center justify-center mb-6 text-2xl shadow-lg shadow-green-500/30 group-hover:scale-110 transition-transform duration-300">
+        <div class="group card-base p-8 md:p-10 hover:-translate-y-2 hover:shadow-green-500/20 border-2 border-transparent hover:border-green-500/30 relative md:col-span-2 lg:col-span-1">
+            <div class="h-16 w-16 bg-linear-to-br from-green-500 to-green-700 text-white rounded-2xl flex items-center justify-center mb-8 text-3xl shadow-lg shadow-green-500/30 group-hover:scale-110 transition-transform duration-500">
                 <i class="ph-fill ph-chart-line-up"></i>
             </div>
-            <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">Video Intelligence</h3>
-            <p class="text-gray-500 dark:text-gray-400 mb-8 text-sm leading-relaxed">
-                Audit SEO, reveal hidden dislike counts, and calculate engagement rates.
+            <h3 class="text-2xl font-black mb-4 text-gray-900 dark:text-white">Video Intelligence</h3>
+            <p class="text-gray-500 dark:text-gray-400 mb-10 text-base leading-relaxed">
+                Audit SEO, reveal hidden dislike counts, and calculate engagement rates using deep-dive sentiment analysis.
             </p>
-            <a href="/analytics" class="inline-flex items-center text-green-600 dark:text-green-400 font-semibold group-hover:gap-2 transition-all">
+            <a href="/analytics" class="btn-primary bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-500 shadow-none">
                 Analyze Now <i class="ph-bold ph-arrow-right ml-1"></i>
             </a>
+            <div class="shine-overlay"></div>
         </div>
     </div>
 </section>

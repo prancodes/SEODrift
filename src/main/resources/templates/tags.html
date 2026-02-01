@@ -1,116 +1,126 @@
 <!DOCTYPE html>
 <html th:replace="~{fragments/layout :: layout(title='Tags Generator', content=~{::section})}">
 <body>
-<section class="max-w-5xl mx-auto">
+<section class="max-w-6xl mx-auto px-4">
     
-    <div class="card-base p-8 md:p-10">
-        <div class="mb-8 border-b border-gray-100 dark:border-gray-700 pb-6">
-            <h2 class="text-2xl font-bold flex items-center gap-3 text-gray-900 dark:text-white">
-                <div class="p-2 rounded-lg bg-brand-100 dark:bg-brand-900/50 text-brand-600 dark:text-brand-400">
-                    <i class="ph-fill ph-hash text-2xl"></i>
-                </div>
-                YouTube SEO Tags Generator
-            </h2>
-            <p class="mt-2 text-gray-500 dark:text-gray-400 text-sm ml-12">Generate optimized tags to rank higher in search results.</p>
+    <div class="card-base p-6 md:p-10 mb-10 relative overflow-hidden">
+        <div class="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
+            <i class="ph-fill ph-hash text-9xl text-brand-600"></i>
         </div>
 
-        <form th:action="@{/tags}" method="post" class="flex flex-col md:flex-row gap-4 mb-10">
-            <div class="relative flex-1">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <i class="ph ph-magnifying-glass text-gray-400 text-lg"></i>
+        <div class="mb-8 border-b border-gray-100 dark:border-gray-700 pb-6 relative z-10">
+            <h2 class="text-3xl md:text-4xl font-extrabold flex items-center gap-3 text-gray-900 dark:text-white">
+                <div class="p-2.5 rounded-xl bg-brand-100 dark:bg-brand-900/50 text-brand-600 dark:text-brand-400 shadow-sm">
+                    <i class="ph-fill ph-hash text-2xl"></i>
+                </div>
+                SEO Tags Generator
+            </h2>
+            <p class="mt-3 text-gray-500 dark:text-gray-400 text-lg ml-1 md:ml-14 max-w-2xl leading-relaxed">
+                Generate optimized tags to rank higher in search results. Extract from competitor URLs or discover smart keywords.
+            </p>
+        </div>
+
+        <form th:action="@{/tags}" method="post" class="flex flex-col md:flex-row gap-4 relative z-10">
+            <div class="relative flex-1 group">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 transition-colors group-focus-within:text-brand-500">
+                    <i class="ph ph-magnifying-glass text-xl"></i>
                 </div>
                 <input type="text" name="query" th:value="${query}" placeholder="Paste YouTube Video URL or Enter Keyword..." 
-                       class="input-field pl-11" required>
+                       class="input-field pl-11 py-4 text-lg shadow-sm focus:ring-brand-500 transition-all" required>
             </div>
-            <button type="submit" class="btn-primary flex items-center justify-center gap-2">
+            <button type="submit" class="btn-primary px-8 py-4 text-lg">
                 <i class="ph-bold ph-lightning"></i> Generate Tags
             </button>
         </form>
 
-        <div th:if="${error}" class="mb-8 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 text-red-600 dark:text-red-400">
-            <p th:text="${error}"></p>
+        <div th:if="${error}" class="mt-6 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 text-red-600 dark:text-red-400 animate-fade-in flex items-center gap-3">
+             <i class="ph-bold ph-warning-circle text-xl"></i>
+             <p th:text="${error}"></p>
         </div>
+    </div>
 
-        <div th:if="${primary}" class="space-y-12 animate-fade-in">
+    <div th:if="${primary}" class="space-y-12 animate-fade-in pb-12">
         
-            <div class="relative bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-xl shadow-brand-100/50 dark:shadow-none overflow-hidden">
-                <div class="absolute top-0 left-0 w-full h-1.5 bg-linear-to-r from-brand-400 to-purple-500"></div>
-                
-                <div class="p-8">
-                    <div class="flex flex-col md:flex-row gap-8">
-                        <div class="shrink-0 md:w-80">
-                            <img th:src="${primary.thumbnailUrl}" class="w-full h-48 object-cover rounded-2xl shadow-md group-hover:scale-105 transition-transform duration-500">
-                            <div class="mt-4 flex items-center gap-3 text-gray-600 dark:text-gray-400">
-                                <i class="ph-fill ph-youtube-logo text-red-500 text-xl"></i>
-                                <span class="font-medium text-sm" th:text="${primary.channelName}">Channel Name</span>
-                            </div>
+        <div class="relative bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-2xl overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-linear-to-r from-brand-400 to-purple-500"></div>
+            
+            <div class="p-6 md:p-8">
+                <div class="flex flex-col lg:flex-row gap-8">
+                    <div class="shrink-0 lg:w-96 group relative">
+                        <div class="rounded-2xl overflow-hidden shadow-md aspect-video relative">
+                            <img th:src="${primary.thumbnailUrl}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            <div class="shine-overlay"></div>
                         </div>
-
-                        <div class="flex-1 min-w-0">
-                            <div class="flex justify-between items-start gap-4 mb-6">
-                                <div>
-                                    <span class="inline-block py-1 px-3 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 text-xs font-bold uppercase tracking-wider mb-2">Primary Result</span>
-                                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white leading-tight" th:text="${primary.title}">Video Title</h2>
-                                </div>
-                                <button th:data-tags="${#strings.listJoin(primary.tags, ', ')}" onclick="copyTags(this.getAttribute('data-tags'), this)"
-                                    class="shrink-0 flex items-center gap-2 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl hover:opacity-90 font-medium text-sm transition-all duration-200">
-                                    <i class="ph-bold ph-copy"></i> <span>Copy Tags</span>
-                                </button>
-                            </div>
-
-                            <div class="p-6 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-700">
-                                <div class="flex flex-wrap gap-2">
-                                    <span th:each="tag : ${primary.tags}" 
-                                          th:text="'#' + ${tag}"
-                                          class="inline-block px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-600 dark:text-gray-300 font-medium select-all hover:border-brand-300 dark:hover:border-brand-700 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
-                                    </span>
-                                </div>
-                            </div>
+                        <div class="mt-4 flex items-center gap-3 text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl border border-gray-100 dark:border-gray-700">
+                            <i class="ph-fill ph-youtube-logo text-red-500 text-2xl"></i>
+                            <span class="font-bold text-sm truncate" th:text="${primary.channelName}">Channel Name</span>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <div th:if="${not #lists.isEmpty(relatedVideos)}">
-                <div class="flex items-center gap-4 mb-8">
-                    <div class="h-px flex-1 bg-gray-200 dark:bg-gray-700"></div>
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                        <i class="ph-fill ph-sparkle text-brand-500"></i> Top Related Videos
-                    </h3>
-                    <div class="h-px flex-1 bg-gray-200 dark:bg-gray-700"></div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div th:each="video : ${relatedVideos}" class="flex flex-col bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
-                        <div class="p-4 pb-0">
-                            <img th:src="${video.thumbnailUrl}" class="w-full h-40 object-cover rounded-xl bg-gray-100 dark:bg-gray-900">
-                        </div>
-
-                        <div class="p-5 flex flex-col flex-1">
-                            <h4 class="font-bold text-gray-900 dark:text-white line-clamp-2 mb-2 h-12" th:text="${video.title}">Title</h4>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-1">
-                                <i class="ph-fill ph-television"></i> <span th:text="${video.channelName}">Channel</span>
-                            </p>
-
-                            <div class="flex-1 mb-5">
-                                <div class="flex flex-wrap gap-1.5 h-20 overflow-hidden relative">
-                                    <span th:each="tag : ${video.tags}" 
-                                          th:text="'#' + ${tag}"
-                                          class="text-xs px-2 py-1 bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-400 rounded border border-gray-100 dark:border-gray-700">
-                                    </span>
-                                    <div class="absolute inset-x-0 bottom-0 h-8 bg-linear-to-t from-white dark:from-gray-800 to-transparent"></div>
-                                </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
+                            <div class="flex-1">
+                                <span class="inline-block py-1 px-3 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 text-xs font-black uppercase tracking-widest mb-3">Primary Result</span>
+                                <h2 class="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white leading-tight" th:text="${primary.title}">Video Title</h2>
                             </div>
-                            
-                            <button th:data-tags="${#strings.listJoin(video.tags, ', ')}" onclick="copyTags(this.getAttribute('data-tags'), this)"
-                                class="w-full py-2.5 rounded-xl border border-brand-200 dark:border-brand-800 text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-900/30 font-medium text-sm transition-all duration-200 flex items-center justify-center gap-2">
-                                <i class="ph-bold ph-copy"></i> <span>Copy Tags</span>
+                            <button th:data-tags="${#strings.listJoin(primary.tags, ', ')}" onclick="copyTags(this.getAttribute('data-tags'), this)"
+                                class="btn-primary w-full md:w-auto shrink-0 bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-none">
+                                <i class="ph-bold ph-copy"></i> <span>Copy All Tags</span>
                             </button>
                         </div>
+
+                        <div class="p-4 md:p-6 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-700">
+                            <div class="flex flex-wrap gap-2.5">
+                                <span th:each="tag : ${primary.tags}" 
+                                      th:text="'#' + ${tag}"
+                                      class="inline-block px-3.5 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-700 dark:text-gray-300 font-bold select-all hover:border-brand-300 dark:hover:border-brand-700 hover:text-brand-600 dark:hover:text-brand-400 transition-all cursor-pointer">
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
 
+        <div th:if="${not #lists.isEmpty(relatedVideos)}">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="h-px flex-1 bg-gray-200 dark:bg-gray-700"></div>
+                <h3 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2 px-2">
+                    <i class="ph-fill ph-sparkle text-brand-500"></i> Top Related Videos
+                </h3>
+                <div class="h-px flex-1 bg-gray-200 dark:bg-gray-700"></div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div th:each="video : ${relatedVideos}" class="group card-base hover:border-brand-200 dark:hover:border-brand-800 transition-all flex flex-col">
+                    <div class="relative aspect-video rounded-t-2xl overflow-hidden">
+                        <img th:src="${video.thumbnailUrl}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                        <div class="shine-overlay"></div>
+                    </div>
+
+                    <div class="p-5 flex flex-col flex-1">
+                        <h4 class="font-extrabold text-gray-900 dark:text-white line-clamp-2 mb-2 h-12 leading-tight" th:text="${video.title}">Title</h4>
+                        <p class="text-xs font-bold text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-1.5 uppercase tracking-wide">
+                            <i class="ph-fill ph-television text-brand-500"></i> <span th:text="${video.channelName}">Channel</span>
+                        </p>
+
+                        <div class="flex-1 mb-6">
+                            <div class="flex flex-wrap gap-1.5 h-20 overflow-hidden relative">
+                                <span th:each="tag : ${video.tags}" 
+                                      th:text="'#' + ${tag}"
+                                      class="text-[10px] md:text-xs font-bold px-2 py-1 bg-gray-50 dark:bg-gray-900/80 text-gray-600 dark:text-gray-400 rounded-lg border border-gray-100 dark:border-gray-700">
+                                </span>
+                                <div class="absolute inset-x-0 bottom-0 h-8 bg-linear-to-t from-white dark:from-gray-800 to-transparent"></div>
+                            </div>
+                        </div>
+                        
+                        <button th:data-tags="${#strings.listJoin(video.tags, ', ')}" onclick="copyTags(this.getAttribute('data-tags'), this)"
+                            class="btn-primary w-full py-2.5 bg-transparent border-2 border-brand-200 dark:border-brand-800 text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-900/30 shadow-none text-sm">
+                            <i class="ph-bold ph-copy"></i> <span>Copy Tags</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </div>

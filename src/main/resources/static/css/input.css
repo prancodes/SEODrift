@@ -16,6 +16,9 @@
   --color-brand-900: #1e3a8a; /* Primary Dark */
   --color-brand-950: #172554;
   
+  /* Shared Typography for all pages */
+  --font-sans: 'Inter', 'system-ui', '-apple-system', 'sans-serif';
+
   /* Animation Utilities */
   --animate-fade-in: fade-in 0.5s ease-in-out;
   
@@ -24,8 +27,8 @@
     100% { opacity: 1; transform: translateY(0); }
   }
 
-  /* shine effect */
-  --animate-shine: shine 0.7s forwards;
+  /* Universal Shine/Reflection Effect */
+  --animate-shine: shine 0.8s forwards;
 
   @keyframes shine {
     0% { transform: translateX(-100%) skewX(-15deg); }
@@ -33,17 +36,39 @@
   }
 }
 
-/* Custom Component Classes */
+/* Custom Component Classes with Responsive Logic */
 @layer components {
+  /* Professional Action Button with Reflection Effect on Hover */
   .btn-primary {
-    @apply bg-brand-600 text-white hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-400 transition-all duration-300 font-medium px-6 py-2.5 rounded-xl shadow-lg shadow-brand-500/20 active:scale-95;
+    @apply relative overflow-hidden bg-brand-600 text-white hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-400 transition-all duration-300 font-bold px-6 py-3 rounded-xl shadow-lg shadow-brand-500/20 active:scale-95 flex items-center justify-center gap-2;
   }
   
+  /* The reflection overlay */
+  .btn-primary::after {
+    @apply content-[''] absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-full;
+  }
+  
+  /* Trigger reflection on hover */
+  .btn-primary:hover::after {
+    @apply animate-shine;
+  }
+  
+  /* Consistent Card Styling for Mobile and Desktop */
   .card-base {
-    @apply bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-xl shadow-gray-200/50 dark:shadow-none transition-all duration-300;
+    @apply bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-xl shadow-gray-200/50 dark:shadow-none transition-all duration-300 overflow-hidden;
   }
   
+  /* Responsive Input Field */
   .input-field {
-    @apply w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-xl px-5 py-3 focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none transition-all;
+    @apply w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-xl px-5 py-3 focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none transition-all text-base md:text-lg;
+  }
+
+  /* Utility for shine on images */
+  .shine-overlay {
+    @apply absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full pointer-events-none;
+  }
+  
+  .group:hover .shine-overlay {
+    @apply animate-shine;
   }
 }
