@@ -5,18 +5,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${title} + ' | SEODrift'">SEODrift</title>
-    
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" href="/favicons/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicons/favicon.svg" />
+    <link rel="shortcut icon" href="/favicons/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="SEODrift" />
+    <link rel="manifest" href="/favicons/site.webmanifest" />
+
     <link rel="stylesheet" th:href="@{/dist/styles.css}">
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script th:src="@{/js/theme.js}"></script>
+
+    <link rel="stylesheet" th:href="@{/css/layout-styles.css}">
 </head>
 
-<body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 flex flex-col min-h-screen transition-colors duration-300 font-sans selection:bg-brand-500 selection:text-white">
+<body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 flex flex-col min-h-screen transition-colors duration-300 selection:bg-brand-500 selection:text-white">
 
     <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-    <main class="grow container mx-auto px-4 py-8 md:py-12 animate-fade-in">
+    <main class="grow container mx-auto px-4 py-8 md:py-12 lg:py-16 animate-fade-in">
         <div th:replace="${content}"></div>
     </main>
 
