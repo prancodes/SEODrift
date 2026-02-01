@@ -1,0 +1,14 @@
+/* Ensuring the unified font is applied globally across all child templates */
+:root {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Smooth scrolling for a premium feel */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Preventing FOUC (Flash of Unstyled Content) during theme loading */
+.dark {
+    color-scheme: dark;
+}
