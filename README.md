@@ -1,8 +1,28 @@
-# 🎬 SEODrift
+<div align="center">
+  <img src="src/main/resources/static/images/navbar-rocket.svg" alt="SEODrift Logo" width="80" height="80">
+  
+  # SEODrift
+  
+  > All-in-one toolkit for SEO optimization: generate tags, grab thumbnails, and analyze video performance metrics.
+  
+  A modern **Spring Boot** application designed to streamline your workflow with powerful SEO optimization and analytics tools.
 
-> All-in-one toolkit for SEO optimization: generate tags, grab thumbnails, and analyze video performance metrics.
+   <a href="https://seodrift-378036956146.us-central1.run.app">
+    <img src="https://img.shields.io/badge/🌐%20Live%20Demo-%20Visit-brightblue?style=for-the-badge" alt="Live Demo">
+   </a>
 
-A modern **Spring Boot** application designed to streamline your workflow with powerful SEO optimization and analytics tools.
+  <br/>
+
+  <!-- Badges -->
+  <div align="center">
+    <img alt="Status" src="https://img.shields.io/badge/status-live-brightgreen?style=for-the-badge&logo=github">
+    <img alt="Java" src="https://img.shields.io/badge/Java-25-orange?style=for-the-badge&logo=openjdk">
+    <img alt="Spring Boot" src="https://img.shields.io/badge/Spring%20Boot-4.0.2-brightgreen?style=for-the-badge&logo=springboot">
+    <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind%20CSS-4.1.17-blue?style=for-the-badge&logo=tailwindcss">
+    <img alt="Docker" src="https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker">
+    <img alt="License" src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge&logo=github">
+  </div>
+</div>
 
 ---
 
