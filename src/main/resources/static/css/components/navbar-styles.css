@@ -1,0 +1,147 @@
+/* Rocket Launch & Return Sequence */
+@keyframes rocket-sequence {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    /* Engine Vibration */
+    5% { transform: translate(-1px, 1px) rotate(-1deg); }
+    10% { transform: translate(1px, -1px) rotate(1deg); }
+    15% { transform: translate(-1px, -1px) rotate(-1deg); }
+    20% { transform: translate(1px, 1px) rotate(1deg); }
+    /* Launch Out */
+    45% { transform: translate(100px, -100px) scale(0.5); opacity: 0; }
+    /* Teleport to bottom-left (invisible) */
+    46% { transform: translate(-100px, 100px) scale(0.5); opacity: 0; }
+    /* Return and Settle */
+    100% { transform: translate(0, 0) scale(1); opacity: 1; }
+}
+
+/* Smoke Particle Effect */
+@keyframes smoke-puff {
+    0% { transform: scale(0); opacity: 0; }
+    20% { transform: scale(1.2); opacity: 0.8; }
+    100% { transform: scale(2.5) translateY(-10px); opacity: 0; }
+}
+
+.rocket-node {
+    transition: none;
+}
+
+.group:hover .rocket-node {
+    animation: rocket-sequence 1.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards;
+}
+
+/* Smoke puffs trigger on hover */
+.group:hover .smoke-puff {
+    animation: smoke-puff 0.8s ease-out forwards;
+}
+/* Dropdown Animations */
+@keyframes dropdown-slide-in {
+    from { opacity: 0; transform: translateY(10px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.dropdown-animate {
+    animation: dropdown-slide-in 0.2s ease-out forwards;
+}
+
+/* Profile Dropdown Menu Refinement */
+.profile-dropdown-menu {
+    position: absolute;
+    right: 0;
+    margin-top: 12px;
+    width: 260px;
+    background: #ffffff;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 24px;
+    box-shadow: 
+        0 10px 40px -10px rgba(15, 23, 42, 0.08),
+        0 20px 25px -5px rgba(15, 23, 42, 0.04);
+    overflow: hidden;
+    z-index: 60;
+    transform-origin: top right;
+}
+
+.dark .profile-dropdown-menu {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 
+        0 20px 50px -10px rgba(0, 0, 0, 0.4);
+}
+
+.profile-dropdown-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #475569;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    text-decoration: none !important;
+}
+
+.dark .profile-dropdown-link {
+    color: #94a3b8;
+}
+
+.profile-dropdown-link:hover {
+    background: rgba(59, 130, 246, 0.08);
+    color: #2563eb;
+    transform: translateX(4px);
+}
+
+.dark .profile-dropdown-link:hover {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+}
+
+.profile-dropdown-logout {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #dc2626;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+}
+
+.profile-dropdown-logout:hover {
+    background: rgba(220, 38, 38, 0.08);
+    transform: translateX(4px);
+}
+
+.dark .profile-dropdown-logout:hover {
+    background: rgba(220, 38, 38, 0.15);
+}
+
+/* Profile button hover outline indicator */
+#profile-dropdown-btn {
+    position: relative;
+    outline: none;
+}
+
+#profile-dropdown-btn::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 18px;
+    border: 2px solid transparent;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    pointer-events: none;
+}
+
+#profile-dropdown-btn:hover::after {
+    border-color: rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.15);
+}

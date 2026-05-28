@@ -1,46 +1,54 @@
 <!DOCTYPE html>
-<html th:replace="~{fragments/layout :: layout(title='Video Intelligence', content=~{::section})}">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{fragments/layout/layout}">
+<head>
+    <title>Video Intelligence</title>
+</head>
 <body>
-<section class="max-w-7xl mx-auto px-4">
+<div layout:fragment="content" class="max-w-6xl mx-auto px-2 sm:px-4">
     
-    <div class="card-base p-6 md:p-10 mb-10 relative overflow-hidden">
+    <div class="card-base p-4 md:p-10 mb-10 relative overflow-hidden">
         <div class="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
             <i class="ph-fill ph-chart-polar text-9xl text-green-600"></i>
         </div>
 
-        <div class="mb-8 border-b border-gray-100 dark:border-gray-700 pb-6 relative z-10">
-            <h2 class="text-3xl md:text-5xl font-black flex items-center gap-3 text-gray-900 dark:text-white tracking-tight">
-                <div class="p-2.5 rounded-xl bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 shadow-sm">
-                    <i class="ph-fill ph-chart-line-up text-2xl"></i>
-                </div>
-                Video Intelligence
-            </h2>
-            <p class="mt-3 text-gray-500 dark:text-gray-400 text-lg md:text-xl ml-1 md:ml-14 max-w-2xl font-medium leading-relaxed">
-                Deep-dive analytics: sentiment analysis, hidden dislike counts, and a comprehensive SEO health audit.
-            </p>
+        <div class="mb-8 border-b border-gray-100 dark:border-gray-700 pb-6 relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div class="flex-1">
+                <h2 class="text-xl md:text-3xl lg:text-4xl font-extrabold flex items-center gap-3 text-gray-900 dark:text-white">
+                    <div class="p-2.5 rounded-xl bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 shadow-sm">
+                        <i class="ph-fill ph-chart-line-up text-2xl"></i>
+                    </div>
+                    Video Intelligence
+                </h2>
+                <p class="mt-3 text-gray-500 dark:text-gray-400 text-sm md:text-base lg:text-lg ml-1 md:ml-14 max-w-2xl leading-relaxed">
+                    Deep-dive analytics: sentiment analysis, hidden dislike counts, and a comprehensive SEO health audit.
+                </p>
+            </div>
+            <a sec:authorize="isAuthenticated()" href="/dashboard" class="shrink-0 flex items-center gap-2 px-6 py-3 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 font-black uppercase tracking-widest text-xs rounded-2xl border border-gray-200 dark:border-gray-700 transition-all active:scale-95">
+                <i class="ph-bold ph-clock-counter-clockwise text-lg"></i> View Audit History
+            </a>
         </div>
 
-        <form th:action="@{/analytics}" method="post" class="flex flex-col md:flex-row gap-4 relative z-10">
+        <form th:action="@{/analytics}" method="post" class="flex flex-col md:flex-row gap-4 relative z-10" data-turbo-frame="results">
             <div class="relative flex-1 group">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 transition-colors group-focus-within:text-green-500">
                     <i class="ph-fill ph-youtube-logo text-xl"></i>
                 </div>
                 <input type="text" name="url" th:value="${url}" placeholder="Paste YouTube Video URL..." 
-                       class="input-field pl-11 py-4 text-lg shadow-sm focus:ring-green-500 transition-all" required>
+                       class="input-field pl-11 py-4 shadow-sm focus:ring-green-500 transition-all" required>
             </div>
             
-            <button type="submit" class="btn-primary bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-500 shadow-green-500/20 px-8 py-4">
-                <span class="relative z-10 flex items-center justify-center gap-2 text-lg font-bold">
+            <button type="submit" class="btn-primary bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-500 shadow-green-500/20 self-center mx-auto md:mx-0 w-fit md:w-auto px-4 py-3 text-sm md:px-8 md:py-4 md:text-lg lg:text-[17px] cursor-pointer">
+                <span class="relative z-10 flex items-center justify-center gap-2">
                     <i class="ph-bold ph-lightning"></i> Unlock Insights
                 </span>
             </button>
         </form>
 
-        <div th:if="${error}" class="mt-6 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 text-red-600 dark:text-red-400 animate-fade-in flex items-center gap-3">
+    <turbo-frame id="results" class="p-4">
+        <div th:if="${error}" class="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 text-red-600 dark:text-red-400 animate-fade-in flex items-center gap-3">
              <i class="ph-bold ph-warning-circle text-xl"></i>
              <p class="font-bold" th:text="${error}"></p>
         </div>
-    </div>
 
     <div th:if="${data}" class="animate-fade-in space-y-8 pb-16">
         
@@ -53,7 +61,7 @@
                     </div>
                     <div class="shine-overlay"></div>
                 </div>
-                <div class="p-8 flex flex-col justify-center">
+                <div class="p-4 sm:p-8 flex flex-col justify-center">
                     <div class="flex items-center gap-3 mb-3">
                         <div class="h-10 w-10 rounded-full bg-brand-100 dark:bg-brand-900/50 flex items-center justify-center text-brand-600 dark:text-brand-400 font-bold border border-brand-200 dark:border-brand-800">
                              <i class="ph-fill ph-user"></i>
@@ -61,7 +69,7 @@
                         <span class="text-sm font-black text-gray-500 dark:text-gray-300 uppercase tracking-widest" th:text="${data.channelName}">Channel</span>
                     </div>
                     
-                    <h3 class="text-2xl md:text-3xl font-black text-gray-900 dark:text-white leading-tight mb-6" th:text="${data.title}">Title</h3>
+                    <h3 class="text-base md:text-2xl lg:text-3xl font-black text-gray-900 dark:text-white leading-tight mb-6" th:text="${data.title}">Title</h3>
                     
                     <div class="flex items-center gap-4 text-sm font-black text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 w-fit px-4 py-2 rounded-xl border border-gray-100 dark:border-gray-700">
                         <span class="flex items-center gap-2"><i class="ph-bold ph-calendar-blank text-green-500 text-lg"></i> Published: <span th:text="${data.publishedAt}">Date</span></span>
@@ -69,11 +77,11 @@
                 </div>
             </div>
 
-            <div class="card-base p-8 flex flex-col items-center justify-center text-center relative border-2 border-green-50 dark:border-green-900/30">
+            <div class="card-base p-4 sm:p-8 flex flex-col items-center justify-center text-center relative border-2 border-green-50 dark:border-green-900/30">
                 <div class="relative z-10">
                     <div class="flex items-baseline justify-center gap-1 mb-2">
-                        <span class="text-7xl font-black text-green-600 dark:text-green-400 tracking-tighter" th:text="${data.seoScore}">85</span>
-                        <span class="text-2xl font-black text-gray-300 dark:text-gray-600">/100</span>
+                        <span class="text-5xl md:text-7xl font-black text-green-600 dark:text-green-400 tracking-tighter" th:text="${data.seoScore}">85</span>
+                        <span class="text-xl md:text-2xl font-black text-gray-300 dark:text-gray-600">/100</span>
                     </div>
                     <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 text-xs font-black uppercase tracking-[0.2em]">
                         <i class="ph-fill ph-seal-check text-lg"></i> SEO Health
@@ -84,30 +92,30 @@
         </div>
 
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
-            <div class="card-base p-6 text-center hover:border-green-200 dark:hover:border-green-800 transition-colors group">
-                <div class="text-gray-400 text-xs font-black uppercase mb-3 flex items-center justify-center gap-2 group-hover:text-brand-500"><i class="ph-bold ph-eye text-lg"></i> Views</div>
-                <div class="text-3xl font-black text-gray-900 dark:text-white" th:text="${#numbers.formatInteger(data.viewCount,3,'COMMA')}">0</div>
+            <div class="card-base p-2 sm:p-4 md:p-6 text-center hover:border-green-200 dark:hover:border-green-800 transition-colors group">
+                <div class="text-gray-400 text-[10px] sm:text-xs font-black uppercase mb-3 flex items-center justify-center gap-1.5 group-hover:text-brand-500"><i class="ph-bold ph-eye text-base sm:text-lg"></i> Views</div>
+                <div class="text-sm sm:text-lg md:text-3xl font-black text-gray-900 dark:text-white" th:text="${#numbers.formatInteger(data.viewCount,3,'COMMA')}">0</div>
             </div>
             
-            <div class="card-base p-6 text-center hover:border-green-200 dark:hover:border-green-800 transition-colors group">
-                <div class="text-green-600 dark:text-green-500 text-xs font-black uppercase mb-3 flex items-center justify-center gap-2"><i class="ph-bold ph-thumbs-up text-lg"></i> Likes</div>
-                <div class="text-3xl font-black text-gray-900 dark:text-white" th:text="${#numbers.formatInteger(data.likeCount,3,'COMMA')}">0</div>
+            <div class="card-base p-2 sm:p-4 md:p-6 text-center hover:border-green-200 dark:hover:border-green-800 transition-colors group">
+                <div class="text-green-600 dark:text-green-500 text-[10px] sm:text-xs font-black uppercase mb-3 flex items-center justify-center gap-1.5"><i class="ph-bold ph-thumbs-up text-base sm:text-lg"></i> Likes</div>
+                <div class="text-sm sm:text-lg md:text-3xl font-black text-gray-900 dark:text-white" th:text="${#numbers.formatInteger(data.likeCount,3,'COMMA')}">0</div>
             </div>
             
-            <div class="card-base p-6 text-center bg-red-50/50 dark:bg-red-900/10 border-red-100 dark:border-red-900/30 hover:border-red-200 dark:hover:border-red-800 transition-colors group">
-                <div class="text-red-500 text-xs font-black uppercase mb-3 flex items-center justify-center gap-2"><i class="ph-bold ph-thumbs-down text-lg"></i> Dislikes</div>
-                <div class="text-3xl font-black text-gray-900 dark:text-white" th:text="${#numbers.formatInteger(data.dislikeCount,3,'COMMA')}">0</div>
+            <div class="card-base p-2 sm:p-4 md:p-6 text-center bg-red-50/50 dark:bg-red-900/10 border-red-100 dark:border-red-900/30 hover:border-red-200 dark:hover:border-red-800 transition-colors group">
+                <div class="text-red-500 text-[10px] sm:text-xs font-black uppercase mb-3 flex items-center justify-center gap-1.5"><i class="ph-bold ph-thumbs-down text-base sm:text-lg"></i> Dislikes</div>
+                <div class="text-sm sm:text-lg md:text-3xl font-black text-gray-900 dark:text-white" th:text="${#numbers.formatInteger(data.dislikeCount,3,'COMMA')}">0</div>
             </div>
             
-            <div class="card-base p-6 text-center bg-purple-50/50 dark:bg-purple-900/10 border-purple-100 dark:border-purple-900/30 hover:border-purple-200 dark:hover:border-purple-800 transition-colors group">
-                <div class="text-purple-600 dark:text-purple-400 text-xs font-black uppercase mb-3 flex items-center justify-center gap-2"><i class="ph-bold ph-pulse text-lg"></i> Engagement</div>
-                <div class="text-3xl font-black text-gray-900 dark:text-white">
+            <div class="card-base p-2 sm:p-4 md:p-6 text-center bg-purple-50/50 dark:bg-purple-900/10 border-purple-100 dark:border-purple-900/30 hover:border-purple-200 dark:hover:border-purple-800 transition-colors group">
+                <div class="text-purple-600 dark:text-purple-400 text-[10px] sm:text-xs font-black uppercase mb-3 flex items-center justify-center gap-1.5"><i class="ph-bold ph-pulse text-base sm:text-lg"></i> Engagement</div>
+                <div class="text-sm sm:text-lg md:text-3xl font-black text-gray-900 dark:text-white">
                     <span th:text="${#numbers.formatDecimal(data.engagementRate,1,2)}">0</span>%
                 </div>
             </div>
         </div>
 
-        <div class="card-base p-8 md:p-10">
+        <div class="card-base p-4 md:p-10">
             <div class="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
                 <h3 class="text-sm font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">Audience Sentiment Analysis</h3>
                 <span class="px-5 py-2 rounded-2xl bg-brand-500 text-white text-sm font-black shadow-lg shadow-brand-500/20">
@@ -124,14 +132,14 @@
             </div>
         </div>
 
-        <div class="card-base p-8 md:p-10">
-            <h3 class="text-2xl font-black text-gray-900 dark:text-white mb-10 flex items-center gap-3">
+        <div class="card-base p-4 md:p-10">
+            <h3 class="text-lg md:text-2xl font-black text-gray-900 dark:text-white mb-10 flex items-center gap-3">
                 <i class="ph-fill ph-clipboard-text text-green-500"></i> Actionable SEO Audit
             </h3>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div th:each="audit : ${data.auditResults}" 
-                     class="group flex items-start gap-5 p-6 rounded-3xl border-2 transition-all duration-500"
+                     class="group flex items-start gap-3 sm:gap-5 p-3 sm:p-5 md:p-6 rounded-2xl md:rounded-3xl border-2 transition-all duration-500"
                      th:classappend="${audit.passed} ? 'bg-green-50/30 dark:bg-green-900/5 border-green-100 dark:border-green-900/20' : 'bg-red-50/30 dark:bg-red-900/5 border-red-100 dark:border-red-900/20'">
                     
                     <div class="shrink-0 mt-1 p-2.5 rounded-2xl shadow-sm"
@@ -141,10 +149,10 @@
                     </div>
                     
                     <div class="min-w-0">
-                        <h4 class="font-black text-lg mb-1" 
+                        <h4 class="font-black text-sm md:text-lg mb-1" 
                             th:classappend="${audit.passed} ? 'text-green-900 dark:text-green-200' : 'text-red-900 dark:text-red-200'"
                             th:text="${audit.passed} ? 'Audit Passed' : 'Needs Optimization'">Status</h4>
-                        <p class="text-base font-medium leading-relaxed" 
+                        <p class="text-sm md:text-base font-medium leading-relaxed" 
                            th:classappend="${audit.passed} ? 'text-green-800/80 dark:text-green-300/70' : 'text-red-800/80 dark:text-red-300/70'"
                            th:text="${audit.message}">Message</p>
                     </div>
@@ -153,6 +161,7 @@
         </div>
 
     </div>
-</section>
+    </turbo-frame>
+</div>
 </body>
 </html>

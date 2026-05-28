@@ -1,0 +1,195 @@
+/* --- SEODrift Ultra-Premium Celestial Dashboard --- */
+
+:root {
+    --ease-premium: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.dashboard-glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    border-radius: 24px;
+    box-shadow: 
+        0 10px 30px -10px rgba(15, 23, 42, 0.04),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+    transition: all 0.4s var(--ease-premium);
+    position: relative;
+    overflow: hidden;
+}
+
+.dark .dashboard-glass-card {
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 
+        0 20px 45px -15px rgba(0, 0, 0, 0.3),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+
+/* Specific glows and border transformations for stats cards */
+.glow-brand:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 
+        0 20px 40px -10px rgba(59, 130, 246, 0.16),
+        inset 0 0 0 1px rgba(59, 130, 246, 0.25);
+    border-color: rgba(59, 130, 246, 0.45) !important;
+}
+
+.glow-green:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 
+        0 20px 40px -10px rgba(34, 197, 94, 0.16),
+        inset 0 0 0 1px rgba(34, 197, 94, 0.25);
+    border-color: rgba(34, 197, 94, 0.45) !important;
+}
+
+.glow-purple:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 
+        0 20px 40px -10px rgba(168, 85, 247, 0.16),
+        inset 0 0 0 1px rgba(168, 85, 247, 0.25);
+    border-color: rgba(168, 85, 247, 0.45) !important;
+}
+
+.glow-orange:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 
+        0 20px 40px -10px rgba(249, 115, 22, 0.16),
+        inset 0 0 0 1px rgba(249, 115, 22, 0.25);
+    border-color: rgba(249, 115, 22, 0.45) !important;
+}
+
+/* Static, elegant mesh glows for welcome card without rotating animation */
+.dashboard-mesh {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background:
+        radial-gradient(circle at 30% 30%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 70% 70%, rgba(168, 85, 247, 0.12) 0%, transparent 45%);
+    z-index: 0;
+    pointer-events: none;
+    animation: mesh-rotate 25s linear infinite;
+}
+
+.dark .dashboard-mesh {
+    background:
+        radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 70% 70%, rgba(139, 92, 246, 0.08) 0%, transparent 45%);
+}
+
+@keyframes mesh-rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Softer Responsive Table Styles to reduce contrast */
+.dashboard-table th {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #64748b;
+    padding: 18px 24px;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+}
+
+.dark .dashboard-table th {
+    color: #94a3b8;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dashboard-table td {
+    padding: 16px 24px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.03);
+}
+
+.dark .dashboard-table td {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.dashboard-table tr {
+    transition: all 0.3s var(--ease-premium);
+}
+
+.dashboard-table tbody tr:hover {
+    background: rgba(59, 130, 246, 0.03);
+}
+
+.dark .dashboard-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.pro-tier-badge {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 
+        0 8px 20px -4px rgba(99, 102, 241, 0.3),
+        inset 0 0 12px rgba(255, 255, 255, 0.15) !important;
+    transition: all 0.3s var(--ease-premium);
+}
+
+.pro-tier-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+        0 12px 24px -4px rgba(99, 102, 241, 0.4),
+        inset 0 0 16px rgba(255, 255, 255, 0.25) !important;
+}
+
+.dark .pro-tier-badge {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
+    box-shadow: 
+        0 8px 20px -4px rgba(79, 70, 229, 0.4),
+        inset 0 0 12px rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark .pro-tier-badge:hover {
+    box-shadow: 
+        0 12px 24px -4px rgba(79, 70, 229, 0.5),
+        inset 0 0 16px rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Refresh Button Animation */
+.refresh-btn {
+    transition: all 0.4s var(--ease-premium);
+}
+
+.refresh-btn:hover {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+    color: #2563eb !important;
+    transform: scale(1.05) rotate(180deg);
+    border-color: rgba(59, 130, 246, 0.2) !important;
+}
+
+.dark .refresh-btn:hover {
+    background-color: rgba(59, 130, 246, 0.2) !important;
+    color: #60a5fa !important;
+    border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+/* Interactive Quick Console Cards */
+.quick-console-card {
+    transition: all 0.4s var(--ease-premium) !important;
+}
+
+.quick-console-card:hover {
+    transform: translateY(-3px) scale(1.015);
+}
+
+.quick-console-card .ph-arrow-right {
+    transition: transform 0.3s var(--ease-premium);
+}
+
+.quick-console-card:hover .ph-arrow-right {
+    transform: translateX(4px);
+}
+
+

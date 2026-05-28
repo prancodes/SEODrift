@@ -6,21 +6,35 @@ services:
     container_name: seodrift_app
     restart: unless-stopped
     ports:
-      - "${PORT:-8080}:8080"
+      - "8080:8080"
     environment:
+      # Profile Settings
       - SPRING_PROFILES_ACTIVE=prod
-      - YT_API_KEY=${YT_API_KEY:-your-api-key-here}
-      - BASE_URL=${BASE_URL:-www.googleapis.com}
       - PORT=8080
+      
+      # Database (Neon.tech)
+      - DB_URL=${DB_URL}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      
+      # OAuth2 (Google Console)
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      
+      # App Keys
+      - YT_API_KEY=${YT_API_KEY}
+      - BASE_URL=${BASE_URL:-https://www.googleapis.com/youtube/v3}
+      - APP_URL=${APP_URL:-http://localhost:8080}
+      
     networks:
       - seodrift-network
     # Healthcheck (optional but recommended)
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 60s
 
 networks:
   seodrift-network:

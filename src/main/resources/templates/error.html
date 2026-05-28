@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{fragments/layout/layout}">
+
+<head>
+    <title>Error</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="py-8 sm:py-12 max-w-6xl mx-auto px-2 sm:px-4">
+        <div
+            class="card-base p-6 sm:p-10 relative overflow-hidden text-center border-2 border-red-500/20 dark:border-red-500/10">
+
+            <!-- Sleek Celestial Radar/Compass Graphic (No bounce animation) -->
+            <div class="w-32 h-32 mx-auto mb-8 relative flex items-center justify-center">
+                <div class="absolute inset-0 bg-red-500/10 dark:bg-red-500/5 rounded-full animate-pulse"></div>
+                <div
+                    class="absolute inset-4 border border-dashed border-red-500/30 dark:border-red-500/20 rounded-full animate-spin [animation-duration:12s]">
+                </div>
+                <div class="absolute inset-8 border border-red-500/20 dark:border-red-500/10 rounded-full"></div>
+
+                <svg class="w-14 h-14 text-red-500 dark:text-red-400 animate-pulse [animation-duration:3s]"
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10" stroke-dasharray="3 3"></circle>
+                    <line x1="12" y1="2" x2="12" y2="22"></line>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path d="M16.24 7.76a6 6 0 0 1 0 8.49M7.76 16.25a6 6 0 0 1 0-8.49"></path>
+                    <circle cx="12" cy="12" r="1.5" fill="currentColor" class="text-red-600 animate-ping"></circle>
+                </svg>
+            </div>
+
+            <!-- Professional Headline -->
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight leading-tight mb-6">
+                <span th:if="${status == 404}">Page <span class="text-transparent bg-clip-text bg-linear-to-r from-red-500 to-orange-500 dark:from-red-400 dark:to-orange-400">Not Found</span></span>
+                <span th:unless="${status == 404}">An Unexpected <span class="text-transparent bg-clip-text bg-linear-to-r from-red-500 to-orange-500 dark:from-red-400 dark:to-orange-400">Error Occurred</span></span>
+            </h1>
+
+            <!-- Subtitle/Message -->
+            <p class="text-sm sm:text-base text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-8 font-medium leading-relaxed"
+                th:text="${errorMessage != null ? errorMessage : (status == 404 ? 'The page you are looking for does not exist or has been moved.' : 'We encountered an unexpected error while processing your request. Please try again or return to the dashboard.')}">
+                We encountered an unexpected error while processing your request. Please try again or return to the
+                dashboard.
+            </p>
+
+            <!-- Expandable Diagnostics Console (Drawer) -->
+            <details th:if="${details}"
+                class="group mb-8 text-left bg-gray-50 dark:bg-gray-900/40 rounded-2xl border border-gray-100 dark:border-gray-700 transition-all duration-300">
+                <summary
+                    class="flex items-center justify-between p-4 cursor-pointer font-black text-[10px] sm:text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400 select-none">
+                    <span class="flex items-center gap-2"><i class="ph-bold ph-terminal text-red-500"></i> Technical
+                        Details / Error Logs</span>
+                    <i class="ph-bold ph-caret-down group-open:rotate-180 transition-transform"></i>
+                </summary>
+                <div class="p-4 pt-0 border-t border-gray-100 dark:border-gray-700">
+                    <pre class="text-[10px] sm:text-xs text-red-500 dark:text-red-400 font-mono overflow-x-auto whitespace-pre-wrap break-all leading-relaxed mt-2"
+                        th:text="${details}">Error stack trace...</pre>
+                </div>
+            </details>
+
+            <!-- Professional Controls -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <a href="/"
+                    class="btn-primary w-full sm:w-auto px-4 py-3 text-sm md:px-8 md:py-4 md:text-lg lg:text-[16px] font-bold flex items-center justify-center gap-2">
+                    <i class="ph-bold ph-house-line text-base"></i> Go Back Home
+                </a>
+                <a sec:authorize="isAuthenticated()" href="/dashboard"
+                    class="w-full sm:w-auto px-4 py-3 text-sm md:px-8 md:py-4 md:text-lg lg:text-[16px] bg-gray-900 hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-gray-900/5">
+                    <i class="ph-bold ph-layout text-base"></i> Go to Dashboard
+                </a>
+                <a href="https://github.com/prancodes/SEODrift/issues" target="_blank"
+                    class="w-full sm:w-auto px-4 py-3 text-sm md:px-8 md:py-4 md:text-lg lg:text-[16px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 font-bold rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-2">
+                    <i class="ph-bold ph-github-logo text-base"></i> Report Issue
+                </a>
+            </div>
+
+            <div class="shine-overlay"></div>
+        </div>
+    </div>
+</body>
+
+</html>

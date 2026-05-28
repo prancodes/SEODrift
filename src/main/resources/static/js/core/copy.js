@@ -38,12 +38,13 @@ function copyTags(tagsString, button) {
         
         // Tailwind classes for a sleek, centered mobile-responsive toast
         toast.className = `
-            fixed bottom-8 left-1/2 -translate-x-1/2 md:left-auto md:right-8 md:translate-x-0
+            fixed bottom-8 left-4 right-4 md:left-auto md:right-8 md:translate-x-0
             bg-white/90 dark:bg-gray-800/90 backdrop-blur-md 
             text-gray-900 dark:text-white 
             px-6 py-4 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700
             transform transition-all duration-500 z-50 
             flex items-center gap-3 opacity-0 translate-y-4
+            md:max-w-sm
         `;
         
         // Unified Inter typography and Phospor icons
