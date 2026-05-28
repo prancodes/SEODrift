@@ -43,8 +43,8 @@ public class ThumbnailController {
             // Fetch Metadata (Title + Channel) for better filename during download
             Map<String,String> metadata = service.fetchVideoMetadata(videoId);
 
-            String videoTitle = metadata.get("title");
-            String channelName = metadata.get("author_name");
+            String videoTitle = metadata.getOrDefault("title", "YouTube Video (" + videoId + ")");
+            String channelName = metadata.getOrDefault("author_name", "YouTube Channel");
 
             model.addAttribute("videoTitle", videoTitle);
             model.addAttribute("channelName", channelName);

@@ -8,5 +8,30 @@
     "name": "base.url",
     "type": "java.lang.String",
     "description": "Google API base URL for YouTube services."
+  },
+  {
+    "name": "spring.datasource.url",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.url'"
+  },
+  {
+    "name": "spring.jpa.hibernate.ddl-auto",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.jpa.hibernate.ddl-auto'"
+  },
+  {
+    "name": "spring.jpa.properties.hibernate.dialect",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.jpa.properties.hibernate.dialect'"
+  },
+  {
+    "name": "spring.jpa.show-sql",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.jpa.show-sql'"
+  },
+  {
+    "name": "app.base-url",
+    "type": "java.lang.String",
+    "description": "A description for 'app.base-url'"
   }
 ]}

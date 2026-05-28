@@ -1,22 +1,37 @@
 package com.seo.project.service;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import java.util.regex.Pattern;
+import tools.jackson.databind.JsonNode;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+/**
+ * ThumbnailService provides specialized utilities for handling YouTube video assets,
+ * including URL parsing, metadata extraction (via oEmbed), and binary image downloads.
+ */
+@Slf4j
 @Service
 public class ThumbnailService {
 
     private final WebClient webClient;
 
-    // Inject WebClient.Builder to allow reuse and better performance
+    @Value("${youtube.api.key}")
+    private String apiKey;
+
+    @Value("${base.url}")
+    private String baseUrl;
+
+    /**
+     * Reuses a shared WebClient.Builder for better performance and pooled connections.
+     */
     public ThumbnailService(WebClient.Builder builder) {
         this.webClient = builder.build();
     }
@@ -34,14 +49,15 @@ public class ThumbnailService {
     COMPILED PATTERN: We use 'static final' to compile this once for better performance.
     This is much faster than compiling it every time the function runs.
     It handles: http, https, www, m., youtu.be, /watch?v=, /embed/, /v/, /shorts/
-    */
+     */
     private static final Pattern YOUTUBE_URL_PATTERN = Pattern.compile(
             "^(?:https?://)?(?:www\\.|m\\.)?(?:youtu\\.be/|youtube\\.com/(?:embed/|v/|watch\\?v=|watch\\?.+&v=|shorts/))([\\w-]{11})(?:.+)?$");
 
     /**
      * Extracts the 11-character Video ID from a YouTube URL.
-     * @param url The full YouTube URL (e.g., https://youtu.be/abc12345678)
-     * @return The Video ID (e.g., abc12345678) or null if not found.
+     * 
+     * @param url The full YouTube URL.
+     * @return The Video ID or null if parsing fails.
      */
     public String extractVideoId(String url) {
         // 1. Basic validation to avoid NullPointerException
@@ -57,55 +73,82 @@ public class ThumbnailService {
             return matcher.group(1);
         }
         
+        log.warn("Failed to extract Video ID from provided URL: [{}]", url);
         return null;
     }
 
-    // Fetch Video Metadata (using oembed)
+    /**
+     * Fetches public video metadata using the YouTube Data API or falling back to the lightweight oEmbed API.
+     */
     @SuppressWarnings("unchecked")
     public Map<String,String> fetchVideoMetadata(String videoId) {
         Map<String,String> metadata = new HashMap<>();
 
-        // Default values in case fetch fails
-        metadata.put("title", "video-" + videoId);
-        metadata.put("author_name", "yt-Video" + videoId);
+        // 1. Try YouTube Data API first for full details (works even if embedding is disabled)
+        try {
+            if (apiKey != null && !apiKey.isEmpty() && baseUrl != null && !baseUrl.isEmpty()) {
+                log.debug("Attempting to fetch video metadata via YouTube Data API for video: [{}]", videoId);
+                String url = baseUrl + "/videos?part=snippet&id=" + videoId + "&key=" + apiKey;
+                JsonNode root = webClient.get()
+                        .uri(url)
+                        .retrieve()
+                        .bodyToMono(JsonNode.class)
+                        .block();
+                if (root != null && root.has("items") && !root.get("items").isEmpty()) {
+                    JsonNode item = root.get("items").get(0);
+                    JsonNode snippet = item.get("snippet");
+                    metadata.put("title", snippet.get("title").asString());
+                    metadata.put("author_name", snippet.get("channelTitle").asString());
+                    log.info("YouTube Data API metadata successfully retrieved for: {}", metadata.get("title"));
+                    return metadata;
+                }
+            }
+        } catch (Exception e) {
+            log.warn("YouTube Data API metadata fetch failed for video [{}] (possibly quota limit/network): {}", videoId, e.getMessage());
+        }
 
-        try{
+        // 2. Fall back to oEmbed API if YouTube Data API fails
+        log.debug("Falling back to oEmbed metadata for video ID: [{}]", videoId);
+        try {
             String oembedUrl = "https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=" + videoId + "&format=json";
-            // .block() calls it synchronously (keeps it simple for the current Controller)
             Map<String,Object> response = webClient.get()
                     .uri(oembedUrl)
                     .retrieve()
                     .bodyToMono(Map.class)
                     .block();
 
-            if (response != null && response.containsKey("title")) {
-                metadata.put("title", (String) response.get("title"));
-            }
-            if (response != null && response.containsKey("author_name")) {
-                metadata.put("author_name", (String) response.get("author_name"));
+            if (response != null) {
+                if (response.containsKey("title")) metadata.put("title", (String) response.get("title"));
+                if (response.containsKey("author_name")) metadata.put("author_name", (String) response.get("author_name"));
+                log.info("oEmbed metadata successfully retrieved for: {}", metadata.get("title"));
             }
         } catch (Exception e) {
-            System.out.println("Error fetching video title: " + e.getMessage());
+            log.error("Failed to retrieve oEmbed metadata for [{}]: {}", videoId, e.getMessage());
         }
         return metadata;
     }
 
-    // Downloads image bytes from the URL, with proper filename as videoTitle
+    /**
+     * Downloads an image from a URL and returns it as a downloadable ResponseEntity.
+     * Handles content-type mapping and filename sanitization.
+     */
     public ResponseEntity<byte[]> downloadImage(String imageUrl, String fileName) {
+        log.info("Initiating image download for asset: {}", fileName);
         try {
-            // 3. Use the injected webClient (efficient reuse)
+            // Use the injected webClient (efficient reuse)
             byte[] imageBytes = webClient.get()
                     .uri(imageUrl)
                     .retrieve()
                     .bodyToMono(byte[].class)
-                    .block(); // Blocking here to return simple bytes to the browser
+                    .block();
 
             if (imageBytes == null) {
+                log.warn("Download failed: Received empty body for image URL: {}", imageUrl);
                 return ResponseEntity.notFound().build();
             }
 
-            // 4. Smart Content-Type Detection
-            MediaType contentType = MediaType.IMAGE_JPEG; // Default
+            // Map content type based on URL extension
+            MediaType contentType = MediaType.IMAGE_JPEG;
             String fileExtension = ".jpg";
 
             if (imageUrl.contains(".webp")) {
@@ -116,24 +159,23 @@ public class ThumbnailService {
                 fileExtension = ".png";
             }
 
-            // Sanitize filename (remove illegal characters for Windows/Linux)
+            // Sanitize filename for operating system compatibility
             String safeFilename = fileName.replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
             String fullFileName = safeFilename + fileExtension;
-            // System.out.println("Downloading image as: " + fullFileName);
 
             // 5. Build Headers
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(contentType);
-            // "attachment" forces the browser to show the 'Save As' dialog
             headers.setContentDispositionFormData("attachment", fullFileName);
 
+            log.debug("Successfully prepared download response for: {}", fullFileName);
             return ResponseEntity.ok()
                     .headers(headers)
                     .body(imageBytes);
 
         } catch (Exception e) {
+            log.error("Exception during image download for [{}]: {}", imageUrl, e.getMessage());
             return ResponseEntity.notFound().build();
         }
     }
-
 }

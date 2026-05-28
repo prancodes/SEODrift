@@ -44,7 +44,7 @@ const ThemeManager = {
 // Run immediately to prevent FOUC
 ThemeManager.init();
 
-// Re-run on DOMContentLoaded to ensure elements are attached if script runs in head
-document.addEventListener('DOMContentLoaded', () => {
+// Re-run on turbo:load to ensure elements are attached after navigation
+document.addEventListener('turbo:load', () => {
     ThemeManager.init();
 });

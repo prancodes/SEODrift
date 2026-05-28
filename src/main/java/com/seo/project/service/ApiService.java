@@ -1,22 +1,30 @@
 package com.seo.project.service;
 
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.PostConstruct;
-
+/**
+ * ApiService manages the lifecycle and validation of external API credentials.
+ */
+@Slf4j
 @Service
 public class ApiService {
 
     @Value("${youtube.api.key}")
     private String apiKey;
 
+    /**
+     * Diagnostic check to ensure the YouTube Data API key is correctly loaded 
+     * from environment variables during application startup.
+     */
     @PostConstruct
-    public void apiKeyStatus() {
+    public void validateApiKey() {
         if (apiKey != null && !apiKey.isEmpty()) {
-            System.out.println("✅ SUCCESS: API Key loaded successfully!");
+            log.info("YouTube API credentials successfully validated and loaded.");
         } else {
-            System.err.println("❌ ERROR: API Key is missing!");
+            log.error("CRITICAL: YouTube API Key is missing! Video analysis features will be disabled.");
         }
     }
 }

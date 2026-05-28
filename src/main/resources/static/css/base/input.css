@@ -55,7 +55,7 @@
   
   /* Consistent Card Styling for Mobile and Desktop */
   .card-base {
-    @apply bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-xl shadow-gray-200/50 dark:shadow-none transition-all duration-300 overflow-hidden;
+    @apply bg-white dark:bg-gray-800 rounded-2xl md:rounded-3xl border border-gray-100 dark:border-gray-700 shadow-xl shadow-gray-200/50 dark:shadow-none transition-all duration-300 overflow-hidden;
   }
   
   /* Responsive Input Field */
@@ -70,5 +70,10 @@
   
   .group:hover .shine-overlay {
     @apply animate-shine;
+  }
+
+  /* Turbo Progress Bar Styling */
+  .turbo-progress-bar {
+    @apply h-1 bg-linear-to-r from-brand-500 to-purple-500;
   }
 }
