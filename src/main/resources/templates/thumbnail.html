@@ -4,7 +4,7 @@
     <title>Thumbnail Grabber</title>
 </head>
 <body>
-<div layout:fragment="content" class="max-w-6xl mx-auto px-2 sm:px-4">
+<div layout:fragment="content" class="max-w-6xl mx-auto">
     <div class="card-base p-4 md:p-10 mb-8 relative overflow-hidden">
         <div class="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
             <i class="ph-fill ph-image text-9xl text-orange-600"></i>
@@ -38,7 +38,7 @@
             </button>
         </form>
 
-    <turbo-frame id="results" class="block p-4 sm:p-6 mb-6">
+    <turbo-frame id="results" class="block mt-6 mb-6">
         <!-- Dynamic Error Display -->
         <div th:if="${error}" class="mb-6 animate-fade-in flex items-start gap-4 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 text-red-600 dark:text-red-400">
             <div class="p-2 bg-red-100 dark:bg-red-900/50 rounded-lg shrink-0">
