@@ -24,7 +24,8 @@ public class SecurityConfig {
 
     /**
      * Bean definition for our specialized OAuth2/OIDC service.
-     * Manual creation ensures we can inject the UserRepository for database synchronization.
+     * Manual creation ensures we can inject the UserRepository for database
+     * synchronization.
      */
     @Bean
     public CustomOAuth2UserService customOAuth2UserService(UserService userService) {
@@ -36,31 +37,32 @@ public class SecurityConfig {
      * Defines the primary security filter chain for the application.
      */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, CustomOAuth2UserService customOAuth2UserService) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, CustomOAuth2UserService customOAuth2UserService)
+            throws Exception {
         log.info("Configuring Security Filter Chain...");
-        
+
         http
-            .authorizeHttpRequests(authorize -> authorize
-                // Publicly accessible assets and home page
-                .requestMatchers("/", "/css/**", "/js/**", "/images/**", "/webjars/**", "/favicons/**", "/api/auth/**").permitAll()
-                
-                // Protected tools and user data
-                .requestMatchers("/analytics/**", "/dashboard/**", "/tags/**", "/thumbnail/**").authenticated()
-                
-                // Everything else remains public for flexibility
-                .anyRequest().permitAll()
-            )
-            .oauth2Login(oauth2 -> oauth2
-                .userInfoEndpoint(userInfo -> userInfo
-                    .userService(customOAuth2UserService)
-                    .oidcUserService(customOAuth2UserService::loadOidcUser)
-                )
-                .defaultSuccessUrl("/", false)
-            )
-            .logout(logout -> logout
-                .logoutSuccessUrl("/")
-                .permitAll()
-            );
+                .authorizeHttpRequests(authorize -> authorize
+                        // Publicly accessible assets and home page
+                        .requestMatchers("/", "/css/**", "/js/**", "/images/**", "/webjars/**", "/favicons/**",
+                                "/api/auth/**")
+                        .permitAll()
+
+                        // Protected tools and user data
+                        .requestMatchers("/analytics/**", "/dashboard/**", "/tags/**", "/thumbnail/**",
+                                "/api/gateway/youtube/**")
+                        .authenticated()
+
+                        // Everything else remains public for flexibility
+                        .anyRequest().permitAll())
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService)
+                                .oidcUserService(customOAuth2UserService::loadOidcUser))
+                        .defaultSuccessUrl("/", false))
+                .logout(logout -> logout
+                        .logoutSuccessUrl("/")
+                        .permitAll());
 
         log.info("Security Configuration successfully applied.");
         return http.build();

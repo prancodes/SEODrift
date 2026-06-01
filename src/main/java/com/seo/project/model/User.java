@@ -31,6 +31,14 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<VideoAnalysis> analyses;
 
+    @ManyToMany
+    @JoinTable(
+        name = "user_competitors",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "competitor_channel_id")
+    )
+    private List<CompetitorChannel> competitorChannels;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

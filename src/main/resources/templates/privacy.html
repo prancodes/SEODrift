@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{fragments/layout/layout}">
+
+<head>
+    <title>Privacy Policy | SEODrift</title>
+    <style>
+        .glow-border {
+            box-shadow: 0 0 25px -5px rgba(59, 130, 246, 0.15), 0 0 15px -5px rgba(168, 85, 247, 0.15);
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content" class="max-w-4xl mx-auto lg:px-8 animate-fade-in -mt-8 md:-mt-12 lg:-mt-16 pt-6">
+        <!-- Breadcrumb -->
+        <div class="mb-6">
+            <a href="/"
+                class="inline-flex items-center gap-2 text-xs font-black text-gray-500 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 uppercase tracking-widest transition-colors group">
+                <i class="ph-bold ph-arrow-left group-hover:-translate-x-1 transition-transform"></i>
+                Back to Home
+            </a>
+        </div>
+
+        <!-- Main Content Container with Glassmorphism -->
+        <div
+            class="relative bg-white/70 dark:bg-white/5 backdrop-blur-lg border border-gray-200/80 dark:border-white/10 rounded-2xl p-6 md:p-12 shadow-2xl glow-border overflow-hidden">
+            <!-- Ambient Glowing Orbs -->
+            <div class="absolute -top-40 -right-40 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl pointer-events-none">
+            </div>
+            <div
+                class="absolute -bottom-40 -left-40 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none">
+            </div>
+
+            <div class="relative z-10">
+                <!-- Header Section -->
+                <div class="border-b border-gray-200 dark:border-white/10 pb-6 mb-8">
+                    <span
+                        class="inline-block py-1 px-3 rounded-full bg-brand-100 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/20 text-brand-700 dark:text-brand-400 text-[10px] font-black tracking-widest uppercase mb-4">
+                        Security & Compliance
+                    </span>
+                    <h1
+                        class="text-2xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight leading-tight mb-2">
+                        Privacy Policy for SEODrift
+                    </h1>
+                    <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Effective Date: May 31, 2026 | Last Updated: May 31, 2026
+                    </p>
+                </div>
+
+                <!-- Content Area with optimized typography -->
+                <div
+                    class="prose dark:prose-invert max-w-none text-gray-600 dark:text-gray-300 space-y-8 leading-relaxed text-sm md:text-base font-medium">
+
+                    <section class="space-y-3">
+                        <h2
+                            class="text-lg md:text-xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2.5">
+                            <i class="ph-fill ph-info text-brand-600 dark:text-brand-400 text-xl"></i> 1. Introduction
+                        </h2>
+                        <p>
+                            Welcome to <strong>SEODrift</strong>. This Privacy Policy governs your use of our
+                            application, hosted at
+                            <a href="https://seodrift-378036956146.us-central1.run.app"
+                                class="text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 underline font-bold"
+                                target="_blank">https://seodrift-378036956146.us-central1.run.app</a> (the "Service").
+                            We respect your privacy and are committed to protecting any personal data you share with us.
+                        </p>
+                        <p>
+                            Our Service uses Google OAuth2 login via Google Identity Services to provide secure,
+                            seamless user authentication and core features.
+                        </p>
+                    </section>
+
+                    <section class="space-y-3">
+                        <h2
+                            class="text-lg md:text-xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2.5">
+                            <i class="ph-fill ph-database text-brand-600 dark:text-brand-400 text-xl"></i> 2.
+                            Information We Collect
+                        </h2>
+                        <p>
+                            We collect personal and account information to provide and improve our services.
+                            Specifically, we collect:
+                        </p>
+                        <ul class="list-disc pl-6 space-y-2">
+                            <li><strong>Personal Identification Details:</strong> Name, Email Address, and Profile
+                                Picture, retrieved via Google Identity Services when you authenticate with Google
+                                OAuth2.</li>
+                            <li><strong>Google Account ID:</strong> A unique identifier provided by Google to
+                                distinguish your user account.</li>
+                            <li><strong>YouTube Metadata:</strong> We access the YouTube Data API v3 to retrieve public
+                                metadata (such as video titles, descriptions, and tags) associated with YouTube video
+                                URLs you analyze.</li>
+                        </ul>
+                    </section>
+
+                    <section class="space-y-3">
+                        <h2
+                            class="text-lg md:text-xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2.5">
+                            <i class="ph-fill ph-gear text-brand-600 dark:text-brand-400 text-xl"></i> 3. How We Use
+                            Your Information
+                        </h2>
+                        <p>
+                            Your information is utilized solely to power the core functionalities of SEODrift,
+                            specifically:
+                        </p>
+                        <ul class="list-disc pl-6 space-y-2">
+                            <li><strong>Session Authentication:</strong> Verifying your identity and maintaining your
+                                active login session.</li>
+                            <li><strong>Creator Dashboard History:</strong> Saving your analyzed video search histories
+                                (securely stored in our PostgreSQL database) so you can review previous SEO audits.</li>
+                            <li><strong>SEO & Analytics Generation:</strong> Generating optimized SEO tags, calculated
+                                engagement ratings, and metadata summaries.</li>
+                        </ul>
+                    </section>
+
+                    <!-- Google API Policy Compliance Clause (Highlighted Visually) -->
+                    <section
+                        class="p-6 md:p-8 rounded-2xl bg-brand-50/50 dark:bg-white/5 border border-brand-500/20 shadow-xl space-y-4 relative overflow-hidden group">
+                        <div
+                            class="absolute top-0 right-0 w-32 h-32 bg-brand-500/5 rounded-full blur-2xl pointer-events-none">
+                        </div>
+                        <h3
+                            class="text-base md:text-lg font-black text-brand-650 dark:text-brand-400 tracking-tight flex items-center gap-2">
+                            <i class="ph-fill ph-shield-check text-xl"></i> Google API Services User Data Policy
+                            Compliance
+                        </h3>
+                        <p class="text-sm md:text-base text-gray-800 dark:text-gray-200 font-semibold leading-relaxed">
+                            "SEODrift's use and transfer to any other app of information received from Google APIs will
+                            adhere to the
+                            <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank"
+                                class="text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 underline font-black">Google
+                                API Services User Data Policy</a>,
+                            including the Limited Use requirements. We do not sell or share your data with third
+                            parties."
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                            We respect your right to privacy and do not distribute, rent, sell, or trade your Google
+                            account profiles or YouTube access data with external organizations, marketing platforms, or
+                            third-party networks.
+                        </p>
+                    </section>
+
+                    <section class="space-y-3">
+                        <h2
+                            class="text-lg md:text-xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2.5">
+                            <i class="ph-fill ph-lock text-brand-600 dark:text-brand-400 text-xl"></i> 4. Data Security
+                        </h2>
+                        <p>
+                            We employ rigorous technical security measures to ensure your data is safe. SEODrift is
+                            built on <strong>Spring Security 6</strong> and all persistent data—such as user details and
+                            search histories—is stored in a secure PostgreSQL database, protected by standard encryption
+                            and access control barriers.
+                        </p>
+                    </section>
+
+                    <section class="space-y-3">
+                        <h2
+                            class="text-lg md:text-xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2.5">
+                            <i class="ph-fill ph-trash text-brand-600 dark:text-brand-400 text-xl"></i> 5. Deletion &
+                            Revocation
+                        </h2>
+                        <p>
+                            You maintain full ownership of your data and authorization scopes:
+                        </p>
+                        <ul class="list-disc pl-6 space-y-2">
+                            <li><strong>Revoking Access:</strong> You can revoke SEODrift's access to your Google
+                                account at any time through your
+                                <a href="https://myaccount.google.com/permissions" target="_blank"
+                                    class="text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 underline font-bold">Google
+                                    Account Security Settings</a>.
+                            </li>
+                            <li><strong>Full Data Deletion:</strong> If you wish to permanently delete your user profile
+                                and all associated search histories from our PostgreSQL database, please email the
+                                developer directly at
+                                <a href="mailto:prancoder@gmail.com"
+                                    class="text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 underline font-bold">prancoder@gmail.com</a>.
+                                We will process your request within 48 hours.
+                            </li>
+                        </ul>
+                    </section>
+
+                    <section class="space-y-3">
+                        <h2
+                            class="text-lg md:text-xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2.5">
+                            <i class="ph-fill ph-envelope-simple text-brand-600 dark:text-brand-400 text-xl"></i> 6.
+                            Contact & Support
+                        </h2>
+                        <p>
+                            For any questions about this policy or database deletion requests, feel free to reach out to
+                            the developer:
+                        </p>
+                        <div
+                            class="bg-gray-50/50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl p-6 mt-4 grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <div class="text-[10px] text-gray-500 uppercase tracking-widest font-black mb-1">
+                                    Developer</div>
+                                <div class="text-sm font-bold text-gray-900 dark:text-white">Pranjal Singh</div>
+                            </div>
+                            <div>
+                                <div class="text-[10px] text-gray-500 uppercase tracking-widest font-black mb-1">GitHub
+                                </div>
+                                <div>
+                                    <a href="https://github.com/prancodes" target="_blank"
+                                        class="text-sm font-bold text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 flex items-center gap-1.5">
+                                        <i class="ph-fill ph-github-logo"></i> @prancodes
+                                    </a>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="text-[10px] text-gray-500 uppercase tracking-widest font-black mb-1">Email
+                                    Support</div>
+                                <div>
+                                    <a href="mailto:prancoder@gmail.com"
+                                        class="text-sm font-bold text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 break-all">
+                                        prancoder@gmail.com
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                </div>
+
+                <!-- Glowing Action Button -->
+                <div class="mt-12 flex justify-center border-t border-gray-200 dark:border-white/10 pt-8">
+                    <a href="/"
+                        class="btn-primary py-3 px-8 text-xs bg-gradient-to-r from-brand-600 to-indigo-600 dark:from-brand-600 dark:to-purple-600 hover:from-brand-500 hover:to-indigo-500 dark:hover:from-brand-500 dark:hover:to-purple-500 text-white rounded-xl shadow-lg shadow-brand-500/20 active:scale-95 transition-all flex items-center gap-2 font-black uppercase tracking-widest">
+                        <i class="ph-bold ph-house-line text-base"></i> Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

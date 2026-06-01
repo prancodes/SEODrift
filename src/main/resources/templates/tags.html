@@ -4,7 +4,7 @@
     <title>Tags Generator</title>
 </head>
 <body>
-<div layout:fragment="content" class="max-w-6xl mx-auto px-2 sm:px-4">
+<div layout:fragment="content" class="max-w-6xl mx-auto">
     
     <div class="card-base p-4 md:p-10 mb-10 relative overflow-hidden">
         <div class="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
@@ -42,7 +42,7 @@
             <p th:text="${error}"></p>
         </div>
 
-    <div th:if="${primary}" class="space-y-12 animate-fade-in pb-12">
+    <div th:if="${primary}" class="space-y-12 animate-fade-in">
         
         <div class="relative bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-2xl overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-1.5 bg-linear-to-r from-brand-400 to-purple-500"></div>

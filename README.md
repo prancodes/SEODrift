@@ -19,6 +19,8 @@
     <img alt="Java" src="https://img.shields.io/badge/Java-25-orange?style=for-the-badge&logo=openjdk">
     <img alt="Spring Boot" src="https://img.shields.io/badge/Spring%20Boot-4.0.6-brightgreen?style=for-the-badge&logo=springboot">
     <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind%20CSS-4.1.17-blue?style=for-the-badge&logo=tailwindcss">
+    <img alt="PostgreSQL" src="https://img.shields.io/badge/PostgreSQL-Neon.tech-4169E1?style=for-the-badge&logo=postgresql">
+    <img alt="Redis" src="https://img.shields.io/badge/Redis-Aiven%20Cloud-DC382D?style=for-the-badge&logo=redis">
     <img alt="Docker" src="https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker">
     <img alt="License" src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge&logo=github">
   </div>
@@ -33,6 +35,12 @@
 - Automated client-side JWT processing and server-side validation.
 - Real-time profile database synchronization (names, emails, Google IDs, and profile images).
 - Dynamic navigation state changes based on authentication context.
+- **Google OAuth2 Verification Compliant**: Integrated custom `/privacy` and `/terms` routes with explicit API scopes disclosure (including YouTube Data API), data revocation, and contact email support (`prancoder@gmail.com`) to pass manual OAuth2 reviews.
+
+### ⚡ **Cache & Edge Gateway Infrastructure**
+- **Distributed Caching**: Configured Spring Cache backed by Redis (with Lettuce connection pools) to store analytics and tag queries, minimizing external API calls.
+- **Edge Routing Gateway**: Intercepts downstream YouTube search/details requests via Spring Cloud Gateway WebMVC, appending credentials securely.
+- **Sliding-Window Rate Limiting**: Employs a custom Redis-based sliding-window filter on API gateways to throttle traffic and protect YouTube API quotas.
 
 ### 📊 **Personalized User Dashboard & History**
 - **Search History Tracking**: Automatically persists SEO audits to PostgreSQL (Neon.tech) for logged-in users.
@@ -64,6 +72,7 @@
 ### Backend
 - **Java 25** - Utilizing modern language features and optimized runtimes.
 - **Spring Boot 4.0.6** - Standardized application framework.
+- **Spring Cloud Gateway (WebMVC)** - Handles edge API routing and proxying.
 - **Spring Security 6** - Robust security posture handling session management and OAuth2/OIDC.
 - **Spring Data JPA** - Repository layer for PostgreSQL database mapping.
 - **Spring WebFlux** - Non-blocking WebClient for high-performance external API calls.
@@ -78,6 +87,8 @@
 
 ### Database & DevOps
 - **PostgreSQL** - Production-ready storage hosted on Neon.tech.
+- **Aiven Redis** - Managed cloud cache and rate limiting database.
+- **Flyway** - Database schema version control.
 - **HikariCP** - Highly optimized connection pooling configured for serverless scaling.
 - **Docker** - Multi-stage containerization compiling assets and packing the app.
 - **JLink** - Custom lean Java Runtime (using zip-6 compression) resulting in minimal image footprint.
@@ -94,7 +105,9 @@ SEODrift/
 │   │   │   ├── SeoDriftApplication.java          # Spring Boot entry point
 │   │   │   ├── config/
 │   │   │   │   ├── GlobalControllerAdvice.java   # App-wide Thymeleaf attributes (e.g., User info)
-│   │   │   │   └── SecurityConfig.java           # Security rules, endpoints & Google login config
+│   │   │   │   ├── SecurityConfig.java           # Security rules, endpoints & Google login config
+│   │   │   │   ├── CacheConfig.java              # Redis caching and Lettuce configuration
+│   │   │   │   └── GatewayConfig.java            # Spring Cloud Gateway edge router & Redis rate-limiting
 │   │   │   ├── controller/
 │   │   │   │   ├── WebController.java            # Landing page router
 │   │   │   │   ├── TagsController.java           # Tags generator router
@@ -107,10 +120,22 @@ SEODrift/
 │   │   │   │   └── GlobalExceptionHandler.java   # Global error pages & exception handler
 │   │   │   ├── model/
 │   │   │   │   ├── User.java                     # User details database mapping
-│   │   │   │   └── VideoAnalysis.java            # Saved video audit database mapping
+│   │   │   │   ├── VideoAnalysis.java            # Saved video audit database mapping
+│   │   │   │   ├── CompetitorChannel.java        # Competitor channel stats database mapping
+│   │   │   │   ├── CompetitorSnapshot.java       # Competitor stats snapshots database mapping
+│   │   │   │   ├── CompetitorVideo.java          # Competitor video uploads database mapping
+│   │   │   │   ├── KeywordTrend.java             # Keyword velocity statistics database mapping
+│   │   │   │   ├── Notification.java             # User notifications database mapping
+│   │   │   │   └── SavedKeyword.java             # Saved keywords database mapping
 │   │   │   ├── repository/
 │   │   │   │   ├── UserRepository.java           # User entity database access
-│   │   │   │   └── VideoAnalysisRepository.java  # Video audit entity database access
+│   │   │   │   ├── VideoAnalysisRepository.java  # Video audit entity database access
+│   │   │   │   ├── CompetitorChannelRepository.java
+│   │   │   │   ├── CompetitorSnapshotRepository.java
+│   │   │   │   ├── CompetitorVideoRepository.java
+│   │   │   │   ├── KeywordTrendRepository.java
+│   │   │   │   ├── NotificationRepository.java
+│   │   │   │   └── SavedKeywordRepository.java
 │   │   │   ├── service/
 │   │   │   │   ├── TagsService.java              # Tags generation calculations
 │   │   │   │   ├── ThumbnailService.java         # Fetching, downloading & metadata logic
@@ -144,6 +169,8 @@ SEODrift/
 │   │           ├── thumbnail.html               # Thumbnail grabber page
 │   │           ├── analytics.html               # Analytics & insights page
 │   │           ├── dashboard.html               # Account metrics & history list page
+│   │           ├── privacy.html                 # Google OAuth-compliant Privacy Policy
+│   │           ├── terms.html                   # Platform Terms of Service
 │   │           ├── error.html                   # Beautiful custom fallback error template
 │   │           └── fragments/
 │   │               ├── components/

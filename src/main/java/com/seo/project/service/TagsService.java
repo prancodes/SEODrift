@@ -4,6 +4,7 @@ import tools.jackson.databind.JsonNode;
 import com.seo.project.dto.VideoTagsInfo;
 import com.seo.project.dto.TagsGeneratorResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -32,6 +33,7 @@ public class TagsService {
         this.thumbnailService = thumbnailService;
     }
 
+    @Cacheable(value = "tagsGenerator", key = "#input", unless = "#result == null")
     public TagsGeneratorResponse generateTags(String input) {
         String videoId = thumbnailService.extractVideoId(input);
 

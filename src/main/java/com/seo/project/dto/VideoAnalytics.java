@@ -11,13 +11,16 @@ public record VideoAnalytics(
     
     // Raw Stats
     long viewCount,
-    long likeCount,
+    Long likeCount,
     long dislikeCount, // Fetched from RYD API
     long commentCount,
     
     // Calculated Metrics
-    double engagementRate, // (Likes + Comments) / Views * 100
-    double sentimentScore, // Likes / (Likes + Dislikes) * 100
+    Double engagementRate, // (Likes + Comments) / Views * 100
+    Double sentimentScore, // Likes / (Likes + Dislikes) * 100
+    
+    // Hidden Flag
+    Boolean likesHidden,
     
     // SEO Audit
     int seoScore, // 0 to 100

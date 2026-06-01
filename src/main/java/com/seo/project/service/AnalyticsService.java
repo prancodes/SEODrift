@@ -6,7 +6,10 @@ import com.seo.project.model.VideoAnalysis;
 import com.seo.project.repository.UserRepository;
 import com.seo.project.repository.VideoAnalysisRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -30,6 +33,10 @@ public class AnalyticsService {
     private final ThumbnailService thumbnailService;
     private final VideoAnalysisRepository videoAnalysisRepository;
     private final UserRepository userRepository;
+
+    @Autowired
+    @Lazy
+    private AnalyticsService self;
 
     @Value("${youtube.api.key}")
     private String apiKey;
@@ -68,6 +75,25 @@ public class AnalyticsService {
 
         log.debug("Starting analysis pipeline for video ID: [{}]", videoId);
 
+        // Invoke through proxy self-reference to trigger Spring AOP caching interception
+        VideoAnalytics analytics = self.getCachedVideoAnalytics(videoId, url);
+
+        // Persist to user history if authenticated
+        if (analytics != null && userEmail != null) {
+            persistAnalysisToUserHistory(userEmail, analytics, url);
+        }
+
+        return analytics;
+    }
+
+    /**
+     * Harvests and analyzes video metadata. Wrapped in @Cacheable to hit Aiven Redis
+     * cache for subsequent identical video requests across different platform users.
+     */
+    @Cacheable(value = "videoAnalytics", key = "#videoId", unless = "#result == null")
+    public VideoAnalytics getCachedVideoAnalytics(String videoId, String url) {
+        log.info("Cache miss for video ID: [{}]. Fetching fresh metrics from YouTube & RYD APIs.", videoId);
+
         // Parallel Fetch: YouTube Data & RYD Data
         Mono<JsonNode> youtubeData = fetchYoutubeData(videoId);
         Mono<JsonNode> rydData = fetchRydData(videoId);
@@ -85,7 +111,8 @@ public class AnalyticsService {
 
                 // Data Extraction
                 long views = parseLong(stats, "viewCount");
-                long likes = parseLong(stats, "likeCount");
+                boolean likesHidden = !stats.has("likeCount");
+                Long likes = likesHidden ? null : parseLong(stats, "likeCount");
                 long comments = parseLong(stats, "commentCount");
                 long dislikes = ryd.has("dislikes") ? ryd.get("dislikes").asLong() : 0;
 
@@ -97,62 +124,58 @@ public class AnalyticsService {
                 }
 
                 // Metric Calculations
-                double engagementRate = views > 0 ? ((double) (likes + comments) / views) * 100 : 0;
-                double sentiment = (likes + dislikes) > 0 ? ((double) likes / (likes + dislikes)) * 100 : 0;
+                Double engagementRate = null;
+                Double sentiment = null;
+                if (likes != null) {
+                    engagementRate = views > 0 ? ((double) (likes + comments) / views) * 100 : 0.0;
+                    sentiment = (likes + dislikes) > 0 ? ((double) likes / (likes + dislikes)) * 100 : 0.0;
+                }
 
                 // Perform SEO Audit
                 List<AuditResult> audits = performAudit(title, desc, tags);
                 int seoScore = (int) audits.stream().filter(AuditResult::passed).count() * (100 / Math.max(audits.size(), 1));
 
-                VideoAnalytics analytics = new VideoAnalytics(
+                return new VideoAnalytics(
                     videoId, title, snippet.get("channelTitle").asString(),
                     snippet.get("thumbnails").get("high").get("url").asString(),
                     snippet.get("publishedAt").asString().substring(0, 10),
                     views, likes, dislikes, comments,
-                    engagementRate, sentiment, seoScore, audits
+                    engagementRate, sentiment, likesHidden, seoScore, audits
                 );
-
-                // Persist to user history if authenticated
-                if (userEmail != null) {
-                    persistAnalysisToUserHistory(userEmail, videoId, title, snippet, url, seoScore, engagementRate, sentiment);
-                }
-
-                return analytics;
             }).block();
     }
 
     /**
      * Safely persists an audit record to the database under the specified user.
      */
-    private void persistAnalysisToUserHistory(String userEmail, String videoId, String title, JsonNode snippet, 
-                                            String url, int seoScore, double engagementRate, double sentiment) {
+    private void persistAnalysisToUserHistory(String userEmail, VideoAnalytics analytics, String url) {
         log.debug("Persisting analysis history for user: {}", userEmail);
         userRepository.findByEmail(userEmail).ifPresentOrElse(user -> {
-            VideoAnalysis entity = videoAnalysisRepository.findByUserAndVideoId(user, videoId)
+            VideoAnalysis entity = videoAnalysisRepository.findByUserAndVideoId(user, analytics.videoId())
                     .map(existing -> {
-                        existing.setTitle(title);
-                        existing.setChannelTitle(snippet.get("channelTitle").asString());
-                        existing.setThumbnailUrl(snippet.get("thumbnails").get("high").get("url").asString());
+                        existing.setTitle(analytics.title());
+                        existing.setChannelTitle(analytics.channelName());
+                        existing.setThumbnailUrl(analytics.thumbnailUrl());
                         existing.setVideoUrl(url);
-                        existing.setSeoScore(seoScore);
-                        existing.setEngagementRate(engagementRate);
-                        existing.setSentimentScore(sentiment);
+                        existing.setSeoScore(analytics.seoScore());
+                        existing.setEngagementRate(analytics.engagementRate());
+                        existing.setSentimentScore(analytics.sentimentScore());
                         existing.setAnalyzedAt(java.time.LocalDateTime.now());
                         return existing;
                     })
                     .orElseGet(() -> VideoAnalysis.builder()
-                            .videoId(videoId)
-                            .title(title)
-                            .channelTitle(snippet.get("channelTitle").asString())
-                            .thumbnailUrl(snippet.get("thumbnails").get("high").get("url").asString())
+                            .videoId(analytics.videoId())
+                            .title(analytics.title())
+                            .channelTitle(analytics.channelName())
+                            .thumbnailUrl(analytics.thumbnailUrl())
                             .videoUrl(url)
-                            .seoScore(seoScore)
-                            .engagementRate(engagementRate)
-                            .sentimentScore(sentiment)
+                            .seoScore(analytics.seoScore())
+                            .engagementRate(analytics.engagementRate())
+                            .sentimentScore(analytics.sentimentScore())
                             .user(user)
                             .build());
             videoAnalysisRepository.save(entity);
-            log.info("Analysis history entry saved (upsert): Video=[{}] User=[{}]", videoId, userEmail);
+            log.info("Analysis history entry saved (upsert): Video=[{}] User=[{}]", analytics.videoId(), userEmail);
         }, () -> log.error("Integrity Error: Authentication context exists for [{}] but user record missing from database.", userEmail));
     }
 
@@ -162,6 +185,7 @@ public class AnalyticsService {
                 .uri(baseUrl + "/videos?part=snippet,statistics&id=" + videoId + "&key=" + apiKey)
                 .retrieve()
                 .bodyToMono(JsonNode.class)
+                .doOnError(e -> log.error("Error fetching YouTube data", e))
                 .onErrorReturn(JsonNodeFactory.instance.objectNode());
     }
 
@@ -171,6 +195,7 @@ public class AnalyticsService {
                 .uri("https://returnyoutubedislikeapi.com/votes?videoId=" + videoId)
                 .retrieve()
                 .bodyToMono(JsonNode.class)
+                .doOnError(e -> log.error("Error fetching RYD data", e))
                 .onErrorReturn(JsonNodeFactory.instance.objectNode());
     }
 

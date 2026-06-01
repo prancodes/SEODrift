@@ -4,7 +4,7 @@
     <title>Video Intelligence</title>
 </head>
 <body>
-<div layout:fragment="content" class="max-w-6xl mx-auto px-2 sm:px-4">
+<div layout:fragment="content" class="max-w-6xl mx-auto">
     
     <div class="card-base p-4 md:p-10 mb-10 relative overflow-hidden">
         <div class="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
@@ -50,8 +50,12 @@
              <p class="font-bold" th:text="${error}"></p>
         </div>
 
-    <div th:if="${data}" class="animate-fade-in space-y-8 pb-16">
+    <div th:if="${data}" class="animate-fade-in space-y-8">
         
+        <div th:if="${data.likesHidden}" class="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 text-amber-800 dark:text-amber-400 animate-fade-in flex items-center gap-3">
+             <i class="ph-bold ph-warning-circle text-xl"></i>
+             <p class="font-bold">Creator has hidden public likes. Some engagement metrics may be unavailable.</p>
+        </div>
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2 card-base p-0 flex flex-col sm:flex-row overflow-hidden">
                 <div class="sm:w-80 shrink-0 bg-black relative group cursor-pointer overflow-hidden">
@@ -99,7 +103,8 @@
             
             <div class="card-base p-2 sm:p-4 md:p-6 text-center hover:border-green-200 dark:hover:border-green-800 transition-colors group">
                 <div class="text-green-600 dark:text-green-500 text-[10px] sm:text-xs font-black uppercase mb-3 flex items-center justify-center gap-1.5"><i class="ph-bold ph-thumbs-up text-base sm:text-lg"></i> Likes</div>
-                <div class="text-sm sm:text-lg md:text-3xl font-black text-gray-900 dark:text-white" th:text="${#numbers.formatInteger(data.likeCount,3,'COMMA')}">0</div>
+                <div class="text-sm sm:text-lg md:text-3xl font-black text-gray-900 dark:text-white" 
+                     th:text="${data.likesHidden ? 'Hidden' : (data.likeCount != null ? #numbers.formatInteger(data.likeCount,3,'COMMA') : '0')}">0</div>
             </div>
             
             <div class="card-base p-2 sm:p-4 md:p-6 text-center bg-red-50/50 dark:bg-red-900/10 border-red-100 dark:border-red-900/30 hover:border-red-200 dark:hover:border-red-800 transition-colors group">
@@ -110,7 +115,7 @@
             <div class="card-base p-2 sm:p-4 md:p-6 text-center bg-purple-50/50 dark:bg-purple-900/10 border-purple-100 dark:border-purple-900/30 hover:border-purple-200 dark:hover:border-purple-800 transition-colors group">
                 <div class="text-purple-600 dark:text-purple-400 text-[10px] sm:text-xs font-black uppercase mb-3 flex items-center justify-center gap-1.5"><i class="ph-bold ph-pulse text-base sm:text-lg"></i> Engagement</div>
                 <div class="text-sm sm:text-lg md:text-3xl font-black text-gray-900 dark:text-white">
-                    <span th:text="${#numbers.formatDecimal(data.engagementRate,1,2)}">0</span>%
+                    <span th:text="${data.engagementRate != null ? #numbers.formatDecimal(data.engagementRate,1,2) + '%' : 'N/A'}">N/A</span>
                 </div>
             </div>
         </div>
@@ -118,17 +123,28 @@
         <div class="card-base p-4 md:p-10">
             <div class="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
                 <h3 class="text-sm font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">Audience Sentiment Analysis</h3>
-                <span class="px-5 py-2 rounded-2xl bg-brand-500 text-white text-sm font-black shadow-lg shadow-brand-500/20">
+                <span th:unless="${data.likesHidden}" class="px-5 py-2 rounded-2xl bg-brand-500 text-white text-sm font-black shadow-lg shadow-brand-500/20">
                     <span th:text="${#numbers.formatDecimal(data.sentimentScore,1,1)}">0</span>% Positive Approval
                 </span>
+                <span th:if="${data.likesHidden}" class="px-5 py-2 rounded-2xl bg-gray-500 text-white text-sm font-black shadow-lg shadow-gray-500/20">
+                    N/A
+                </span>
             </div>
-            <div class="relative w-full bg-gray-100 dark:bg-gray-700/50 rounded-full h-6 overflow-hidden shadow-inner border border-gray-200 dark:border-gray-700">
-                <div class="absolute inset-y-0 left-0 bg-linear-to-r from-red-500 via-yellow-400 to-green-500 transition-all duration-1000 ease-out shadow-lg" 
-                     th:style="'width: ' + ${data.sentimentScore} + '%'"></div>
+            
+            <div th:unless="${data.likesHidden}">
+                <div class="relative w-full bg-gray-100 dark:bg-gray-700/50 rounded-full h-6 overflow-hidden shadow-inner border border-gray-200 dark:border-gray-700">
+                    <div class="absolute inset-y-0 left-0 bg-linear-to-r from-red-500 via-yellow-400 to-green-500 transition-all duration-1000 ease-out shadow-lg" 
+                         th:style="'width: ' + ${data.sentimentScore} + '%'"></div>
+                </div>
+                <div class="flex justify-between mt-3 text-xs font-black text-gray-400 uppercase tracking-wider">
+                    <span class="text-red-500">Critical</span>
+                    <span class="text-green-500">Excellent</span>
+                </div>
             </div>
-            <div class="flex justify-between mt-3 text-xs font-black text-gray-400 uppercase tracking-wider">
-                <span class="text-red-500">Critical</span>
-                <span class="text-green-500">Excellent</span>
+            
+            <div th:if="${data.likesHidden}" class="text-center py-6 text-gray-400 dark:text-gray-500 font-medium">
+                <i class="ph-bold ph-mask-happy text-4xl mb-2 block text-gray-400 dark:text-gray-600"></i>
+                Sentiment analysis is unavailable because the video creator has hidden likes.
             </div>
         </div>
 
