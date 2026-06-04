@@ -9,12 +9,14 @@ const ThemeManager = {
         this.html = document.documentElement;
 
         // Apply theme immediately based on local storage or system preference
+        // Pass false to avoid dispatching theme-changed event on initial load/navigation
         const preferredTheme = this.getPreferredTheme();
-        this.applyTheme(preferredTheme);
+        this.applyTheme(preferredTheme, false);
 
-        // Event Listener
-        if (this.toggleBtn) {
+        // Event Listener (ensure attached only once per element instance)
+        if (this.toggleBtn && !this.toggleBtn._themeListenerAttached) {
             this.toggleBtn.addEventListener('click', () => this.toggleTheme());
+            this.toggleBtn._themeListenerAttached = true;
         }
     },
 
@@ -25,7 +27,7 @@ const ThemeManager = {
         return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     },
 
-    applyTheme(theme) {
+    applyTheme(theme, dispatchEvent = true) {
         if (theme === 'dark') {
             this.html.classList.add('dark');
             localStorage.theme = 'dark';
@@ -33,11 +35,14 @@ const ThemeManager = {
             this.html.classList.remove('dark');
             localStorage.theme = 'light';
         }
+        if (dispatchEvent) {
+            document.dispatchEvent(new CustomEvent('theme-changed', { detail: { theme } }));
+        }
     },
 
     toggleTheme() {
         const isDark = this.html.classList.contains('dark');
-        this.applyTheme(isDark ? 'light' : 'dark');
+        this.applyTheme(isDark ? 'light' : 'dark', true);
     }
 };
 

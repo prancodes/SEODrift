@@ -26,6 +26,17 @@ public class User {
     private String googleId;
     private String pictureUrl;
 
+    // YouTube specific cache
+    private String youtubeChannelId;
+    private String youtubeChannelTitle;
+    private String youtubeCustomUrl;
+    private String youtubeAvatarUrl;
+    private String youtubeUploadsPlaylistId;
+    private Long youtubeSubscriberCount;
+    private Long youtubeViewCount;
+    private Long youtubeVideoCount;
+    private LocalDateTime youtubeLastUpdatedAt;
+
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)

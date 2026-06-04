@@ -77,6 +77,10 @@ document.addEventListener('mousemove', (e) => {
     }
 });
 
-document.addEventListener('turbo:load', () => {
+document.addEventListener('turbo:load', () => AuthModalManager.init());
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => AuthModalManager.init());
+} else {
     AuthModalManager.init();
-});
+}

@@ -29,16 +29,41 @@ public class GlobalExceptionHandler {
 
     /**
      * Handles 404 Not Found errors.
+     * Known browser/system probes (.well-known, devtools, favicon) are suppressed to DEBUG
+     * to avoid polluting logs with noise on every page load in development.
      */
     @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
     public String handleNotFound(Exception ex, Model model) {
+        String path = "";
         if (ex instanceof NoHandlerFoundException nhf) {
-            log.warn("404 Error: User attempted to access non-existent path: {}", nhf.getRequestURL());
+            path = nhf.getRequestURL();
         } else if (ex instanceof NoResourceFoundException nrf) {
-            log.warn("404 Error: Resource not found: {}", nrf.getResourcePath());
+            path = nrf.getResourcePath();
         }
+
+        // Silently ignore known browser/tool probes — these are not real user errors
+        if (isBrowserProbe(path)) {
+            log.debug("Browser probe 404 (suppressed): {}", path);
+        } else {
+            log.warn("404 Error: Resource not found: {}", path);
+        }
+
         model.addAttribute("errorMessage", "The page you are looking for doesn't exist.");
         model.addAttribute("status", 404);
         return "error";
+    }
+
+    /**
+     * Returns true for paths that browsers/tools automatically probe
+     * and that are not real user-navigated URLs.
+     */
+    private boolean isBrowserProbe(String path) {
+        if (path == null) return false;
+        return path.contains(".well-known")          // Chrome DevTools, ACME challenges
+                || path.contains("devtools")          // Chrome DevTools JSON
+                || path.endsWith("favicon.ico")       // Browser favicon fallback
+                || path.endsWith("robots.txt")        // SEO crawlers
+                || path.endsWith("sitemap.xml")       // SEO crawlers
+                || path.endsWith("apple-touch-icon.png"); // iOS home screen
     }
 }
