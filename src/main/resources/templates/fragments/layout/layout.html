@@ -32,9 +32,13 @@
     <!-- CSRF Tokens for AJAX -->
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+    <!-- Google Search Console Verification -->
+    <meta name="google-site-verification" content="0ZkyBHn9B02UrwOr3H2qSbbyqF8I4rDQHm0kJ82s3JU" />
+    
 </head>
 
-<body th:data-authenticated="${#authorization.expression('isAuthenticated()')}" 
+<body th:data-authenticated="${#authentication != null and #authentication.name != null}"
       class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 flex flex-col min-h-screen transition-colors duration-300 selection:bg-brand-500 selection:text-white">
 
     <div th:replace="~{fragments/layout/navbar :: navbar}"></div>

@@ -1,0 +1,7 @@
+<!-- world-map.html -->
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="world-map(geoData)" class="w-full">
+    <!-- jsVectorMap container -->
+    <div id="worldMap" style="height: 320px; width: 100%; position: relative;" th:attr="data-geo=${geoData != null ? geoData : '{}'}"></div>
+</div>
+</html>

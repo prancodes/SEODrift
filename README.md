@@ -31,8 +31,8 @@
 ## ✨ Features
 
 ### 🔐 **Google OAuth2 Authentication & User Sync**
-- Secure, frictionless login using **Google Identity Services (GIS)**.
-- Automated client-side JWT processing and server-side validation.
+- Dual login paths: **Google One Tap** (top-right card on page load) and full **OAuth2 Authorization Code** flow via the Login button.
+- Automated client-side JWT processing and server-side token verification via `GoogleIdTokenVerifier`.
 - Real-time profile database synchronization (names, emails, Google IDs, and profile images).
 - Dynamic navigation state changes based on authentication context.
 - **Google OAuth2 Verification Compliant**: Integrated custom `/privacy` and `/terms` routes with explicit API scopes disclosure (including YouTube Data API), data revocation, and contact email support (`prancoder@gmail.com`) to pass manual OAuth2 reviews.
@@ -73,7 +73,7 @@
 - **Java 25** - Utilizing modern language features and optimized runtimes.
 - **Spring Boot 4.0.6** - Standardized application framework.
 - **Spring Cloud Gateway (WebMVC)** - Handles edge API routing and proxying.
-- **Spring Security 6** - Robust security posture handling session management and OAuth2/OIDC.
+- **Spring Security 7** - Robust security posture handling session management and OAuth2/OIDC.
 - **Spring Data JPA** - Repository layer for PostgreSQL database mapping.
 - **Spring WebFlux** - Non-blocking WebClient for high-performance external API calls.
 - **Thymeleaf & Layout Dialect** - Server-side templates utilizing master layouts and fragments.
@@ -91,7 +91,7 @@
 - **Flyway** - Database schema version control.
 - **HikariCP** - Highly optimized connection pooling configured for serverless scaling.
 - **Docker** - Multi-stage containerization compiling assets and packing the app.
-- **JLink** - Custom lean Java Runtime (using zip-6 compression) resulting in minimal image footprint.
+- **JLink** - Custom lean Java Runtime (using zip-9 maximum compression) resulting in minimal image footprint.
 
 ---
 
@@ -102,53 +102,14 @@ SEODrift/
 ├── src/
 │   ├── main/
 │   │   ├── java/com/seo/project/
-│   │   │   ├── SeoDriftApplication.java          # Spring Boot entry point
-│   │   │   ├── config/
-│   │   │   │   ├── GlobalControllerAdvice.java   # App-wide Thymeleaf attributes (e.g., User info)
-│   │   │   │   ├── SecurityConfig.java           # Security rules, endpoints & Google login config
-│   │   │   │   ├── CacheConfig.java              # Redis caching and Lettuce configuration
-│   │   │   │   └── GatewayConfig.java            # Spring Cloud Gateway edge router & Redis rate-limiting
-│   │   │   ├── controller/
-│   │   │   │   ├── WebController.java            # Landing page router
-│   │   │   │   ├── TagsController.java           # Tags generator router
-│   │   │   │   ├── ThumbnailController.java      # Thumbnail grabber router
-│   │   │   │   ├── AnalyticsController.java      # Video analytics & history logging router
-│   │   │   │   ├── DashboardController.java      # User dashboard & audit history handler
-│   │   │   │   └── api/
-│   │   │   │       └── GoogleAuthController.java # Google Authentication api endpoint
-│   │   │   ├── exception/
-│   │   │   │   └── GlobalExceptionHandler.java   # Global error pages & exception handler
-│   │   │   ├── model/
-│   │   │   │   ├── User.java                     # User details database mapping
-│   │   │   │   ├── VideoAnalysis.java            # Saved video audit database mapping
-│   │   │   │   ├── CompetitorChannel.java        # Competitor channel stats database mapping
-│   │   │   │   ├── CompetitorSnapshot.java       # Competitor stats snapshots database mapping
-│   │   │   │   ├── CompetitorVideo.java          # Competitor video uploads database mapping
-│   │   │   │   ├── KeywordTrend.java             # Keyword velocity statistics database mapping
-│   │   │   │   ├── Notification.java             # User notifications database mapping
-│   │   │   │   └── SavedKeyword.java             # Saved keywords database mapping
-│   │   │   ├── repository/
-│   │   │   │   ├── UserRepository.java           # User entity database access
-│   │   │   │   ├── VideoAnalysisRepository.java  # Video audit entity database access
-│   │   │   │   ├── CompetitorChannelRepository.java
-│   │   │   │   ├── CompetitorSnapshotRepository.java
-│   │   │   │   ├── CompetitorVideoRepository.java
-│   │   │   │   ├── KeywordTrendRepository.java
-│   │   │   │   ├── NotificationRepository.java
-│   │   │   │   └── SavedKeywordRepository.java
-│   │   │   ├── service/
-│   │   │   │   ├── TagsService.java              # Tags generation calculations
-│   │   │   │   ├── ThumbnailService.java         # Fetching, downloading & metadata logic
-│   │   │   │   ├── AnalyticsService.java         # YouTube & RYD fetches + SEO heuristic evaluator
-│   │   │   │   ├── UserService.java              # Database user syncing logic
-│   │   │   │   ├── CustomOAuth2UserService.java  # Google profile loader & sync hook
-│   │   │   │   └── ApiService.java               # Configures reactive WebClient
-│   │   │   └── dto/
-│   │   │       ├── VideoTagsInfo.java            # Tags payload DTO
-│   │   │       ├── VideoAnalytics.java           # Video analytics DTO
-│   │   │       ├── ThumbnailRequest.java         # URL submission DTO
-│   │   │       ├── ThumbnailOptions.java         # Image selection options
-│   │   │       └── TagsGeneratorResponse.java    # Tags output container
+│   │   │   ├── SeoDriftApplication.java      # Spring Boot application entry point
+│   │   │   ├── config/                       # Security, Cache, Gateway & controller advices
+│   │   │   ├── controller/                   # Web endpoints & API controllers (Analytics, Dashboard)
+│   │   │   ├── dto/                          # Data Transfer Objects (DTOs)
+│   │   │   ├── exception/                    # Global Exception Handler and error responses
+│   │   │   ├── model/                        # JPA Database Entities (User, VideoAnalysis, etc.)
+│   │   │   ├── repository/                   # Spring Data JPA repositories
+│   │   │   └── service/                      # Business logic services
 │   │   └── resources/
 │   │       ├── application.properties            # Core configurations & credentials mappings
 │   │       ├── application-dev.properties        # Profile override for local environment
@@ -158,27 +119,19 @@ SEODrift/
 │   │       │   │   ├── base/                     # Core layout styles
 │   │       │   │   └── components/               # Module styles (e.g. login modal, navbar, dashboard)
 │   │       │   ├── js/
-│   │       │   │   ├── core/                     # Clipboard helper, dark/light theme toggle
-│   │       │   │   ├── components/               # Client script for modals & nav bars
-│   │       │   │   └── main.js                   # Application script & Turbo integrations
-│   │       │   └── dist/
-│   │       │       └── styles.css                # Production CSS asset compiled by Vite
+│   │       │   │   ├── core/                 # Theme handler, clipboard helper scripts
+│   │       │   │   ├── components/           # Client scripts for widgets and navigation
+│   │       │   │   └── main.js               # Core Javascript file orchestrating turbo loads
+│   │       │   └── dist/                     # Compressed styles and compiled production builds
 │   │       └── templates/
-│   │           ├── index.html                   # Landing page
-│   │           ├── tags.html                    # Tags generator page
-│   │           ├── thumbnail.html               # Thumbnail grabber page
-│   │           ├── analytics.html               # Analytics & insights page
-│   │           ├── dashboard.html               # Account metrics & history list page
-│   │           ├── privacy.html                 # Google OAuth-compliant Privacy Policy
-│   │           ├── terms.html                   # Platform Terms of Service
-│   │           ├── error.html                   # Beautiful custom fallback error template
 │   │           └── fragments/
-│   │               ├── components/
-│   │               │   └── login-modal.html     # Reusable glassmorphic OAuth login modal
-│   │               └── layout/
-│   │                   ├── layout.html          # Master UI template wrapper
-│   │                   ├── navbar.html          # Interactive application navigation
-│   │                   └── footer.html          # Brand footer panel
+│   │               ├── components/           # Thymeleaf reusable components
+│   │               └── layout/               # Master wrappers and header/footer navigations
+│   │
+├── Dockerfile                                # Multistage deployment container configuration
+├── package.json                              # Frontend Node package definitions
+├── vite.config.js                            # Vite compiler configuration
+└── pom.xml                                   # Maven dependency definitions
 ```
 
 ---
@@ -222,6 +175,16 @@ SEODrift/
    YT_API_KEY=your_youtube_api_key_here
    BASE_URL=https://www.googleapis.com/youtube/v3
    APP_URL=http://localhost:8080
+
+   # Redis Configuration (Aiven)
+   REDIS_HOST=your-redis-hostname.aivencloud.com
+   REDIS_PORT=your-redis-port
+   REDIS_PASSWORD=your_redis_password
+   REDIS_SSL_ENABLED=true
+
+   # Spring Configuration
+   SPRING_PROFILES_ACTIVE=dev
+   PORT=8080
    ```
 
 3. **Install Node dependencies**
@@ -272,17 +235,21 @@ Ensure your `.env` contains all database, oauth, and api credentials before laun
 
 ```bash
 # Build and run the app container
-docker-compose up --build
+docker compose up --build
+
+# Run in detached (background) mode
+docker compose up --build -d
 
 # Shutdown the setup
-docker-compose down
+docker compose down
 ```
 
 ### Advanced Dockerfile Features
-- **Multi-Stage Compilation**: Splits Node compiling and Maven packing.
-- **Lean JRE (JLink)**: Cuts away unused core modules and uses `zip-6` compression to output a tailored JVM runtime of just ~45MB.
+- **Multi-Stage Compilation**: Splits Node (Vite/Tailwind) compiling and Maven backend packing into separate stages.
+- **Lean JRE (JLink)**: Cuts away unused Java modules and uses `zip-9` maximum compression to output a tailored JVM runtime (~40MB).
+- **GCP-Tuned JVM Flags**: `-XX:+UseSerialGC`, `-XX:MaxRAMPercentage=75.0`, and `-Djava.security.egd=file:/dev/./urandom` for fast cold-start on Cloud Run.
 - **Non-Root Execution**: Runs under user `spring` to limit host vulnerabilities.
-- **Actuator Health Checks**: Automated docker status validation.
+- **Actuator Health Checks**: Docker health status via `wget` on `/actuator/health`.
 
 ---
 

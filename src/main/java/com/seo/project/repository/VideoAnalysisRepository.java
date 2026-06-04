@@ -11,4 +11,5 @@ public interface VideoAnalysisRepository extends JpaRepository<VideoAnalysis, Lo
     List<VideoAnalysis> findByUserOrderByAnalyzedAtDesc(User user);
     long countByUser(User user);
     Optional<VideoAnalysis> findByUserAndVideoId(User user, String videoId);
+    Optional<VideoAnalysis> findByIdAndUser(Long id, User user);
 }

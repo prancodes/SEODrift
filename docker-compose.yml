@@ -25,12 +25,18 @@ services:
       - YT_API_KEY=${YT_API_KEY}
       - BASE_URL=${BASE_URL:-https://www.googleapis.com/youtube/v3}
       - APP_URL=${APP_URL:-http://localhost:8080}
-      
+
+      # Redis Cache
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_SSL_ENABLED=${REDIS_SSL_ENABLED}
+
     networks:
       - seodrift-network
     # Healthcheck (optional but recommended)
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 3

@@ -1,0 +1,163 @@
+<!-- guest-dashboard.html -->
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="guest-dashboard(user)" class="space-y-8">
+    <link rel="stylesheet" th:href="@{/css/components/guest-dashboard.css}">
+
+    <!-- Welcome Banner Section (Guest Mode) -->
+    <div class="dashboard-glass-card welcome-banner guest-3d-card p-5 md:p-8 relative overflow-hidden group animate-fade-in mb-8">
+        <div class="dashboard-mesh"></div>
+        <div class="shine-overlay"></div>
+        
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div class="flex items-center gap-4 md:gap-5">
+                <div class="relative w-12 h-12 md:w-16 md:h-16 rounded-2xl overflow-hidden p-0.5 bg-gradient-to-tr from-rose-500 via-orange-500 to-red-500 shadow-md shrink-0">
+                    <img th:src="${user != null && user.pictureUrl != null && user.pictureUrl != '' ? user.pictureUrl : 'https://ui-avatars.com/api/?name=' + (user != null ? user.name : 'Creator') + '&background=ef4444&color=fff'}" 
+                         class="w-full h-full object-cover rounded-[10px] md:rounded-[14px]" 
+                         th:data-fallback-src="'https://ui-avatars.com/api/?name=' + ${user != null ? user.name : 'Creator'} + '&background=ef4444&color=fff'"
+                         referrerpolicy="no-referrer"
+                         onerror="this.src=this.getAttribute('data-fallback-src')">
+                </div>
+                <div class="space-y-1 min-w-0">
+                    <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 md:px-3 md:py-1 rounded-full bg-rose-50 dark:bg-rose-950/20 border border-rose-100/50 dark:border-rose-900/30 text-[8px] md:text-[10px] font-black uppercase tracking-widest text-rose-600 dark:text-rose-400 shadow-sm">
+                        <span class="relative flex h-1.5 w-1.5">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-rose-500"></span>
+                        </span>
+                        No YouTube Channel Connected
+                    </div>
+                    <h1 class="text-xl md:text-3xl lg:text-4xl font-black text-gray-900 dark:text-white tracking-tight truncate mt-1">
+                        Hello, <span class="text-transparent bg-clip-text bg-gradient-to-r from-rose-600 to-orange-500 dark:from-rose-400 dark:to-orange-400" th:text="${user != null ? user.name : 'Creator'}">Creator</span>!
+                    </h1>
+                    <p class="text-gray-550 dark:text-gray-400 text-xs lg:text-sm font-bold truncate mt-0.5" th:text="${user != null ? user.email : 'user@gmail.com'}">user@gmail.com</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3 relative z-20 shrink-0">
+                <a href="/history" class="inline-flex items-center gap-1.5 px-3 py-1.5 md:px-4 md:py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-brand-650 dark:hover:bg-brand-600 hover:text-white rounded-xl text-[9px] md:text-xs font-black uppercase tracking-widest transition-all active:scale-95 shadow-md">
+                    View SEO Journey <i class="ph-bold ph-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Onboarding & Connection Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+        
+        <!-- Left Side: Creator Console Onboarding Preview (2/3 width on desktop, full-width on mobile) -->
+        <div class="lg:col-span-2 space-y-6 animate-fade-in" style="animation-delay: 100ms;">
+            <div class="dashboard-glass-card guest-3d-card p-5 md:p-8 space-y-6">
+                <div>
+                    <h2 class="text-xl md:text-2xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
+                        <i class="ph-bold ph-chart-line-up text-brand-500 text-xl md:text-2xl animate-pulse"></i> Creator Intelligence
+                    </h2>
+                    <p class="text-[10px] text-gray-550 dark:text-gray-400 uppercase tracking-widest font-black mt-1">Platform Expansion & Metrics Preview</p>
+                    <p class="text-xs lg:text-sm font-bold text-gray-500 dark:text-gray-400 leading-relaxed mt-3">
+                        Expand your SEODrift suite by connecting your YouTube channel. Integrating your channel unlocks advanced analytics tracking, geographical heatmaps, and competitors benchmarking directly within your main dashboard view.
+                    </p>
+                </div>
+
+                <!-- Redesigned Feature Highlights Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                    <!-- Card 1: Map -->
+                    <div class="p-5 guest-3d-subcard hover-emerald rounded-2xl flex flex-col justify-between space-y-3 hover:-translate-y-0.5 transition-all duration-300 group">
+                        <div class="space-y-3">
+                            <div class="w-10 h-10 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-450 rounded-xl flex items-center justify-center shrink-0 border border-emerald-100/50 dark:border-emerald-900/25 group-hover:scale-105 transition-transform">
+                                <i class="ph-bold ph-globe text-xl"></i>
+                            </div>
+                            <div class="inline-block text-[9px] uppercase font-black tracking-widest text-emerald-600 dark:text-emerald-455 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded">
+                                Viewer Mapping
+                            </div>
+                            <h3 class="font-black text-sm text-gray-900 dark:text-white">Geographic Demographics</h3>
+                            <p class="text-xs font-bold text-gray-500 dark:text-gray-400 leading-relaxed">
+                                Visualize client and subscriber distribution using a premium interactive vector world map to coordinate localized uploads.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Charts -->
+                    <div class="p-5 guest-3d-subcard hover-blue rounded-2xl flex flex-col justify-between space-y-3 hover:-translate-y-0.5 transition-all duration-300 group">
+                        <div class="space-y-3">
+                            <div class="w-10 h-10 bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-455 rounded-xl flex items-center justify-center shrink-0 border border-blue-100/50 dark:border-blue-900/25 group-hover:scale-105 transition-transform">
+                                <i class="ph-bold ph-chart-line text-xl"></i>
+                            </div>
+                            <div class="inline-block text-[9px] uppercase font-black tracking-widest text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded">
+                                Audience Tracking
+                            </div>
+                            <h3 class="font-black text-sm text-gray-900 dark:text-white">Real-Time Metrics</h3>
+                            <p class="text-xs font-bold text-gray-500 dark:text-gray-400 leading-relaxed">
+                                Review total subscribers, upload trajectories, and key milestones dynamically through elegant SVG metrics graphs.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Competitor -->
+                    <div class="p-5 guest-3d-subcard hover-orange rounded-2xl flex flex-col justify-between space-y-3 hover:-translate-y-0.5 transition-all duration-300 group">
+                        <div class="space-y-3">
+                            <div class="w-10 h-10 bg-orange-50 dark:bg-orange-950/30 text-orange-600 dark:text-orange-450 rounded-xl flex items-center justify-center shrink-0 border border-orange-100/50 dark:border-orange-900/25 group-hover:scale-105 transition-transform">
+                                <i class="ph-bold ph-sword text-xl"></i>
+                            </div>
+                            <div class="inline-block text-[9px] uppercase font-black tracking-widest text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/40 px-2 py-0.5 rounded">
+                                Competitor Intel
+                            </div>
+                            <h3 class="font-black text-sm text-gray-900 dark:text-white">Niche Benchmarking</h3>
+                            <p class="text-xs font-bold text-gray-500 dark:text-gray-400 leading-relaxed">
+                                Compare core parameters, keyword tags, and indexing performance against other niche channels.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Connection Status & Troubleshooting Checklist (1/3 width on desktop, full-width on mobile) -->
+        <div class="space-y-6 animate-fade-in" style="animation-delay: 200ms;">
+            <div class="dashboard-glass-card guest-3d-card p-5 md:p-6 space-y-5 flex flex-col justify-between h-full">
+                <div class="space-y-5">
+                    <h3 class="text-[10px] text-gray-550 dark:text-gray-400 uppercase tracking-widest font-black flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                        <i class="ph-bold ph-info text-rose-500 text-lg animate-pulse"></i> Integration Status
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div class="p-3.5 border border-rose-100/60 dark:border-rose-950/40 bg-rose-50/20 dark:bg-rose-950/10 rounded-xl flex items-start gap-2.5">
+                            <div class="w-7 h-7 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center shrink-0 text-rose-600 dark:text-rose-400 mt-0.5">
+                                <i class="ph-bold ph-warning text-sm animate-bounce"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <h5 class="text-xs font-black text-gray-900 dark:text-white">Channel Not Detected</h5>
+                                <p class="text-xs font-bold text-gray-500 dark:text-gray-455 leading-relaxed mt-0.5">
+                                    OAuth check returned no public YouTube channels associated with <strong class="text-gray-900 dark:text-white font-bold" th:text="${user != null ? user.email : 'your account'}">your account</strong>.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 pt-1">
+                            <h4 class="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-wider">Troubleshooting Guidelines</h4>
+                            <ul class="space-y-2 text-xs font-bold text-gray-500 dark:text-gray-400">
+                                <li class="flex items-start gap-2">
+                                    <span class="w-4 h-4 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[9px] font-black shrink-0 text-gray-500 dark:text-gray-400">1</span>
+                                    <span class="leading-relaxed">Verify you authorized with the Google account that owns your YouTube channel.</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="w-4 h-4 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[9px] font-black shrink-0 text-gray-500 dark:text-gray-400">2</span>
+                                    <span class="leading-relaxed">Ensure the channel settings allow YouTube API data access and it is not hidden.</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="w-4 h-4 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[9px] font-black shrink-0 text-gray-500 dark:text-gray-400">3</span>
+                                    <span class="leading-relaxed">Verify that YouTube access permissions have been granted to SEODrift in Google Settings.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notice Footer -->
+                <div class="p-3 bg-brand-50/20 dark:bg-brand-950/15 border border-brand-200/40 dark:border-brand-800/40 rounded-xl mt-4">
+                    <p class="text-[10px] lg:text-[11px] font-bold leading-relaxed text-brand-650 dark:text-brand-400">
+                        The Creator Console will automatically unlock on dashboard load as soon as a YouTube channel is linked.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

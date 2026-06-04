@@ -10,7 +10,7 @@
              data-ux_mode="popup"
              data-callback="handleCredentialResponse"
              data-auto_select="false"
-             data-auto_prompt="false"
+             data-auto_prompt="true"
              data-itp_support="true"
              data-use_fedcm_for_prompt="false">
         </div>
@@ -86,6 +86,7 @@
                             <img th:src="${#authentication.principal.attributes['picture'] != null ? #authentication.principal.attributes['picture'] : ('https://ui-avatars.com/api/?name=' + #authentication.principal.attributes['name'] + '&background=6366f1&color=fff')}" 
                                  class="w-full h-full object-cover" 
                                  th:data-fallback-src="'https://ui-avatars.com/api/?name=' + ${#authentication.principal.attributes['name']} + '&background=6366f1&color=fff'"
+                                 referrerpolicy="no-referrer"
                                  onerror="this.src=this.getAttribute('data-fallback-src')">
                         </div>
                         <!-- Verified Badge - Always visible and perfectly aligned -->
@@ -103,6 +104,7 @@
                                 <img th:src="${#authentication.principal.attributes['picture'] != null ? #authentication.principal.attributes['picture'] : ('https://ui-avatars.com/api/?name=' + #authentication.principal.attributes['name'] + '&background=6366f1&color=fff')}" 
                                      class="w-full h-full object-cover"
                                      th:data-fallback-src="'https://ui-avatars.com/api/?name=' + ${#authentication.principal.attributes['name']} + '&background=6366f1&color=fff'"
+                                     referrerpolicy="no-referrer"
                                      onerror="this.src=this.getAttribute('data-fallback-src')">
                             </div>
                             <div class="min-w-0 flex-1">
@@ -118,6 +120,10 @@
                         <a href="/dashboard" class="profile-dropdown-link">
                             <i class="ph-bold ph-layout text-base"></i>
                             User Dashboard
+                        </a>
+                        <a href="/history" class="profile-dropdown-link">
+                            <i class="ph-bold ph-clock-counter-clockwise text-base"></i>
+                            SEO Journey
                         </a>
                         <form th:action="@{/logout}" method="post" class="m-0">
                             <button type="submit" class="profile-dropdown-logout">

@@ -1,0 +1,54 @@
+/* 
+  Dashboard Console specific styles.
+  Handles glassmorphic utilities, chart containers, and SVG world map shading.
+*/
+
+.dashboard-widget {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    border-radius: 24px;
+    box-shadow: 
+        0 10px 30px -10px rgba(15, 23, 42, 0.04),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+    transition: all 0.4s var(--ease-premium, cubic-bezier(0.2, 0.8, 0.2, 1));
+    position: relative;
+    overflow: hidden;
+}
+
+.dark .dashboard-widget {
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 
+        0 20px 45px -15px rgba(0, 0, 0, 0.3),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+
+/* jsVectorMap tooltip styling override */
+.jvm-tooltip {
+    background: rgba(15, 23, 42, 0.95) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+    font-family: inherit !important;
+    padding: 0 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Custom scrollbar for uploads list */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+:is(.dark .custom-scrollbar::-webkit-scrollbar-thumb) {
+    background: #475569;
+}

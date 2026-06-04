@@ -1,102 +1,143 @@
 package com.seo.project.controller;
 
-import com.seo.project.model.VideoAnalysis;
-import com.seo.project.repository.VideoAnalysisRepository;
 import com.seo.project.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import java.util.ArrayList;
+import com.seo.project.dto.YouTubeChannelDto;
+import com.seo.project.service.ChannelHealthEvaluator;
+import com.seo.project.service.YouTubeChannelService;
+import com.seo.project.model.UserChannelSnapshot;
+import com.seo.project.repository.UserChannelSnapshotRepository;
+
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.stream.Collectors;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * DashboardController handles the retrieval and display of user-specific data,
- * primarily the SEO audit history and personal account information.
+ * primarily the creator console dashboard and personal account information.
  */
 @Slf4j
 @Controller
 public class DashboardController {
 
-    private final VideoAnalysisRepository videoAnalysisRepository;
     private final UserRepository userRepository;
+    private final YouTubeChannelService youtubeChannelService;
+    private final ChannelHealthEvaluator channelHealthEvaluator;
+    private final UserChannelSnapshotRepository snapshotRepository;
+    private final ObjectMapper objectMapper;
+    private final OAuth2AuthorizedClientService authorizedClientService;
 
-    public DashboardController(VideoAnalysisRepository videoAnalysisRepository, UserRepository userRepository) {
-        this.videoAnalysisRepository = videoAnalysisRepository;
+    public DashboardController(UserRepository userRepository,
+            YouTubeChannelService youtubeChannelService,
+            ChannelHealthEvaluator channelHealthEvaluator,
+            UserChannelSnapshotRepository snapshotRepository,
+            ObjectMapper objectMapper,
+            OAuth2AuthorizedClientService authorizedClientService) {
         this.userRepository = userRepository;
+        this.youtubeChannelService = youtubeChannelService;
+        this.channelHealthEvaluator = channelHealthEvaluator;
+        this.snapshotRepository = snapshotRepository;
+        this.objectMapper = objectMapper;
+        this.authorizedClientService = authorizedClientService;
     }
 
     /**
-     * Renders the user dashboard. 
-     * Orchestrates data retrieval from PostgreSQL based on the authenticated Google ID.
+     * Renders the user dashboard.
+     * Orchestrates data retrieval from PostgreSQL based on the authenticated Google
+     * ID.
      */
     @GetMapping("/dashboard")
-    public String showDashboard(Authentication authentication, Model model) {
+    public String showDashboard(
+            Authentication authentication,
+            Model model) {
         if (authentication == null || !(authentication.getPrincipal() instanceof OAuth2User oauth2User)) {
             log.warn("Unauthorized access attempt to /dashboard. Redirecting to home.");
             return "redirect:/";
         }
 
+        // Safe lookup — returns null if user authenticated via One Tap (no OAuth2 code flow)
+        OAuth2AuthorizedClient authorizedClient = authorizedClientService
+                .loadAuthorizedClient("google", authentication.getName());
+
         String email = oauth2User.getAttribute("email");
         log.info("Accessing Dashboard for user: [{}]", email);
 
-        // Fetch user context and compute comprehensive statistics
-        userRepository.findByEmail(email).ifPresentOrElse(user -> {
-            List<VideoAnalysis> analyses = videoAnalysisRepository.findByUserOrderByAnalyzedAtDesc(user);
-            long auditCount = analyses.size();
-            double avgSeo = analyses.stream()
-                    .mapToInt(a -> a.getSeoScore() != null ? a.getSeoScore() : 0)
-                    .average()
-                    .orElse(0.0);
-            double avgEngagement = analyses.stream()
-                    .mapToDouble(a -> a.getEngagementRate() != null ? a.getEngagementRate() : 0.0)
-                    .average()
-                    .orElse(0.0);
+        userRepository.findWithCompetitorsByEmail(email).ifPresentOrElse(user -> {
+            // 1. YouTube Channel Live Data
+            // authorizedClient is null when user logged in via One Tap (no OAuth2 code flow)
+            YouTubeChannelDto channelData = (authorizedClient != null)
+                    ? youtubeChannelService.getChannelIntelligence(authorizedClient, email)
+                    : null;
+            boolean hasChannel = (channelData != null);
+            model.addAttribute("hasChannel", hasChannel);
 
-            String health = "Pending";
-            if (auditCount > 0) {
-                if (avgSeo >= 80) health = "Excellent";
-                else if (avgSeo >= 50) health = "Needs Work";
-                else health = "Critical";
+            if (channelData != null) {
+                model.addAttribute("channel", channelData);
+
+                // Calculate accurate health score from real uploads
+                int score = channelHealthEvaluator.calculateHealthScore(channelData.recentUploads(),
+                        channelData.subscriberCount());
+                String health = channelHealthEvaluator.getHealthStatus(score);
+
+                model.addAttribute("healthScore", score);
+                model.addAttribute("channelHealth", health);
+
+                try {
+                    model.addAttribute("recentUploadsJson",
+                            objectMapper.writeValueAsString(channelData.recentUploads()));
+                    model.addAttribute("geoDistributionJson",
+                            objectMapper.writeValueAsString(channelData.geoDistribution()));
+                } catch (Exception e) {
+                    model.addAttribute("recentUploadsJson", "[]");
+                    model.addAttribute("geoDistributionJson", "{}");
+                }
+            } else {
+                model.addAttribute("channelHealth", "Pending");
+                model.addAttribute("healthScore", 0);
+                model.addAttribute("recentUploadsJson", "[]");
+                model.addAttribute("geoDistributionJson", "{}");
             }
 
-            model.addAttribute("auditCount", auditCount);
-            model.addAttribute("avgSeoScore", Math.round(avgSeo));
-            model.addAttribute("avgEngagement", Math.round(avgEngagement * 100.0) / 100.0);
-            model.addAttribute("channelHealth", health);
+            // 2. User Snapshots (Historical Growth)
+            List<UserChannelSnapshot> snapshots = snapshotRepository.findByUserOrderByRecordedAtAsc(user);
+
             model.addAttribute("user", user);
+            model.addAttribute("snapshots", snapshots);
+            try {
+                List<Map<String, Object>> snapshotList = snapshots.stream().map(s -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("subscriberCount", s.getSubscriberCount());
+                    map.put("viewCount", s.getViewCount());
+                    map.put("videoCount", s.getVideoCount());
+                    map.put("recordedAt", s.getRecordedAt() != null ? s.getRecordedAt().toString() : null);
+                    return map;
+                }).collect(Collectors.toList());
+                model.addAttribute("snapshotsJson", objectMapper.writeValueAsString(snapshotList));
+            } catch (Exception e) {
+                model.addAttribute("snapshotsJson", "[]");
+            }
         }, () -> {
-            model.addAttribute("auditCount", 0);
-            model.addAttribute("avgSeoScore", 0);
-            model.addAttribute("avgEngagement", 0.0);
+            model.addAttribute("hasChannel", false);
             model.addAttribute("channelHealth", "Pending");
+            model.addAttribute("recentUploadsJson", "[]");
+            model.addAttribute("geoDistributionJson", "{}");
+            model.addAttribute("snapshotsJson", "[]");
             model.addAttribute("user", com.seo.project.model.User.builder()
                     .name(oauth2User.getAttribute("name"))
                     .email(email)
                     .build());
         });
-        
+
         return "dashboard";
-    }
-
-    /**
-     * Fragment endpoint for lazy-loading the audit history.
-     */
-    @GetMapping("/dashboard/history")
-    public String getDashboardHistory(Authentication authentication, Model model) {
-        if (authentication == null || !(authentication.getPrincipal() instanceof OAuth2User oauth2User)) {
-            return "error";
-        }
-
-        String email = oauth2User.getAttribute("email");
-        userRepository.findByEmail(email).ifPresent(user -> {
-            List<VideoAnalysis> history = videoAnalysisRepository.findByUserOrderByAnalyzedAtDesc(user);
-            model.addAttribute("history", history != null ? history : new ArrayList<>());
-        });
-
-        return "dashboard :: history-fragment";
     }
 }
