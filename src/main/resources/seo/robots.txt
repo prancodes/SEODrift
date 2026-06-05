@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /dashboard
+Disallow: /analytics
+Disallow: /tags
+Disallow: /thumbnail
+Disallow: /api/
+
+Sitemap: ${baseUrl}/sitemap.xml

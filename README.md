@@ -31,8 +31,8 @@
 ## ✨ Features
 
 ### 🔐 **Google OAuth2 Authentication & User Sync**
-- Dual login paths: **Google One Tap** (top-right card on page load) and full **OAuth2 Authorization Code** flow via the Login button.
-- Automated client-side JWT processing and server-side token verification via `GoogleIdTokenVerifier`.
+- Secure, frictionless login using **Google OAuth2 Authorization Code flow** with full YouTube API scope authorization.
+- Automated client-side JWT processing and server-side token verification.
 - Real-time profile database synchronization (names, emails, Google IDs, and profile images).
 - Dynamic navigation state changes based on authentication context.
 - **Google OAuth2 Verification Compliant**: Integrated custom `/privacy` and `/terms` routes with explicit API scopes disclosure (including YouTube Data API), data revocation, and contact email support (`prancoder@gmail.com`) to pass manual OAuth2 reviews.

@@ -8,6 +8,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer-when-downgrade">
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" th:content="${metaDescription ?: 'Master your YouTube strategy with SEODrift. Generate optimized SEO tags, download high-res thumbnails, audit channel health, and get deep video analytics.'}">
+    <meta name="keywords" th:content="${metaKeywords ?: 'youtube seo, youtube tag generator, thumbnail downloader, youtube analytics, channel audit, video seo, seodrift'}">
+    <meta name="author" content="Pranjal Singh">
+    
+    <!-- Canonical Link -->
+    <link rel="canonical" th:href="${canonicalUrl ?: ((baseUrl ?: '') + (currentUri ?: ''))}" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" th:content="${canonicalUrl ?: ((baseUrl ?: '') + (currentUri ?: ''))}">
+    <meta property="og:title" th:content="${ogTitle ?: 'SEODrift - Master Your YouTube Strategy'}">
+    <meta property="og:description" th:content="${metaDescription ?: 'Master your YouTube strategy with SEODrift. Generate optimized SEO tags, download high-res thumbnails, audit channel health, and get deep video analytics.'}">
+    <meta property="og:image" th:content="${ogImage ?: ((baseUrl ?: '') + '/images/og-banner.png')}">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" th:content="${canonicalUrl ?: ((baseUrl ?: '') + (currentUri ?: ''))}">
+    <meta property="twitter:title" th:content="${ogTitle ?: 'SEODrift - Master Your YouTube Strategy'}">
+    <meta property="twitter:description" th:content="${metaDescription ?: 'Master your YouTube strategy with SEODrift. Generate optimized SEO tags, download high-res thumbnails, audit channel health, and get deep video analytics.'}">
+    <meta property="twitter:image" th:content="${ogImage ?: ((baseUrl ?: '') + '/images/og-banner.png')}">
+
     <title layout:title-pattern="$CONTENT_TITLE | $LAYOUT_TITLE">SEODrift</title>
     <!-- Favicons -->
     <link rel="icon" type="image/png" href="/favicons/favicon-96x96.png" sizes="96x96" />
@@ -30,8 +53,8 @@
     <link rel="stylesheet" th:href="@{/css/base/layout-styles.css}">
 
     <!-- CSRF Tokens for AJAX -->
-    <meta name="_csrf" th:content="${_csrf.token}"/>
-    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <meta name="_csrf" th:content="${_csrf?.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf?.headerName}"/>
 
     <!-- Google Search Console Verification -->
     <meta name="google-site-verification" content="0ZkyBHn9B02UrwOr3H2qSbbyqF8I4rDQHm0kJ82s3JU" />

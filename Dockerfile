@@ -75,7 +75,7 @@ ENV PORT=8080
 EXPOSE 8080
 
 # JVM flags tuned for GCP Cloud Run (fast startup + adaptive heap):
-#   -XX:TieredStopAtLevel=4         → full JIT (best throughput after warm-up)
+#   -XX:TieredStopAtLevel=1         → JIT level 1 (fast compilation for serverless)
 #   -XX:+UseSerialGC                → smallest footprint for single-core containers
 #   -XX:MaxRAMPercentage=75.0       → dynamically adapts to whatever GCP assigns
 #   -XX:+OptimizeStringConcat       → micro-opt for Thymeleaf rendering
@@ -86,7 +86,7 @@ EXPOSE 8080
 #                                            (containers have low /dev/random entropy)
 ENTRYPOINT ["java", \
   "--enable-native-access=ALL-UNNAMED", \
-  "-XX:TieredStopAtLevel=4", \
+  "-XX:TieredStopAtLevel=1", \
   "-XX:+UseSerialGC", \
   "-XX:MaxRAMPercentage=75.0", \
   "-XX:+OptimizeStringConcat", \
