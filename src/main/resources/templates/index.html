@@ -2,6 +2,48 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{fragments/layout/layout}">
 <head>
     <title>Home</title>
+    <!-- JSON-LD Structured Data (Schema Markup) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "[(${baseUrl ?: ''})]/#website",
+          "url": "[(${baseUrl ?: ''})]/",
+          "name": "SEODrift",
+          "description": "Master your YouTube strategy with SEODrift. Generate optimized SEO tags, download high-res thumbnails, audit channel health, and get deep video analytics.",
+          "publisher": {
+            "@type": "Organization",
+            "name": "SEODrift",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "[(${baseUrl ?: ''})]/favicons/apple-touch-icon.png"
+            }
+          }
+        },
+        {
+          "@type": "SoftwareApplication",
+          "@id": "[(${baseUrl ?: ''})]/#software",
+          "name": "SEODrift YouTube Optimization Toolkit",
+          "applicationCategory": "BusinessApplication",
+          "operatingSystem": "All",
+          "url": "[(${baseUrl ?: ''})]/",
+          "description": "The all-in-one platform for modern content creators. Generate tags, grab high-res thumbnails, and analyze performance with precision.",
+          "offers": {
+            "@type": "Offer",
+            "price": "0.00",
+            "priceCurrency": "USD"
+          },
+          "featureList": [
+            "SEO Tags Generator",
+            "Thumbnail Grabber",
+            "Video Intelligence & Channel Health Audit"
+          ]
+        }
+      ]
+    }
+    </script>
 </head>
 <body>
 <div layout:fragment="content" class="max-w-7xl mx-auto px-2 sm:px-4">

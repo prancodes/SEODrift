@@ -45,7 +45,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         // Publicly accessible assets and home page
                         .requestMatchers("/", "/css/**", "/js/**", "/images/**", "/webjars/**", "/favicons/**",
-                                "/api/auth/**")
+                                "/api/auth/**", "/robots.txt", "/sitemap.xml")
                         .permitAll()
 
                         // Protected tools and user data

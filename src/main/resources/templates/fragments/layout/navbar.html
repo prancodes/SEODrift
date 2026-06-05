@@ -1,46 +1,5 @@
 <nav th:fragment="navbar" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" class="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 transition-all duration-300">
     <link rel="stylesheet" th:href="@{/css/components/navbar-styles.css}">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    
-    <!-- Google Identity Services Configuration (Must load before g_id_signin buttons) -->
-    <div sec:authorize="isAnonymous()">
-        <div id="g_id_onload"
-             th:data-client_id="${googleClientId}"
-             data-context="signin"
-             data-ux_mode="popup"
-             data-callback="handleCredentialResponse"
-             data-auto_select="false"
-             data-auto_prompt="true"
-             data-itp_support="true"
-             data-use_fedcm_for_prompt="false">
-        </div>
-        
-        <script>
-            function handleCredentialResponse(response) {
-                console.log("Google Credential Received. Syncing with backend...");
-                
-                fetch('/api/auth/google', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.content
-                    },
-                    body: JSON.stringify({ token: response.credential })
-                })
-                .then(res => {
-                    if (res.ok) {
-                        console.log("Authentication successful, reloading...");
-                        window.location.reload();
-                    } else {
-                        console.error('Backend authentication failed');
-                    }
-                })
-                .catch(err => {
-                    console.error('Network error during authentication:', err);
-                });
-            }
-        </script>
-    </div>
 
     <div class="container mx-auto px-4 h-16 md:h-20 flex items-center justify-between">
         
