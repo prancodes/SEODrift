@@ -1,0 +1,201 @@
+/* --- SEODrift AI Workspace Custom Stylesheet --- */
+
+:root {
+    --ease-premium: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Suggested Title item hover styling */
+.title-suggestion-item {
+    padding: 14px 18px;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px dashed rgba(168, 85, 247, 0.25);
+    border-radius: 16px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #4b5563;
+    cursor: pointer;
+    transition: all 0.3s var(--ease-premium);
+    display: flex;
+    align-items: center;
+    justify-content: justify;
+    gap: 8px;
+}
+
+.dark .title-suggestion-item {
+    background: rgba(15, 23, 42, 0.3);
+    border-color: rgba(168, 85, 247, 0.2);
+    color: #d1d5db;
+}
+
+.title-suggestion-item:hover {
+    transform: translateX(4px);
+    background: rgba(168, 85, 247, 0.05);
+    border: 1px solid rgba(168, 85, 247, 0.45);
+    color: #7c3aed;
+    box-shadow: 0 4px 12px -2px rgba(168, 85, 247, 0.1);
+}
+
+.dark .title-suggestion-item:hover {
+    background: rgba(168, 85, 247, 0.1);
+    color: #a78bfa;
+}
+
+/* Tag Pill styling */
+.tag-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: rgba(99, 102, 241, 0.08);
+    border: 1px solid rgba(99, 102, 241, 0.15);
+    color: #6366f1;
+    transition: all 0.2s var(--ease-premium);
+}
+
+.dark .tag-pill {
+    background: rgba(129, 140, 248, 0.08);
+    border-color: rgba(129, 140, 248, 0.15);
+    color: #818cf8;
+}
+
+.tag-pill:hover {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+.tag-pill button {
+    outline: none;
+}
+
+/* Hashtag Pill styling */
+.hashtag-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: rgba(168, 85, 247, 0.08);
+    border: 1px solid rgba(168, 85, 247, 0.15);
+    color: #a855f7;
+    transition: all 0.2s var(--ease-premium);
+}
+
+.dark .hashtag-pill {
+    background: rgba(192, 132, 252, 0.08);
+    border-color: rgba(192, 132, 252, 0.15);
+    color: #c084fc;
+}
+
+.hashtag-pill:hover {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+/* Recommended Cloud Tags */
+.recommend-tag-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    background: rgba(15, 23, 42, 0.03);
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    color: #6b7280;
+    transition: all 0.2s var(--ease-premium);
+}
+
+.dark .recommend-tag-pill {
+    background: rgba(255, 255, 255, 0.02);
+    border-color: rgba(255, 255, 255, 0.05);
+    color: #9ca3af;
+}
+
+.recommend-tag-pill:hover {
+    background: rgba(168, 85, 247, 0.05);
+    border-color: rgba(168, 85, 247, 0.25);
+    color: #8b5cf6;
+    transform: translateY(-1px);
+}
+
+.dark .recommend-tag-pill:hover {
+    background: rgba(168, 85, 247, 0.1);
+    color: #a78bfa;
+}
+
+/* Audit Checklist status classes */
+.audit-check.passed {
+    color: #10b981 !important;
+}
+
+.dark .audit-check.passed {
+    color: #34d399 !important;
+}
+
+.audit-check.passed i {
+    color: #10b981 !important;
+}
+
+.dark .audit-check.passed i {
+    color: #34d399 !important;
+}
+
+/* Active class of check icon changes when passed */
+.audit-check.passed i::before {
+    content: "\e24c"; /* Phosphor icons check icon */
+}
+
+/* Input Fields styling focus enhancement */
+input:focus, textarea:focus, select:focus {
+    box-shadow: 0 0 16px -2px rgba(168, 85, 247, 0.15);
+}
+
+/* Outline/Chapters Table styling */
+.chapter-row input {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1f2937;
+    width: 100%;
+}
+
+.dark .chapter-row input {
+    color: #f3f4f6;
+}
+
+.chapter-row input:focus {
+    box-shadow: none;
+    border-bottom: 1px dashed rgba(168, 85, 247, 0.5);
+}
+
+.chapter-row {
+    border-bottom: 1px solid rgba(15, 23, 42, 0.03);
+    transition: background-color 0.2s var(--ease-premium);
+}
+
+.dark .chapter-row {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.chapter-row:hover {
+    background: rgba(168, 85, 247, 0.02);
+}
+
+.dark .chapter-row:hover {
+    background: rgba(168, 85, 247, 0.04);
+}

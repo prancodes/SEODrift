@@ -43,5 +43,35 @@
     "name": "app.redis.ssl.disable-peer-verification",
     "type": "java.lang.String",
     "description": "A description for 'app.redis.ssl.disable-peer-verification'"
+  },
+  {
+    "name": "DB_USER",
+    "type": "java.lang.String",
+    "description": "A description for 'DB_USER'"
+  },
+  {
+    "name": "DB_PASSWORD",
+    "type": "java.lang.String",
+    "description": "A description for 'DB_PASSWORD'"
+  },
+  {
+    "name": "GOOGLE_CLIENT_ID",
+    "type": "java.lang.String",
+    "description": "A description for 'GOOGLE_CLIENT_ID'"
+  },
+  {
+    "name": "YT_API_KEY",
+    "type": "java.lang.String",
+    "description": "A description for 'YT_API_KEY'"
+  },
+  {
+    "name": "GEMINI_API_KEY",
+    "type": "java.lang.String",
+    "description": "A description for 'GEMINI_API_KEY'"
+  },
+  {
+    "name": "GEMINI_MODEL",
+    "type": "java.lang.String",
+    "description": "A description for 'GEMINI_MODEL'"
   }
 ]}

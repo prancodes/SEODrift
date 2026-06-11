@@ -169,10 +169,16 @@
                                         <div class="text-[10px] font-black text-gray-700 dark:text-gray-300" th:text="${item.analyzedAt != null ? #temporals.format(item.analyzedAt, 'MMM dd') : 'N/A'}">Date</div>
                                         <div class="text-[8px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-0.5" th:text="${item.analyzedAt != null ? #temporals.format(item.analyzedAt, 'hh:mm a') : 'N/A'}">Time</div>
                                     </td>
-                                    <td class="text-right">
-                                        <a th:href="@{/analytics(url=${item.videoUrl})}" class="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-brand-600 dark:hover:bg-brand-600 hover:text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-md group/btn">
+                                    <td class="text-right whitespace-nowrap space-x-2">
+                                        <a th:if="${#strings.startsWith(item.videoUrl, 'ai-draft')}" th:href="@{/workspace(draftId=${item.id})}" data-turbo-prefetch="false" class="inline-flex items-center gap-1.5 px-4 py-2 bg-purple-600 hover:bg-purple-750 hover:text-white text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-md group/btn cursor-pointer">
+                                            Edit Draft <i class="ph-bold ph-pencil-simple group-hover/btn:translate-x-0.5 transition-transform"></i>
+                                        </a>
+                                        <a th:if="${!#strings.startsWith(item.videoUrl, 'ai-draft')}" th:href="@{/analytics(url=${item.videoUrl})}" data-turbo-prefetch="false" class="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-brand-600 dark:hover:bg-brand-600 hover:text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-md group/btn cursor-pointer">
                                             Analyze <i class="ph-bold ph-arrow-right group-hover/btn:translate-x-0.5 transition-transform"></i>
                                         </a>
+                                        <button type="button" th:attr="onclick='deleteHistoryItem(' + ${item.id} + ', this)'" class="inline-flex items-center justify-center p-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-500 rounded-xl transition-all active:scale-95 shadow-sm group/del cursor-pointer">
+                                            <i class="ph-bold ph-trash group-hover/del:scale-110 transition-transform"></i>
+                                        </button>
                                     </td>
                                 </tr>
                             </tbody>
@@ -269,8 +275,5 @@
                 </ul>
             </div>
         </div>
-    </div>
-
-</div>
-</body>
+    </body>
 </html>
