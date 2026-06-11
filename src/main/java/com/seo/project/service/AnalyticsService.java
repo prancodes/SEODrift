@@ -6,7 +6,6 @@ import com.seo.project.model.VideoAnalysis;
 import com.seo.project.repository.UserRepository;
 import com.seo.project.repository.VideoAnalysisRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
@@ -34,9 +33,7 @@ public class AnalyticsService {
     private final VideoAnalysisRepository videoAnalysisRepository;
     private final UserRepository userRepository;
 
-    @Autowired
-    @Lazy
-    private AnalyticsService self;
+    private final AnalyticsService self;
 
     @Value("${youtube.api.key}")
     private String apiKey;
@@ -50,11 +47,13 @@ public class AnalyticsService {
     public AnalyticsService(WebClient.Builder builder, 
                             ThumbnailService thumbnailService,
                             VideoAnalysisRepository videoAnalysisRepository,
-                            UserRepository userRepository) {
+                            UserRepository userRepository,
+                            @Lazy AnalyticsService self) {
         this.webClient = builder.build();
         this.thumbnailService = thumbnailService;
         this.videoAnalysisRepository = videoAnalysisRepository;
         this.userRepository = userRepository;
+        this.self = self;
     }
 
     /**

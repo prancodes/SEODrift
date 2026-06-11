@@ -73,7 +73,7 @@ public class ThumbnailService {
             return matcher.group(1);
         }
         
-        log.warn("Failed to extract Video ID from provided URL: [{}]", url);
+        log.debug("Failed to extract Video ID from input (likely a keyword, not a URL): [{}]", url);
         return null;
     }
 

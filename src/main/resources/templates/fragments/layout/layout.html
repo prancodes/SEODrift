@@ -8,6 +8,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer-when-downgrade">
+    <meta name="turbo-prefetch" content="false">
     
     <!-- SEO Meta Tags -->
     <meta name="description" th:content="${metaDescription ?: 'Master your YouTube strategy with SEODrift. Generate optimized SEO tags, download high-res thumbnails, audit channel health, and get deep video analytics.'}">
@@ -46,6 +47,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script th:src="@{/js/core/theme.js}"></script>
+    <script th:src="@{/js/core/ui-utils.js}"></script>
     <script th:src="@{/dist/main.js}" defer></script>
     <script th:src="@{/js/components/navbar-script.js}" defer></script>
     <script th:src="@{/js/components/auth-modal.js}" defer></script>
@@ -61,7 +63,7 @@
     
 </head>
 
-<body th:data-authenticated="${#authentication != null and #authentication.name != null}"
+<body th:data-authenticated="${#authorization.expression('isAuthenticated()')}"
       class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 flex flex-col min-h-screen transition-colors duration-300 selection:bg-brand-500 selection:text-white">
 
     <div th:replace="~{fragments/layout/navbar :: navbar}"></div>

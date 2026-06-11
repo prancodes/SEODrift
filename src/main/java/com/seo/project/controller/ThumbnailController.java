@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,8 +20,11 @@ import com.seo.project.service.ThumbnailService;
 @Controller
 public class ThumbnailController {
 
-    @Autowired
-    private ThumbnailService service;
+    private final ThumbnailService service;
+
+    public ThumbnailController(ThumbnailService service) {
+        this.service = service;
+    }
 
     // Endpoint to display the thumbnail input page
     @GetMapping("/thumbnail")

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{fragments/layout/layout}">
+<head>
+    <title>AI Content Workspace</title>
+    <link rel="stylesheet" th:href="@{/css/components/dashboard-styles.css}">
+    <link rel="stylesheet" th:href="@{/css/components/workspace.css}">
+    <script th:src="@{/js/components/workspace.js}" defer></script>
+</head>
+<body>
+<div layout:fragment="content" class="max-w-7xl mx-auto space-y-8 animate-fade-in">
+
+    <!-- Welcome Banner Section -->
+    <div class="dashboard-glass-card welcome-banner p-6 md:p-10 relative overflow-hidden group">
+        <div class="dashboard-mesh"></div>
+        <div class="shine-overlay"></div>
+        
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div class="flex items-center gap-4 md:gap-5">
+                <div class="w-12 h-12 md:w-16 md:h-16 rounded-2xl overflow-hidden p-0.5 bg-gradient-to-tr from-purple-500 via-pink-500 to-indigo-500 shadow-md shrink-0 flex items-center justify-center">
+                    <i class="ph-bold ph-sparkle text-white text-2xl md:text-3xl"></i>
+                </div>
+                <div class="space-y-1 min-w-0">
+                    <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 md:px-3 md:py-1 rounded-full bg-purple-100 dark:bg-purple-900/40 border border-purple-200/50 dark:border-purple-800/40 text-[8px] md:text-[10px] font-black uppercase tracking-widest text-purple-700 dark:text-purple-400">
+                        <span class="relative flex h-1.5 w-1.5">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-purple-500"></span>
+                        </span>
+                        AI Workspace
+                    </div>
+                    <h1 class="text-xl md:text-3xl lg:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
+                        AI Content <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400">Workspace</span>
+                    </h1>
+                    <p class="text-gray-500 dark:text-gray-400 text-xs lg:text-sm font-bold">Generate, optimize, and audit YouTube metadata in real time.</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3 relative z-20 shrink-0">
+                <span th:if="${draft != null}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-150 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 border border-purple-200/50 rounded-2xl text-[9px] md:text-xs font-black uppercase tracking-widest">
+                    <i class="ph-bold ph-pencil-simple text-sm"></i> Editing Saved Draft
+                </span>
+                <a th:if="${draft != null}" th:href="@{/workspace}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 border border-gray-200/80 dark:border-slate-700 rounded-2xl text-[9px] md:text-xs font-black uppercase tracking-widest transition-all cursor-pointer">
+                    <i class="ph-bold ph-plus text-sm"></i> New Project
+                </a>
+                <span th:if="${draft == null}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200/50 rounded-2xl text-[9px] md:text-xs font-black uppercase tracking-widest">
+                    <i class="ph-bold ph-sparkle text-sm"></i> New Project
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Inputs for Preloaded Draft Arrays -->
+    <input type="hidden" id="preloadedTags" th:value="${draftTagsJson}">
+    <input type="hidden" id="preloadedHashtags" th:value="${draftHashtagsJson}">
+    <input type="hidden" id="preloadedChapters" th:value="${draftChaptersJson}">
+
+    <!-- Main Workspace Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left Sidebar: Controls & Live SEO Score (1/3 width) -->
+        <div class="space-y-8">
+            
+            <!-- Generation Form -->
+            <div class="dashboard-glass-card p-6 md:p-8 space-y-6">
+                <h3 class="text-sm font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 flex items-center gap-2 border-b border-gray-150 dark:border-gray-700/50 pb-4">
+                    <i class="ph-fill ph-sliders text-lg text-purple-500"></i> Generation Options
+                </h3>
+                
+                <input type="hidden" id="draftId" th:value="${draft != null ? draft.id : ''}">
+                
+                <div class="space-y-4">
+                    <!-- Topic/Keyword Input -->
+                    <div class="space-y-2">
+                        <label for="topic" class="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">Core Topic / Keyword</label>
+                        <div class="relative">
+                            <i class="ph-bold ph-key-return absolute left-4 top-3.5 text-gray-400 text-lg"></i>
+                            <input type="text" id="topic" 
+                                   th:value="${draft != null ? draft.topic : ''}"
+                                   placeholder="e.g. Build NextJS SaaS Platform" 
+                                   class="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200/70 dark:border-gray-700/60 bg-white/40 dark:bg-slate-900/30 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none text-sm font-bold text-gray-800 dark:text-white transition-all">
+                        </div>
+                    </div>
+                    
+                    <!-- Tone Selection -->
+                    <div class="space-y-2">
+                        <label for="tone" class="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">Video Tone</label>
+                        <select id="tone" class="w-full px-4 py-3 rounded-xl border border-gray-200/70 dark:border-gray-700/60 bg-white dark:bg-slate-900 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none text-sm font-bold text-gray-800 dark:text-white transition-all appearance-none cursor-pointer" style="background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%239ca3af%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 1rem top 50%; background-size: 0.65rem auto;">
+                            <option value="engaging" th:selected="${draft != null && draft.tone == 'engaging'}">🔥 Engaging & Click-worthy</option>
+                            <option value="educational" th:selected="${draft != null && draft.tone == 'educational'}">📚 Informative & Tutorial</option>
+                            <option value="professional" th:selected="${draft != null && draft.tone == 'professional'}">💼 Professional & Corporate</option>
+                            <option value="comedic" th:selected="${draft != null && draft.tone == 'comedic'}">🎭 Entertaining & Humorous</option>
+                            <option value="sensational" th:selected="${draft != null && draft.tone == 'sensational'}">⚡ High-Energy & Hype</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Generate Button -->
+                    <button id="btnGenerate" class="w-full py-3.5 bg-gradient-to-r from-purple-600 to-indigo-650 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-purple-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                        <i class="ph-bold ph-lightning text-base"></i>
+                        <span>Generate Ideas</span>
+                        <div id="spinnerGenerate" class="hidden animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Real-time SEO Auditor Widget -->
+            <div class="dashboard-glass-card p-6 md:p-8 space-y-6">
+                <h3 class="text-sm font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 flex items-center gap-2 border-b border-gray-150 dark:border-gray-700/50 pb-4">
+                    <i class="ph-fill ph-shield-check text-lg text-green-500"></i> Real-time SEO Auditor
+                </h3>
+                
+                <!-- Score Circle -->
+                <div class="flex flex-col items-center py-4 relative">
+                    <div class="relative w-36 h-36 flex items-center justify-center">
+                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                            <!-- Background Circle -->
+                            <circle cx="50" cy="50" r="42" stroke-width="8" stroke="currentColor" class="text-gray-100 dark:text-gray-800" fill="transparent"/>
+                            <!-- Progress Circle -->
+                            <circle id="seoScoreProgress" cx="50" cy="50" r="42" stroke-width="8" stroke-dasharray="264" stroke-dashoffset="264" stroke-linecap="round" stroke="currentColor" class="text-purple-600 transition-all duration-500" fill="transparent"/>
+                        </svg>
+                        <div class="absolute flex flex-col items-center justify-center">
+                            <span id="seoScoreText" class="text-3xl font-black text-gray-900 dark:text-white">0</span>
+                            <span class="text-[9px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">Score</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Audit Heuristics Checklist -->
+                <div class="space-y-3 pt-2">
+                    <div id="checkTitleLength" class="audit-check flex items-start gap-3 text-xs font-bold text-gray-500 dark:text-gray-400">
+                        <i class="ph-bold ph-circle text-base text-gray-300 dark:text-gray-600 shrink-0"></i>
+                        <span>Title length: Optimized (20-70 characters)</span>
+                    </div>
+                    <div id="checkTitleKeywords" class="audit-check flex items-start gap-3 text-xs font-bold text-gray-500 dark:text-gray-400">
+                        <i class="ph-bold ph-circle text-base text-gray-300 dark:text-gray-600 shrink-0"></i>
+                        <span>Title keyword alignment in tags</span>
+                    </div>
+                    <div id="checkDescCta" class="audit-check flex items-start gap-3 text-xs font-bold text-gray-500 dark:text-gray-400">
+                        <i class="ph-bold ph-circle text-base text-gray-300 dark:text-gray-600 shrink-0"></i>
+                        <span>Description has links / CTAs</span>
+                    </div>
+                    <div id="checkTagsCount" class="audit-check flex items-start gap-3 text-xs font-bold text-gray-500 dark:text-gray-400">
+                        <i class="ph-bold ph-circle text-base text-gray-300 dark:text-gray-600 shrink-0"></i>
+                        <span>Tag density: Optimized (10-15 tags)</span>
+                    </div>
+                    <div id="checkHashtagsCount" class="audit-check flex items-start gap-3 text-xs font-bold text-gray-500 dark:text-gray-400">
+                        <i class="ph-bold ph-circle text-base text-gray-300 dark:text-gray-600 shrink-0"></i>
+                        <span>Hashtags count: Optimized (3-5 tags)</span>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- Right Main Panel: Editable Canvas & AI Outputs (2/3 width) -->
+        <div class="lg:col-span-2 space-y-8">
+            
+            <!-- Suggested Titles Cloud -->
+            <div id="titleSuggestionsCard" class="dashboard-glass-card p-6 md:p-8 space-y-4 hidden">
+                <h3 class="text-xs font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                    <i class="ph-bold ph-lightbulb-filament text-yellow-500 text-base"></i> AI Title Suggestions (Click to apply)
+                </h3>
+                <div id="titleSuggestionsContainer" class="flex flex-col gap-2 pt-2">
+                    <!-- Dynamic titles injected here -->
+                </div>
+            </div>
+            
+            <!-- Metadata Canvas Card -->
+            <div class="dashboard-glass-card p-6 md:p-8 space-y-6">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-gray-150 dark:border-gray-700/50 pb-4 gap-4">
+                    <h3 class="text-sm font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                        <i class="ph-fill ph-note-pencil text-lg text-purple-500"></i> Metadata Canvas
+                    </h3>
+                    
+                    <div class="flex flex-wrap gap-2 w-full md:w-auto">
+                        <!-- Save Draft Button -->
+                        <button id="btnSaveDraft" class="flex-1 md:flex-none px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-md transition-all flex justify-center items-center gap-1.5 active:scale-95 cursor-pointer">
+                            <i class="ph-bold ph-floppy-disk text-sm"></i> Save Draft
+                        </button>
+                        
+                        <!-- Copy All Metadata -->
+                        <button id="btnCopyAll" class="flex-1 md:flex-none px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-brand-600 dark:hover:bg-brand-600 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-md transition-all flex justify-center items-center gap-1.5 active:scale-95 cursor-pointer">
+                            <i class="ph-bold ph-copy text-sm"></i> Copy All
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="space-y-6">
+                    
+                    <!-- Video Title Input -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label for="canvasTitle" class="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">Video Title</label>
+                            <span id="charCountTitle" class="text-[10px] font-bold text-gray-400 dark:text-gray-500">0 / 100</span>
+                        </div>
+                        <input type="text" id="canvasTitle" 
+                               th:value="${draft != null ? draft.title : ''}"
+                               placeholder="Draft your optimized video title here..." 
+                               class="w-full px-4 py-3 rounded-xl border border-gray-200/70 dark:border-gray-700/60 bg-white/40 dark:bg-slate-900/30 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none text-sm font-bold text-gray-800 dark:text-white transition-all">
+                    </div>
+                    
+                    <!-- Description Editor -->
+                    <div class="space-y-2">
+                        <label for="canvasDescription" class="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">Video Description</label>
+                        <textarea id="canvasDescription" rows="8" 
+                                  placeholder="Write a high-converting video description (Include social links, call-to-actions, timestamps)..." 
+                                  class="w-full px-4 py-3 rounded-xl border border-gray-200/70 dark:border-gray-700/60 bg-white/40 dark:bg-slate-900/30 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none text-sm font-semibold text-gray-850 dark:text-gray-200 transition-all font-mono leading-relaxed" 
+                                  th:text="${draft != null ? draft.description : ''}"></textarea>
+                    </div>
+                    
+                    <!-- Hook / First 15 Seconds -->
+                    <div class="space-y-2">
+                        <label for="canvasHook" class="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">Hook Outline (Intro Script)</label>
+                        <textarea id="canvasHook" rows="3" 
+                                  placeholder="Script outline for the first 15 seconds to hook viewers..." 
+                                  class="w-full px-4 py-3 rounded-xl border border-gray-200/70 dark:border-gray-700/60 bg-white/40 dark:bg-slate-900/30 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none text-sm font-bold text-gray-800 dark:text-white transition-all leading-relaxed"
+                                  th:text="${draft != null ? draft.hook : ''}"></textarea>
+                    </div>
+                    
+                    <!-- Tags and Hashtags Section -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <!-- Video Tags -->
+                        <div class="space-y-2">
+                            <label class="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">Tags</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="tagInput" placeholder="Add tag..." class="w-full px-3 py-2 rounded-lg border border-gray-200/70 dark:border-gray-700/60 bg-white/40 dark:bg-slate-900/30 focus:border-purple-500 outline-none text-xs font-bold text-gray-800 dark:text-white transition-all">
+                                <button id="btnAddTag" class="px-3 bg-white/50 dark:bg-slate-800/50 hover:bg-purple-100 dark:hover:bg-purple-900/30 text-gray-500 hover:text-purple-600 dark:text-gray-400 dark:hover:text-purple-400 rounded-lg text-xs font-black uppercase cursor-pointer flex items-center justify-center transition-all border border-gray-200/50 dark:border-gray-700/50"><i class="ph-bold ph-plus"></i></button>
+                            </div>
+                            <!-- Active tags holder -->
+                            <div id="tagsContainer" class="flex flex-wrap gap-1.5 pt-2">
+                                <!-- Tags list elements dynamically placed here -->
+                            </div>
+                        </div>
+                        
+                        <!-- Video Hashtags -->
+                        <div class="space-y-2">
+                            <label class="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">Hashtags</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="hashtagInput" placeholder="Add hashtag..." class="w-full px-3 py-2 rounded-lg border border-gray-200/70 dark:border-gray-700/60 bg-white/40 dark:bg-slate-900/30 focus:border-purple-500 outline-none text-xs font-bold text-gray-800 dark:text-white transition-all">
+                                <button id="btnAddHashtag" class="px-3 bg-white/50 dark:bg-slate-800/50 hover:bg-purple-100 dark:hover:bg-purple-900/30 text-gray-500 hover:text-purple-600 dark:text-gray-400 dark:hover:text-purple-400 rounded-lg text-xs font-black uppercase cursor-pointer flex items-center justify-center transition-all border border-gray-200/50 dark:border-gray-700/50"><i class="ph-bold ph-plus"></i></button>
+                            </div>
+                            <!-- Active hashtags holder -->
+                            <div id="hashtagsContainer" class="flex flex-wrap gap-1.5 pt-2">
+                                <!-- Hashtags elements dynamically placed here -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- AI Tag Cloud suggestions -->
+                    <div id="tagSuggestionsBox" class="p-4 rounded-2xl bg-gray-50 dark:bg-slate-950/20 border border-gray-150 dark:border-slate-800/40 hidden">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-450 dark:text-gray-500 mb-2 flex items-center gap-1"><i class="ph-bold ph-plus text-xs"></i> Add AI Recommended Tags</div>
+                        <div id="tagCloudContainer" class="flex flex-wrap gap-1"></div>
+                    </div>
+                    
+                    <!-- Interactive Chapters Outline -->
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <label class="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">Chapters & Outline</label>
+                            <button id="btnAddChapter" class="text-[10px] font-black uppercase tracking-wider text-purple-600 hover:text-purple-750 flex items-center gap-1 outline-none cursor-pointer">
+                                <i class="ph-bold ph-plus text-sm bg-purple-100 dark:bg-purple-900/30 p-1 rounded-full"></i> Add Outline Segment
+                            </button>
+                        </div>
+                        
+                        <div class="border border-gray-200/50 dark:border-gray-800/50 rounded-2xl overflow-x-auto overflow-y-hidden bg-white/10 dark:bg-slate-900/10">
+                            <table class="w-full text-left border-collapse min-w-[450px]">
+                                <thead>
+                                    <tr class="bg-gray-50/50 dark:bg-gray-950/30 border-b border-gray-200/50 dark:border-gray-800/50 text-[10px] font-black uppercase tracking-widest text-gray-450 dark:text-gray-500">
+                                        <th class="p-3 w-28">Timestamp</th>
+                                        <th class="p-3">Section Title</th>
+                                        <th class="p-3 w-16 text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="chaptersTableBody">
+                                    <!-- Dynamic rows loaded from javascript or draft -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Helper to auto-inject chapters in description -->
+                        <button id="btnInsertTimestamps" class="text-[10px] font-black uppercase tracking-wider text-indigo-600 hover:text-indigo-750 flex items-center gap-1 outline-none mt-2 cursor-pointer">
+                            <i class="ph-bold ph-plus-square text-sm"></i> Append Chapters to Description
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+</div>
+
+<!-- Scripts -->
+<script th:src="@{/js/components/workspace.js}" defer></script>
+</body>
+</html>

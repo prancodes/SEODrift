@@ -2,7 +2,6 @@ package com.seo.project.controller;
 
 import com.seo.project.dto.TagsGeneratorResponse;
 import com.seo.project.service.TagsService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,8 +11,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class TagsController {
 
-    @Autowired
-    private TagsService tagsService;
+    private final TagsService tagsService;
+
+    public TagsController(TagsService tagsService) {
+        this.tagsService = tagsService;
+    }
 
     @GetMapping("/tags")
     public String showTagsPage() {
