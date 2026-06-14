@@ -6,7 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 import java.util.Optional;
+import org.springframework.context.annotation.Lazy;
 
+@Lazy
 public interface VideoAnalysisRepository extends JpaRepository<VideoAnalysis, Long> {
     List<VideoAnalysis> findByUserOrderByAnalyzedAtDesc(User user);
     long countByUser(User user);

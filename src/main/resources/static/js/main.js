@@ -97,4 +97,3 @@ document.addEventListener("click", (event) => {
     }
 });
 
-console.log("🚀 Turbo initialized successfully!")

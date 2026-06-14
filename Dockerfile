@@ -33,17 +33,17 @@ COPY --from=frontend /app/src/main/resources/static/dist ./src/main/resources/st
 # 3. Copy source & build (tests skipped, no devtools in prod jar)
 COPY src ./src
 RUN ./mvnw clean package -DskipTests -B -q && \
-    java -Djarmode=layertools -jar target/*.jar extract
+  java -Djarmode=layertools -jar target/*.jar extract
 
 # 4. Create Minimal Java Runtime (JLink)
 #    This creates a custom JRE with ONLY the modules Spring Boot needs
 RUN $JAVA_HOME/bin/jlink \
-    --add-modules java.base,java.logging,java.naming,java.management,java.security.jgss,java.instrument,jdk.unsupported,java.sql,java.net.http,java.xml,jdk.jfr,jdk.crypto.ec,java.desktop,java.compiler,jdk.management,java.xml.crypto,jdk.charsets,jdk.crypto.cryptoki,jdk.jcmd \
-    --strip-debug \
-    --no-man-pages \
-    --no-header-files \
-    --compress=zip-9 \
-    --output /javaruntime
+  --add-modules java.base,java.logging,java.naming,java.management,java.security.jgss,java.instrument,jdk.unsupported,java.sql,java.net.http,java.xml,jdk.jfr,jdk.crypto.ec,java.desktop,java.compiler,jdk.management,java.xml.crypto,jdk.charsets,jdk.crypto.cryptoki,jdk.jcmd \
+  --strip-debug \
+  --no-man-pages \
+  --no-header-files \
+  --compress=zip-9 \
+  --output /javaruntime
 
 # ==========================================
 # STAGE 3: Production Runtime (Minimal Alpine)
@@ -66,7 +66,7 @@ COPY --chown=spring:spring --from=backend /javaruntime $JAVA_HOME
 USER spring:spring
 
 # Generate base JVM CDS archive (required for custom jlink environments)
-RUN java -Xshare:dump
+RUN java --enable-native-access=ALL-UNNAMED -Xshare:dump
 
 # Copy Application Layers
 COPY --chown=spring:spring --from=backend /app/dependencies/ ./
@@ -76,7 +76,8 @@ COPY --chown=spring:spring --from=backend /app/application/ ./
 
 # Perform Class Data Sharing (CDS) training run using the mock build profile.
 # No hardcoded secrets here. All database/API classes are successfully cached!
-RUN java -XX:ArchiveClassesAtExit=application.jsa \
+RUN java --enable-native-access=ALL-UNNAMED \
+  -XX:ArchiveClassesAtExit=application.jsa \
   -Dspring.profiles.active=cds \
   -Dspring.context.exit=onRefresh \
   org.springframework.boot.loader.launch.JarLauncher
@@ -86,23 +87,23 @@ ENV SPRING_PROFILES_ACTIVE=prod
 ENV PORT=8080
 EXPOSE 8080
 
-# JVM flags tuned for GCP Cloud Run (fast startup + adaptive heap):
-#   -XX:SharedArchiveFile           → uses the pre-compiled class-metadata archive (saves ~30% startup time)
-#   -XX:TieredStopAtLevel=1         → JIT level 1 (fast compilation for serverless)
-#   -XX:+UseSerialGC                → smallest footprint for single-core containers
-#   -XX:MaxRAMPercentage=75.0       → dynamically adapts to whatever GCP assigns
-#   -XX:+OptimizeStringConcat       → micro-opt for Thymeleaf rendering
-#   -Dspring.jmx.enabled=false      → skip JMX registry (saves ~100ms startup)
-#   -Dspring.backgroundpreinitializer.ignore=true → skip pre-init thread
-#   -Djava.security.egd=file:/dev/./urandom → use non-blocking entropy on Linux/GCP
-#                                            fixes "SecureRandom SHA1PRNG took 247ms"
-#                                            (containers have low /dev/random entropy)
+# JVM flags tuned for GCP Cloud Run (2 vCPU / 1GiB RAM, Request-based billing):
+#   -XX:SharedArchiveFile           → Uses AppCDS pre-compiled class-metadata for faster startup (~400ms)
+#   -XX:TieredStopAtLevel=1         → Disables C2 compiler. Massively reduces CPU load during cold-start, perfect for serverless.
+#   -XX:+UseG1GC                    → Uses G1 Garbage Collector (optimized for multi-core over SerialGC)
+#   -XX:MaxRAMPercentage=75.0       → Allocates up to 75% of container RAM (~768MB) to JVM heap
+#   -Xms64m                         → Sets initial heap to 64MB to prevent frequent resizing on boot
+#   -XX:+OptimizeStringConcat       → Optimizes string operations (beneficial for Thymeleaf rendering)
+#   -Dspring.jmx.enabled=false      → Disables JMX registry to reduce startup overhead (~100ms)
+#   -Dspring.backgroundpreinitializer.ignore=true → Skips background pre-initialization thread
+#   -Djava.security.egd=file:/dev/./urandom → Uses non-blocking entropy to avoid SecureRandom delays
 ENTRYPOINT ["java", \
   "--enable-native-access=ALL-UNNAMED", \
   "-XX:SharedArchiveFile=application.jsa", \
   "-XX:TieredStopAtLevel=1", \
-  "-XX:+UseSerialGC", \
+  "-XX:+UseG1GC", \
   "-XX:MaxRAMPercentage=75.0", \
+  "-Xms64m", \
   "-XX:+OptimizeStringConcat", \
   "-Dspring.jmx.enabled=false", \
   "-Dspring.backgroundpreinitializer.ignore=true", \

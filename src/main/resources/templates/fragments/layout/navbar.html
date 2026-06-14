@@ -32,14 +32,20 @@
         </div>
 
         <div class="flex items-center gap-2 md:gap-3">
-            <button id="theme-toggle" class="relative p-2.5 md:p-3 rounded-2xl bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-brand-600 dark:hover:text-brand-400 transition-all duration-300 group">
+            <button id="theme-toggle"
+                    aria-label="Toggle dark/light mode"
+                    class="relative p-2.5 md:p-3 rounded-2xl bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-brand-600 dark:hover:text-brand-400 transition-all duration-300 group">
                 <i class="ph-fill ph-moon dark:hidden text-lg md:text-xl"></i>
                 <i class="ph-fill ph-sun hidden dark:block text-lg md:text-xl text-yellow-500 group-hover:rotate-90 transition-transform"></i>
             </button>
 
             <!-- User Auth Profile (Dropdown triggers on click) -->
             <div sec:authorize="isAuthenticated()" class="relative ml-1 md:ml-2">
-                <button id="profile-dropdown-btn" class="flex items-center p-0.5 rounded-2xl border-2 border-transparent transition-all active:scale-95 group/profile relative">
+                <button id="profile-dropdown-btn"
+                        aria-label="Open user profile menu"
+                        aria-expanded="false"
+                        aria-haspopup="true"
+                        class="flex items-center p-0.5 rounded-2xl border-2 border-transparent transition-all active:scale-95 group/profile relative">
                     <div class="relative">
                         <div class="w-9 h-9 md:w-10 md:h-10 rounded-xl overflow-hidden border-2 border-brand-500/20 shadow-sm">
                             <img th:src="${#authentication.principal.attributes['picture'] != null ? #authentication.principal.attributes['picture'] : ('https://ui-avatars.com/api/?name=' + #authentication.principal.attributes['name'] + '&background=6366f1&color=fff')}" 
@@ -113,7 +119,11 @@
                 </a>
             </div>
             
-            <button id="mobile-menu-btn" class="md:hidden p-2.5 rounded-2xl bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400 border border-brand-100 dark:border-brand-800 hover:bg-brand-100 dark:hover:bg-brand-800 active:bg-brand-200 dark:active:bg-brand-700 active:scale-95 transition-all outline-none">
+            <button id="mobile-menu-btn"
+                    aria-label="Open navigation menu"
+                    aria-expanded="false"
+                    aria-controls="mobile-menu"
+                    class="md:hidden p-2.5 rounded-2xl bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400 border border-brand-100 dark:border-brand-800 hover:bg-brand-100 dark:hover:bg-brand-800 active:bg-brand-200 dark:active:bg-brand-700 active:scale-95 transition-all outline-none">
                 <i class="ph-bold ph-list text-xl"></i>
             </button>
         </div>
