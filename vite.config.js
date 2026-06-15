@@ -18,6 +18,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: path.resolve(__dirname, 'src/main/resources/static/js/main.js'),
+        workspace: path.resolve(__dirname, 'src/main/resources/static/js/components/workspace-bundle.js'),
+        dashboard: path.resolve(__dirname, 'src/main/resources/static/js/components/dashboard-console.js'),
         styles: path.resolve(__dirname, 'src/main/resources/static/css/base/input.css'),
       },
       output: {
@@ -28,5 +30,6 @@ export default defineConfig({
         }
       }
     }
+
   }
 });

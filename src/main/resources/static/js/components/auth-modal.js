@@ -58,6 +58,14 @@ document.addEventListener('click', (e) => {
             AuthModalManager.showLoginModal();
         }
     }
+
+    const googleBtn = e.target.closest('.google-signin-btn');
+    if (googleBtn) {
+        e.preventDefault();
+        // Set the redirect cookie to the current location URL
+        document.cookie = "seodrift_login_redirect=" + encodeURIComponent(window.location.href) + "; path=/; max-age=300; SameSite=Lax";
+        window.location.href = googleBtn.getAttribute('href');
+    }
 });
 
 document.addEventListener('keydown', (e) => {
@@ -77,10 +85,44 @@ document.addEventListener('mousemove', (e) => {
     }
 });
 
-document.addEventListener('turbo:load', () => AuthModalManager.init());
+document.addEventListener('turbo:load', () => {
+    AuthModalManager.init();
+    
+    // Auto-bounce back to the previous page if returning from an expired session login
+    const redirectUrl = localStorage.getItem('seodrift_redirect_after_login');
+    const isAuth = document.body.getAttribute('data-authenticated') === 'true';
+    if (redirectUrl && isAuth) {
+        localStorage.removeItem('seodrift_redirect_after_login');
+        if (window.location.href !== redirectUrl) {
+            window.location.href = redirectUrl;
+        }
+    }
+});
 
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => AuthModalManager.init());
+    document.addEventListener('DOMContentLoaded', () => {
+        AuthModalManager.init();
+        
+        // Auto-bounce logic for first load
+        const redirectUrl = localStorage.getItem('seodrift_redirect_after_login');
+        const isAuth = document.body.getAttribute('data-authenticated') === 'true';
+        if (redirectUrl && isAuth) {
+            localStorage.removeItem('seodrift_redirect_after_login');
+            if (window.location.href !== redirectUrl) {
+                window.location.href = redirectUrl;
+            }
+        }
+    });
 } else {
     AuthModalManager.init();
+    
+    // Auto-bounce logic if already loaded
+    const redirectUrl = localStorage.getItem('seodrift_redirect_after_login');
+    const isAuth = document.body.getAttribute('data-authenticated') === 'true';
+    if (redirectUrl && isAuth) {
+        localStorage.removeItem('seodrift_redirect_after_login');
+        if (window.location.href !== redirectUrl) {
+            window.location.href = redirectUrl;
+        }
+    }
 }

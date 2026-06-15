@@ -65,6 +65,12 @@
 - **Sentiment Scoring**: Calculates overall audience approval ratio.
 - **SEO Health Heuristics**: Analyzes title length, tag presence, title-tag synergy, and calls-to-action (CTAs) in the description.
 
+### 🚀 **Direct YouTube Publishing Hub (Publishing Gatekeeper)**
+- **Direct YouTube Upload**: Publish videos directly to YouTube from the SEODrift dashboard.
+- **SEO Ready Verification**: Seamlessly integrates with the AI Workspace to ensure metadata (Titles, Descriptions, Tags) is perfectly optimized before uploading.
+- **Privacy Controls**: Native support for mapping Video Privacy Status (Private, Public, Unlisted).
+- **Resumable Uploads**: Enterprise-grade chunked uploading via Google API `MediaHttpUploader` with real-time internal status tracking.
+
 ---
 
 ## 🚀 Tech Stack
@@ -265,6 +271,7 @@ docker compose down
 | `org.springframework.boot:spring-boot-starter-data-jpa` | `4.0.6` | ORM database connection |
 | `org.postgresql:postgresql` | `Runtime` | PostgreSQL JDBC driver |
 | `com.google.api-client:google-api-client` | `2.7.0` | Google Identity Services JWT verifiers |
+| `com.google.apis:google-api-services-youtube` | `v3-rev20260602-2.0.0` | YouTube Data API v3 & Resumable MediaHttpUploader |
 
 ### Frontend
 | Package Name | Version | Description |

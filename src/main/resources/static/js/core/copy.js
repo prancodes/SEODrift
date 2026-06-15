@@ -44,3 +44,5 @@ function copyTags(tagsString, button) {
         }
     });
 }
+
+window.copyTags = copyTags;

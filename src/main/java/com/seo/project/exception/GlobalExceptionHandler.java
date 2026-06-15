@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Global Exception Handler to prevent "Whitelabel Error Pages".
@@ -19,12 +21,37 @@ public class GlobalExceptionHandler {
      * Handles general internal server errors (500).
      */
     @ExceptionHandler(Exception.class)
-    public String handleGeneralException(Exception ex, Model model) {
-        log.error("CRITICAL ERROR: Uncaught exception in request processing.", ex);
+    public Object handleGeneralException(Exception ex, HttpServletRequest request, Model model) {
+        Throwable rootCause = ex;
+        while (rootCause.getCause() != null && rootCause.getCause() != rootCause) {
+            rootCause = rootCause.getCause();
+        }
+        log.error("CRITICAL ERROR: Uncaught exception in request processing. Root Cause: {}", rootCause.toString(), ex);
+        
+        if (request.getRequestURI().startsWith("/api/")) {
+            return org.springframework.http.ResponseEntity.status(500)
+                    .body(java.util.Map.of("success", false, "message", ex.getMessage()));
+        }
+        
         model.addAttribute("errorMessage", "Something went wrong on our end. Please try again later.");
         model.addAttribute("details", ex.getMessage());
         model.addAttribute("status", 500);
         return "error"; 
+    }
+
+    /**
+     * Handles expired or missing OAuth2 sessions gracefully.
+     */
+    @ExceptionHandler(ClientAuthorizationRequiredException.class)
+    public Object handleClientAuthorizationRequired(ClientAuthorizationRequiredException ex, HttpServletRequest request, Model model) {
+        log.warn("OAuth2 Authorization Required: {}", ex.getMessage());
+        
+        if (request.getRequestURI().startsWith("/api/")) {
+            return org.springframework.http.ResponseEntity.status(401)
+                    .body(java.util.Map.of("success", false, "message", "Your session has expired. Please log in with Google again."));
+        }
+        
+        return "redirect:/oauth2/authorization/" + ex.getClientRegistrationId();
     }
 
     /**

@@ -18,7 +18,7 @@
             <!-- Branding Sequence -->
             <div class="brand-orbit mb-6 flex items-center justify-center">
                 <div class="relative z-10 bg-white/95 rounded-[20px] p-3 shadow-2xl shadow-blue-500/20">
-                    <img th:src="@{/images/navbar-rocket.svg}" alt="Rocket" class="w-8 h-8 object-contain">
+                    <img th:src="@{/images/navbar-rocket.svg}" alt="SEODrift Rocket Logo" width="32" height="32" class="w-8 h-8 object-contain">
                 </div>
                 <!-- Pulsing Core -->
                 <div class="absolute inset-0 bg-blue-500/30 blur-2xl rounded-full animate-pulse"></div>
@@ -35,7 +35,7 @@
             </div>
 
             <!-- Authentication Layer -->
-            <div class="w-full space-y-6" sec:authorize="isAnonymous()">
+            <div class="w-full space-y-6">
                 <div class="flex justify-center">
                     <!-- Custom Premium Google Button -->
                     <a th:href="@{/oauth2/authorization/google}" data-turbo="false" class="google-signin-btn group">

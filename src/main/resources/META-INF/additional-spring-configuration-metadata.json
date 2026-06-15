@@ -78,5 +78,10 @@
     "name": "spring.flyway.enabled",
     "type": "java.lang.String",
     "description": "A description for 'spring.flyway.enabled'"
+  },
+  {
+    "name": "server.tomcat.max-post-size",
+    "type": "java.lang.String",
+    "description": "A description for 'server.tomcat.max-post-size'"
   }
 ]}

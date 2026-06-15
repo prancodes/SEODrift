@@ -16,6 +16,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import tools.jackson.databind.ObjectMapper;
+import com.seo.project.service.YouTubeChannelService;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -34,17 +37,20 @@ public class WorkspaceController {
     private final TagsService tagsService;
     private final AiWorkspaceService aiWorkspaceService;
     private final ObjectMapper objectMapper;
+    private final YouTubeChannelService youtubeChannelService;
 
     public WorkspaceController(UserRepository userRepository,
                                VideoAnalysisRepository videoAnalysisRepository,
                                TagsService tagsService,
                                AiWorkspaceService aiWorkspaceService,
-                               ObjectMapper objectMapper) {
+                               ObjectMapper objectMapper,
+                               YouTubeChannelService youtubeChannelService) {
         this.userRepository = userRepository;
         this.videoAnalysisRepository = videoAnalysisRepository;
         this.tagsService = tagsService;
         this.aiWorkspaceService = aiWorkspaceService;
         this.objectMapper = objectMapper;
+        this.youtubeChannelService = youtubeChannelService;
     }
 
     /**
@@ -91,6 +97,7 @@ public class WorkspaceController {
     @GetMapping("/workspace")
     public String showWorkspacePage(
             @RequestParam(value = "draftId", required = false) Long draftId,
+            @RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient,
             Authentication authentication,
             Model model) {
 
@@ -105,6 +112,18 @@ public class WorkspaceController {
             return "redirect:/";
         }
         User user = userOpt.get();
+
+        if (user.getYoutubeChannelId() == null || user.getYoutubeChannelId().isEmpty()) {
+            if (authorizedClient != null) {
+                try {
+                    youtubeChannelService.getChannelIntelligence(authorizedClient, email);
+                    // Reload user to get updated values
+                    user = userRepository.findByEmail(email).orElse(user);
+                } catch (Exception e) {
+                    log.warn("Could not sync channel in workspace: {}", e.getMessage());
+                }
+            }
+        }
 
         model.addAttribute("user", user);
 

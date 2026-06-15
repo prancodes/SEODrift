@@ -15,6 +15,10 @@ window.showToast = function(title, message, type = 'success') {
         icon = '<i class="ph-fill ph-warning-circle text-xl"></i>';
         colorClass = 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400';
         titleClass = 'text-red-600 dark:text-red-400';
+    } else if (type === 'warning') {
+        icon = '<i class="ph-fill ph-warning text-xl"></i>';
+        colorClass = 'bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-450';
+        titleClass = 'text-amber-650 dark:text-amber-450';
     } else if (type === 'info') {
         icon = '<i class="ph-fill ph-info text-xl"></i>';
         colorClass = 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400';

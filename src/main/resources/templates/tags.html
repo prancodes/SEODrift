@@ -51,7 +51,7 @@
                 <div class="flex flex-col lg:flex-row gap-8">
                     <div class="shrink-0 lg:w-96 group relative">
                         <div class="rounded-2xl overflow-hidden shadow-md aspect-video relative">
-                            <img th:src="${primary.thumbnailUrl}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            <img th:src="${primary.thumbnailUrl}" width="640" height="360" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                             <div class="shine-overlay"></div>
                         </div>
                         <div class="mt-4 flex items-center gap-3 text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl border border-gray-100 dark:border-gray-700">
@@ -97,7 +97,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div th:each="video : ${relatedVideos}" class="group card-base hover:border-brand-200 dark:hover:border-brand-800 transition-all flex flex-col">
                     <div class="relative aspect-video rounded-t-2xl overflow-hidden">
-                        <img th:src="${video.thumbnailUrl}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                        <img th:src="${video.thumbnailUrl}" width="640" height="360" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
                         <div class="shine-overlay"></div>
                     </div>
 

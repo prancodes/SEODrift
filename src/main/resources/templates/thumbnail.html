@@ -69,7 +69,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div th:each="option, stat : ${thumbnailOptions}" th:if="${stat.index < 2}" class="space-y-4 group">
                 <div class="relative overflow-hidden rounded-3xl bg-gray-100 dark:bg-gray-900 aspect-video shadow-2xl border-4 border-transparent group-hover:border-orange-500/30 transition-all duration-500">
-                    <img th:src="${option.imageUrl}" alt="Thumbnail"
+                    <img th:src="${option.imageUrl}" alt="Thumbnail" width="640" height="360"
                          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
                     
                     <div class="absolute top-4 left-4 bg-black/70 backdrop-blur-md text-white text-xs font-black px-3 py-1.5 rounded-xl shadow-lg border border-white/10">
@@ -108,7 +108,7 @@
                          class="mt-6 bg-white dark:bg-gray-800 p-3 sm:p-4 rounded-2xl border border-gray-100 dark:border-gray-700 hover:border-orange-300 dark:hover:border-orange-700 transition-all group flex flex-col gap-4">
                         
                         <div class="relative aspect-video rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-900">
-                            <img th:src="${option.imageUrl}" class="w-full h-full object-cover">
+                            <img th:src="${option.imageUrl}" width="640" height="360" class="w-full h-full object-cover">
                             <div class="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md text-white text-[10px] px-2.5 py-1.5 rounded-lg font-black shadow-sm border border-white/5">
                                 <span th:text="${option.resolutionKey}">360p</span>
                             </div>

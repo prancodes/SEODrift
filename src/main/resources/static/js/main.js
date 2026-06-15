@@ -97,3 +97,10 @@ document.addEventListener("click", (event) => {
     }
 });
 
+// Import global scripts for bundle consolidation
+import './core/ui-utils.js';
+import './components/navbar-script.js';
+import './components/auth-modal.js';
+import './core/copy.js';
+
+
