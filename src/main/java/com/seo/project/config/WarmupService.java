@@ -7,8 +7,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.EnableAsync;
+
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
@@ -26,9 +25,11 @@ import java.sql.Connection;
  *
  * WHAT THIS DOES:
  * Listens for ApplicationReadyEvent (fires once, right after Spring context
- * is fully started) and asynchronously opens the DB + Redis connections in
- * the background. By the time the first user arrives, the connections are
- * already pooled and warm.
+ * is fully started) and synchronously opens the DB + Redis connections to pre-warm
+ * the pool. By the time the first user arrives, the connections are already
+ * pooled and warm. We run this synchronously to prevent Cloud Run from throttling
+ * the CPU (due to CPU allocation during request processing only) before connections
+ * are established.
  *
  * COST: Zero ongoing cost. This runs ONCE per container startup, not on a
  * schedule. No Neon compute hours are wasted between user requests.
@@ -42,7 +43,6 @@ import java.sql.Connection;
  */
 @Slf4j
 @Component
-@EnableAsync
 @Lazy(false)  // MUST be eager: with spring.main.lazy-initialization=true, a lazy @Component
               // is never instantiated at startup → @EventListener never registers → warmup silently dies.
               // @Lazy(false) opts this single bean out of global lazy-init.
@@ -56,13 +56,13 @@ public class WarmupService {
 
     /**
      * Fires once immediately after Spring context is fully initialized.
-     * Runs @Async so it doesn't delay the HTTP server from accepting requests
-     * — warmup happens in parallel with the server becoming ready.
+     * Runs synchronously so that the database and Redis connections are established
+     * while the container still has guaranteed startup CPU allocation (before Cloud Run
+     * throttles it).
      */
-    @Async
     @EventListener(ApplicationReadyEvent.class)
     public void warmupConnections() {
-        log.info("Warmup: Starting async connection pre-warm...");
+        log.info("Warmup: Starting connection pre-warm...");
         warmupDatabase();
         warmupRedis();
         log.info("Warmup: Connection pre-warm complete.");

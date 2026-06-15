@@ -1,5 +1,50 @@
 // --- SEODrift Workspace Publishing Module ---
 
+function cleanErrorMessage(rawMsg) {
+    if (!rawMsg) return 'An unknown error occurred.';
+    
+    // Check if there's a JSON block inside the error message
+    const jsonMatch = rawMsg.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+        try {
+            const parsed = JSON.parse(jsonMatch[0]);
+            if (parsed.error && parsed.error.message) {
+                return parsed.error.message.trim();
+            }
+            if (parsed.message) {
+                return parsed.message.trim();
+            }
+            if (parsed.errors && parsed.errors.length > 0 && parsed.errors[0].message) {
+                return parsed.errors[0].message.trim();
+            }
+        } catch (e) {
+            // parsing failed, continue to fallback
+        }
+        
+        // Fallback regex search for "message": "..." inside the string
+        const messageMatch = rawMsg.match(/"message"\s*:\s*"([^"]+)"/);
+        if (messageMatch && messageMatch[1]) {
+            return messageMatch[1].trim();
+        }
+    }
+    
+    // Clean up typical Java exception prefixes and YouTube API error prefixes
+    let clean = rawMsg;
+    clean = clean.replace(/^[a-zA-Z0-9.]+(Exception|Error):\s*/i, '');
+    clean = clean.replace(/^Failed to upload video:\s*/i, '');
+    
+    // Remove YouTube API endpoints and details from direct message
+    const youtubeApiMatch = clean.match(/YouTube API Error:\s*\d+\s+[^{\n]+/i);
+    if (youtubeApiMatch) {
+        clean = clean.replace(/YouTube API Error:\s*\d+\s+[^{\n]+/i, '').trim();
+    }
+    
+    // Clean trailing JSON braces if any remain
+    clean = clean.replace(/^[{\s]*|[}\s]*$/g, '').trim();
+    
+    return clean || rawMsg;
+}
+
 if (window.Workspace) {
     Object.assign(window.Workspace, {
         initPublish() {
@@ -174,10 +219,12 @@ if (window.Workspace) {
                     this.handleSessionExpiration();
                 } else {
                     let errorMessage = 'Upload failed.';
+                    let isGatekeeper = false;
                     try {
                         const errData = JSON.parse(xhr.responseText);
                         if (errData.warnings && errData.warnings.length > 0) {
                             errorMessage = errData.warnings.join('<br>');
+                            isGatekeeper = true;
                         } else if (errData.message) {
                             errorMessage = errData.message;
                         }
@@ -185,7 +232,11 @@ if (window.Workspace) {
                         errorMessage = 'An unexpected error occurred during upload.';
                     }
                     
-                    el.publishWarnings.innerHTML = `<strong>Gatekeeper Validation Failed:</strong><br>${errorMessage}`;
+                    if (isGatekeeper) {
+                        el.publishWarnings.innerHTML = `<strong>Gatekeeper Validation Failed:</strong><br>${errorMessage}`;
+                    } else {
+                        el.publishWarnings.innerHTML = `<strong>Publishing Failed:</strong><br>${cleanErrorMessage(errorMessage)}`;
+                    }
                     el.publishWarnings.classList.remove('hidden');
                 }
             };

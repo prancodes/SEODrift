@@ -25,7 +25,7 @@
         <form th:action="@{/thumbnail}" th:object="${thumbnailRequest}" method="post" class="flex flex-col md:flex-row gap-4 relative z-10" data-turbo-frame="results">
             <div class="relative flex-1 group">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 transition-colors group-focus-within:text-orange-500">
-                    <i class="ph ph-link text-xl"></i>
+                    <i class="ph-bold ph-link text-xl"></i>
                 </div>
                 <input type="text" th:field="*{url}" placeholder="https://www.youtube.com/watch?v=..." 
                        class="input-field pl-11 py-4 shadow-sm focus:ring-orange-500 transition-all" required>

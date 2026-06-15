@@ -177,6 +177,10 @@ SEODrift/
    GOOGLE_CLIENT_ID=your-google-oauth2-client-id
    GOOGLE_CLIENT_SECRET=your-google-oauth2-client-secret
 
+   # Gemini Configuration (Google AI Studio)
+   GEMINI_API_KEY=your_gemini_api_key_here
+   GEMINI_MODEL=your_gemini_model_here
+
    # YouTube API v3 Settings
    YT_API_KEY=your_youtube_api_key_here
    BASE_URL=https://www.googleapis.com/youtube/v3

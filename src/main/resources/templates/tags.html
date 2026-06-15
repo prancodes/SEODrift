@@ -26,7 +26,7 @@
         <form th:action="@{/tags}" method="post" class="flex flex-col md:flex-row gap-4 relative z-10" data-turbo-frame="results">
             <div class="relative flex-1 group">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 transition-colors group-focus-within:text-brand-500">
-                    <i class="ph ph-magnifying-glass text-xl"></i>
+                    <i class="ph-bold ph-magnifying-glass text-xl"></i>
                 </div>
                 <input type="text" name="query" th:value="${query}" placeholder="Paste YouTube Video URL or Enter Keyword..." 
                        class="input-field pl-11 py-4 shadow-sm focus:ring-brand-500 transition-all" required>
