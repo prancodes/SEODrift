@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{fragments/layout/layout}">
+<head>
+    <title>Trends & Competitor Intel</title>
+    <link rel="stylesheet" th:href="@{/dist/dashboard-styles.css}">
+    <link rel="stylesheet" th:href="@{/dist/dashboard.css}">
+    <script th:src="@{/dist/trends.js}" type="module" defer></script>
+</head>
+<body>
+<div layout:fragment="content" class="max-w-7xl mx-auto animate-fade-in space-y-8">
+        
+    <!-- ========================================== -->
+    <!-- 1. CREATOR TREND CONSOLE (hasChannel == true) -->
+    <!-- ========================================== -->
+    <th:block th:if="${hasChannel}">
+        <!-- Welcome Header Section -->
+        <div class="dashboard-glass-card welcome-banner p-5 md:p-8 relative overflow-hidden group mb-8">
+            <div class="dashboard-mesh"></div>
+            <div class="shine-overlay"></div>
+            
+            <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-500 to-orange-500 shadow-md flex items-center justify-center shrink-0 text-white">
+                        <i class="ph-bold ph-sword text-2xl"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-100 dark:bg-brand-900/40 border border-brand-200/50 dark:border-brand-800/40 text-[8px] md:text-[10px] font-black uppercase tracking-widest text-brand-700 dark:text-brand-400">
+                            SEO Intelligence
+                        </div>
+                        <h1 class="text-xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
+                            Trends & Competitor Intelligence
+                        </h1>
+                        <p class="text-gray-500 dark:text-gray-400 text-xs md:text-sm font-bold">
+                            Benchmark against competitors, monitor publication rhythm, and track search velocity.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3 relative z-20 shrink-0">
+                    <a href="/dashboard" class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-gray-950 dark:bg-white text-white dark:text-gray-950 hover:bg-brand-600 dark:hover:bg-brand-600 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-md">
+                        <i class="ph-bold ph-layout"></i> Creator Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- Redesigned Empty State when no competitors are tracked -->
+        <div th:if="${!hasCompetitors}" class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            
+            <!-- Path A: Add Competitor Channel -->
+            <div class="dashboard-widget p-6 md:p-8 flex flex-col justify-between min-h-[320px] relative overflow-hidden group glow-brand">
+                <div class="space-y-4">
+                    <div class="w-12 h-12 rounded-2xl bg-brand-50 dark:bg-brand-950/30 text-brand-600 dark:text-brand-400 border border-brand-100/50 dark:border-brand-900/25 flex items-center justify-center shrink-0">
+                        <i class="ph-bold ph-plus-circle text-2xl group-hover:scale-110 transition-transform duration-300"></i>
+                    </div>
+                    <div class="space-y-2">
+                        <h3 class="text-base sm:text-lg font-black text-gray-900 dark:text-white tracking-tight">Competitor Tracking</h3>
+                        <p class="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold leading-relaxed">
+                            Benchmark your subscriber growth, analyze publishing frequency, and discover trending competitor tags. Add your first competitor below to unlock these interactive insights.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <form id="trendsAddCompetitorForm" class="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                        <div class="relative flex-1">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-gray-500">
+                                <i class="ph-bold ph-youtube-logo text-base"></i>
+                            </div>
+                            <input type="text" id="trendsCompetitorIdInput" required
+                                   placeholder="Enter YouTube Channel ID/Handle..." 
+                                   class="w-full pl-10 pr-4 py-3 text-xs font-bold border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900/40 rounded-2xl focus:outline-none focus:border-brand-500 transition-all text-gray-900 dark:text-white">
+                        </div>
+                        <button type="submit" class="w-full sm:w-auto px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-wider transition-all active:scale-95 cursor-pointer shadow-md shadow-brand-500/10">
+                            Add Channel
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Path B: Keyword Velocity Tracker (Direct Link) -->
+            <div class="dashboard-widget p-6 md:p-8 flex flex-col justify-between min-h-[320px] relative overflow-hidden group glow-orange">
+                <div class="absolute -right-4 -bottom-4 opacity-5 pointer-events-none group-hover:scale-110 transition-transform duration-500">
+                    <i class="ph-bold ph-target text-8xl text-orange-500"></i>
+                </div>
+                <div class="space-y-4">
+                    <div class="w-12 h-12 rounded-2xl bg-orange-50 dark:bg-orange-950/30 text-orange-600 dark:text-orange-400 border border-orange-100/50 dark:border-orange-900/25 flex items-center justify-center shrink-0">
+                        <i class="ph-bold ph-target text-2xl group-hover:scale-110 transition-transform duration-300"></i>
+                    </div>
+                    <div class="space-y-2">
+                        <h3 class="text-base sm:text-lg font-black text-gray-900 dark:text-white tracking-tight">Keyword Search Velocity</h3>
+                        <p class="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold leading-relaxed">
+                            Analyze target search term volumes, growth rates, publishing velocity trends, and generate custom Gemini AI advice. This SEO tool does not require competitor setup.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <a href="/keywords" class="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-2xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 shadow-md shadow-orange-500/10">
+                        Open Keyword Console <i class="ph-bold ph-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Analytics View if competitors are tracked -->
+        <div th:if="${hasCompetitors}" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Side Columns: Charts (Span 2) -->
+            <div class="lg:col-span-2 space-y-8">
+                
+                <!-- Subscriber Benchmarking Chart -->
+                <div class="dashboard-widget p-6 md:p-8 flex flex-col justify-between min-h-[400px]">
+                    <div class="mb-4">
+                        <h3 class="text-base sm:text-lg font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-1.5 sm:gap-2">
+                            <i class="ph-bold ph-chart-line text-brand-500 text-lg sm:text-xl"></i> Subscriber Growth Benchmarks
+                        </h3>
+                        <p class="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold mt-0.5 sm:mt-1">Compare your channel trajectory against tracked competitors</p>
+                    </div>
+                    <div class="relative grow w-full min-h-[280px]">
+                        <canvas id="subscriberBenchmarkChart" th:attr="data-benchmark=${benchmarkJson}"></canvas>
+                    </div>
+                </div>
+
+                <!-- Posting Rhythm Chart -->
+                <div class="dashboard-widget p-6 md:p-8 flex flex-col justify-between min-h-[350px]">
+                    <div class="mb-4">
+                        <h3 class="text-base sm:text-lg font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-1.5 sm:gap-2">
+                            <i class="ph-bold ph-calendar-blank text-amber-500 text-lg sm:text-xl"></i> Competitor Publication Rhythm
+                        </h3>
+                        <p class="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold mt-0.5 sm:mt-1">Distribution of uploads across days of the week</p>
+                    </div>
+                    <div class="relative grow w-full min-h-[220px]">
+                        <canvas id="competitorRhythmChart" th:attr="data-rhythm=${rhythmJson}"></canvas>
+                    </div>
+                </div>
+                
+            </div>
+
+            <!-- Right Side Column: Lists & Control Panels (Span 1) -->
+            <div class="space-y-8">
+                
+                <!-- Topic Momentum -->
+                <div class="dashboard-widget p-6 md:p-8 flex flex-col space-y-4">
+                    <div>
+                        <h3 class="text-base sm:text-lg font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-1.5 sm:gap-2">
+                            <i class="ph-bold ph-trend-up text-emerald-500 text-lg sm:text-xl"></i> Topic Momentum
+                        </h3>
+                        <p class="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold mt-0.5 sm:mt-1">Trending keywords extracted from competitor uploads</p>
+                    </div>
+                    
+                    <div class="space-y-3.5 pt-2">
+                        <div th:each="item, iter : ${momentum}" class="space-y-1.5">
+                            <div class="flex items-center justify-between text-xs font-bold text-gray-700 dark:text-gray-300">
+                                <span class="flex items-center gap-1.5">
+                                    <span class="w-5 h-5 rounded bg-gray-100 dark:bg-slate-800 flex items-center justify-center text-[10px] font-black" th:text="${iter.count}">1</span>
+                                    <span class="font-black text-gray-900 dark:text-white" th:text="${item.term}">keyword</span>
+                                </span>
+                                <span th:text="${item.count} + ' mentions'">5 mentions</span>
+                            </div>
+                            <div class="w-full bg-gray-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-gradient-to-r from-emerald-500 to-teal-500 h-full rounded-full" 
+                                     th:style="'width: ' + ${(item.count * 100.0) / momentum[0].count} + '%'"></div>
+                            </div>
+                        </div>
+                        
+                        <div th:if="${#lists.isEmpty(momentum)}" class="text-center py-6 text-xs text-gray-400 font-bold">
+                            No video titles found to analyze.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Keyword Search Velocity Link Card -->
+                <div class="dashboard-widget p-6 md:p-8 flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute -right-4 -bottom-4 opacity-5 pointer-events-none group-hover:scale-110 transition-transform duration-500">
+                        <i class="ph-bold ph-target text-8xl text-orange-500"></i>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 dark:bg-orange-950/30 border border-orange-100 dark:border-orange-900/30 text-[9px] font-black uppercase tracking-widest text-orange-600 dark:text-orange-400">
+                            Dedicated Tool
+                        </div>
+                        <h3 class="text-base sm:text-lg font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-1.5 sm:gap-2">
+                            <i class="ph-bold ph-target text-orange-500 text-lg sm:text-xl"></i> Keyword Velocity
+                        </h3>
+                        <p class="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold leading-relaxed">
+                            Analyze growth trends, publishing volumes, competition levels, and view historical trajectory charts for your target keywords on a dedicated page.
+                        </p>
+                    </div>
+                    <div class="pt-6 relative z-10">
+                        <a href="/keywords" class="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-2xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 shadow-md shadow-orange-500/10">
+                            Open Keyword Console <i class="ph-bold ph-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </th:block>
+
+    <!-- ========================================== -->
+    <!-- 2. GUEST TREND LOCKOUT (hasChannel == false) -->
+    <!-- ========================================== -->
+    <th:block th:if="${!hasChannel}">
+        <div th:replace="~{fragments/components/guest-trends :: guest-trends(user = ${user})}"></div>
+    </th:block>
+</div>
+</body>
+</html>

@@ -34,6 +34,10 @@ services:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - REDIS_SSL_ENABLED=${REDIS_SSL_ENABLED}
 
+      # Security Token Encryption (AES-GCM)
+      - OAUTH2_ENCRYPT_KEY=${OAUTH2_ENCRYPT_KEY}
+      - OAUTH2_ENCRYPT_SALT=${OAUTH2_ENCRYPT_SALT}
+
     networks:
       - seodrift-network
     # Healthcheck (optional but recommended)

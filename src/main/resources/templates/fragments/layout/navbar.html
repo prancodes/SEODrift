@@ -1,6 +1,4 @@
 <nav th:fragment="navbar" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" class="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 transition-all duration-300">
-    <link rel="stylesheet" th:href="@{/css/components/navbar-styles.css}">
-
     <div class="container mx-auto px-4 h-16 md:h-20 flex items-center justify-between">
         
         <a href="/" class="group flex items-center gap-2 md:gap-3 font-black text-lg md:text-2xl text-gray-900 dark:text-white hover:opacity-90 transition-all shrink-0">
@@ -10,7 +8,7 @@
                 <div class="smoke-puff absolute w-3 h-3 bg-white/20 rounded-full blur-lg opacity-0 delay-100"></div>
 
                 <div class="rocket-node relative z-10 flex items-center justify-center">
-                    <img th:src="@{/images/navbar-rocket.svg}" alt="SEODrift Rocket Logo" width="32" height="32" class="w-8 h-8 md:w-10 md:h-10 object-contain">
+                    <img th:src="@{/images/navbar-rocket.svg}" alt="SEODrift Rocket Logo" width="32" height="32" class="w-8 h-8 md:w-10 md:h-10 object-contain" fetchpriority="high" decoding="async">
                 </div>
             </div>
             <span class="tracking-tighter hidden sm:inline">SEODrift</span>
@@ -54,6 +52,7 @@
                              class="w-full h-full object-cover" 
                              th:data-fallback-src="'https://ui-avatars.com/api/?name=' + ${#authentication.principal.attributes['name']} + '&background=6366f1&color=fff'"
                              referrerpolicy="no-referrer"
+                             fetchpriority="high"
                              onerror="this.src=this.getAttribute('data-fallback-src')">
                     </div>
                     <!-- Verified Badge - Always visible and perfectly aligned -->
@@ -97,6 +96,10 @@
                         <a href="/history" class="profile-dropdown-link">
                             <i class="ph-bold ph-clock-counter-clockwise text-base"></i>
                             SEO Journey
+                        </a>
+                        <a href="/trends" class="profile-dropdown-link">
+                            <i class="ph-bold ph-sword text-base"></i>
+                            Trends & Competitors
                         </a>
                         <form th:action="@{/logout}" method="post" class="m-0">
                             <button type="submit" class="profile-dropdown-logout">

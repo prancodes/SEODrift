@@ -191,10 +191,12 @@ body>*:not(#login-modal) {
     justify-content: center;
     color: #1e293b !important;
     box-shadow: 0 4px 12px rgba(99, 102, 241, 0.08);
+    white-space: nowrap;
 }
 
 .google-signin-btn span {
     color: #1e293b !important;
+    white-space: nowrap;
 }
 
 .dark .google-signin-btn {
@@ -206,6 +208,7 @@ body>*:not(#login-modal) {
 
 .dark .google-signin-btn span {
     color: rgba(255, 255, 255, 0.9) !important;
+    white-space: nowrap;
 }
 
 .google-signin-btn:hover {
@@ -234,6 +237,7 @@ body>*:not(#login-modal) {
     justify-content: center;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transition: transform 0.4s var(--ease-premium);
+    flex-shrink: 0;
 }
 
 .google-signin-btn:hover .google-icon-wrapper {

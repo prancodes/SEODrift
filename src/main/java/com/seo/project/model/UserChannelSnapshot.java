@@ -24,6 +24,9 @@ public class UserChannelSnapshot {
     private Long subscriberCount;
     private Long viewCount;
     private Long videoCount;
+    private Long watchTime;
+    private Long impressions;
+    private Double ctr;
 
     private LocalDateTime recordedAt;
 

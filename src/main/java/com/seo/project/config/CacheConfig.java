@@ -7,8 +7,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
-import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
+import io.lettuce.core.api.StatefulConnection;
+import io.lettuce.core.resource.ClientResources;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettucePoolingClientConfiguration;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -40,7 +43,7 @@ public class CacheConfig {
      * Configures the LettuceConnectionFactory with SSL and peer verification configurations.
      */
     @Bean
-    public LettuceConnectionFactory redisConnectionFactory() {
+    public LettuceConnectionFactory redisConnectionFactory(ClientResources clientResources) {
         RedisStandaloneConfiguration serverConfig = new RedisStandaloneConfiguration();
         serverConfig.setHostName(host);
         serverConfig.setPort(port);
@@ -55,13 +58,23 @@ public class CacheConfig {
                 .socketOptions(socketOptions)
                 .build();
 
-        LettuceClientConfiguration.LettuceClientConfigurationBuilder builder = LettuceClientConfiguration.builder();
+        LettucePoolingClientConfiguration.LettucePoolingClientConfigurationBuilder builder = LettucePoolingClientConfiguration.builder();
         builder.clientOptions(clientOptions);
+        builder.clientResources(clientResources);
         if (sslEnabled) {
             builder.useSsl();
         }
 
-        return new LettuceConnectionFactory(serverConfig, builder.build());
+        // Configure GenericObjectPool for Lettuce connection pooling to reuse connections
+        GenericObjectPoolConfig<StatefulConnection<?, ?>> poolConfig = new GenericObjectPoolConfig<>();
+        poolConfig.setMaxTotal(16);
+        poolConfig.setMaxIdle(8);
+        poolConfig.setMinIdle(2);
+        poolConfig.setMaxWait(Duration.ofMillis(2000));
+        builder.poolConfig(poolConfig);
+
+        LettuceConnectionFactory factory = new LettuceConnectionFactory(serverConfig, builder.build());
+        return factory;
     }
 
     /**
@@ -77,6 +90,7 @@ public class CacheConfig {
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(config)
+                .withCacheConfiguration("channelIntelligence", config.entryTtl(Duration.ofMinutes(15)))
                 .build();
     }
 }

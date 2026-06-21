@@ -192,4 +192,28 @@
     transform: translateX(4px);
 }
 
+.glow-indigo:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 
+        0 20px 40px -10px rgba(99, 102, 241, 0.16),
+        inset 0 0 0 1px rgba(99, 102, 241, 0.25);
+    border-color: rgba(99, 102, 241, 0.45) !important;
+}
+
+.glow-pink:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 
+        0 20px 40px -10px rgba(236, 72, 153, 0.16),
+        inset 0 0 0 1px rgba(236, 72, 153, 0.25);
+    border-color: rgba(236, 72, 153, 0.45) !important;
+}
+
+.glow-rose:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 
+        0 20px 40px -10px rgba(244, 63, 94, 0.16),
+        inset 0 0 0 1px rgba(244, 63, 94, 0.25);
+    border-color: rgba(244, 63, 94, 0.45) !important;
+}
+
 

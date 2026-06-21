@@ -11,4 +11,5 @@ import org.springframework.context.annotation.Lazy;
 public interface KeywordTrendRepository extends JpaRepository<KeywordTrend, Long> {
     Optional<KeywordTrend> findByKeywordAndRecordedDate(String keyword, LocalDate recordedDate);
     List<KeywordTrend> findByKeywordOrderByRecordedDateDesc(String keyword);
+    List<KeywordTrend> findByKeywordInOrderByRecordedDateDesc(List<String> keywords);
 }

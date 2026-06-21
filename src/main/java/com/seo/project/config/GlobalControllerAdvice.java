@@ -11,19 +11,8 @@ import jakarta.servlet.http.HttpServletRequest;
 @ControllerAdvice
 public class GlobalControllerAdvice {
 
-    @Value("${spring.security.oauth2.client.registration.google.client-id}")
-    private String googleClientId;
-
     @Value("${app.base-url:http://localhost:8080}")
     private String baseUrl;
-
-    /**
-     * Makes the Google Client ID available as ${googleClientId} in all templates.
-     */
-    @ModelAttribute("googleClientId")
-    public String getGoogleClientId() {
-        return googleClientId;
-    }
 
     /**
      * Makes the Base URL available as ${baseUrl} in all templates.

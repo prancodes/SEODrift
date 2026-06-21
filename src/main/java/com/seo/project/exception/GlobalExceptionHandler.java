@@ -1,6 +1,7 @@
 package com.seo.project.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -8,6 +9,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 /**
  * Global Exception Handler to prevent "Whitelabel Error Pages".
@@ -29,8 +31,8 @@ public class GlobalExceptionHandler {
         log.error("CRITICAL ERROR: Uncaught exception in request processing. Root Cause: {}", rootCause.toString(), ex);
         
         if (request.getRequestURI().startsWith("/api/")) {
-            return org.springframework.http.ResponseEntity.status(500)
-                    .body(java.util.Map.of("success", false, "message", ex.getMessage()));
+            return ResponseEntity.status(500)
+                    .body(Map.of("success", false, "message", ex.getMessage()));
         }
         
         model.addAttribute("errorMessage", "Something went wrong on our end. Please try again later.");
@@ -47,8 +49,8 @@ public class GlobalExceptionHandler {
         log.warn("OAuth2 Authorization Required: {}", ex.getMessage());
         
         if (request.getRequestURI().startsWith("/api/")) {
-            return org.springframework.http.ResponseEntity.status(401)
-                    .body(java.util.Map.of("success", false, "message", "Your session has expired. Please log in with Google again."));
+            return ResponseEntity.status(401)
+                    .body(Map.of("success", false, "message", "Your session has expired. Please log in with Google again."));
         }
         
         return "redirect:/oauth2/authorization/" + ex.getClientRegistrationId();

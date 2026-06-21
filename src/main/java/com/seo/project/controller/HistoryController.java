@@ -54,7 +54,7 @@ public class HistoryController {
             return "redirect:/";
         }
 
-        // Safe lookup — returns null if user authenticated via One Tap (no OAuth2 code flow)
+        // Load the authorized client (holds the user's OAuth2 access token)
         OAuth2AuthorizedClient authorizedClient = authorizedClientService
                 .loadAuthorizedClient("google", authentication.getName());
 
@@ -79,7 +79,6 @@ public class HistoryController {
 
         // Channel Health
         String channelHealth = "Pending";
-        // authorizedClient is null when user logged in via One Tap (no OAuth2 code flow)
         YouTubeChannelDto channelData = (authorizedClient != null)
                 ? youtubeChannelService.getChannelIntelligence(authorizedClient, email)
                 : null;

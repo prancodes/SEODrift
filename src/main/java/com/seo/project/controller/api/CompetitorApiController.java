@@ -2,8 +2,8 @@ package com.seo.project.controller.api;
 
 import com.seo.project.model.CompetitorChannel;
 import com.seo.project.model.User;
-import com.seo.project.repository.CompetitorChannelRepository;
 import com.seo.project.repository.UserRepository;
+import com.seo.project.service.CompetitorScraperService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -20,12 +20,12 @@ import java.util.Optional;
 public class CompetitorApiController {
 
     private final UserRepository userRepository;
-    private final CompetitorChannelRepository competitorChannelRepository;
+    private final CompetitorScraperService competitorScraperService;
 
     public CompetitorApiController(UserRepository userRepository, 
-                                   CompetitorChannelRepository competitorChannelRepository) {
+                                   CompetitorScraperService competitorScraperService) {
         this.userRepository = userRepository;
-        this.competitorChannelRepository = competitorChannelRepository;
+        this.competitorScraperService = competitorScraperService;
     }
 
     @PostMapping("/add")
@@ -38,7 +38,7 @@ public class CompetitorApiController {
         }
         
         String email = oauth2User.getAttribute("email");
-        Optional<User> userOpt = userRepository.findByEmail(email);
+        Optional<User> userOpt = userRepository.findWithCompetitorsByEmail(email);
         
         if (userOpt.isEmpty()) {
             return ResponseEntity.status(404).body(Map.of("error", "User not found"));
@@ -48,30 +48,33 @@ public class CompetitorApiController {
         String channelId = request.get("channelId");
         
         if (channelId == null || channelId.isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Channel ID is required"));
+            return ResponseEntity.badRequest().body(Map.of("error", "Channel ID or Handle is required"));
         }
 
-        // Check if already tracking
+        // Fetch and resolve competitor channel (supports UC... ID and @handle)
+        CompetitorChannel competitor;
+        try {
+            competitor = competitorScraperService.getOrCreateCompetitor(channelId);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            log.error("Failed to fetch competitor: ", e);
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to retrieve competitor details from YouTube. Please verify the channel handle/ID."));
+        }
+
+        // Check if already tracking the resolved competitor channel ID
+        final String resolvedChannelId = competitor.getChannelId();
         boolean alreadyTracking = user.getCompetitorChannels().stream()
-                .anyMatch(c -> c.getChannelId().equals(channelId));
+                .anyMatch(c -> c.getChannelId().equals(resolvedChannelId));
                 
         if (alreadyTracking) {
             return ResponseEntity.badRequest().body(Map.of("error", "Already tracking this competitor"));
         }
 
-        // Find existing or create placeholder
-        CompetitorChannel competitor = competitorChannelRepository.findByChannelId(channelId)
-                .orElseGet(() -> {
-                    CompetitorChannel newChannel = new CompetitorChannel();
-                    newChannel.setChannelId(channelId);
-                    newChannel.setTitle("Loading..."); // Placeholder until scraper updates it
-                    return competitorChannelRepository.save(newChannel);
-                });
-
         user.getCompetitorChannels().add(competitor);
         userRepository.save(user);
 
-        log.info("User {} added competitor channel {}", email, channelId);
+        log.info("User {} added competitor channel {} (resolved to: {})", email, channelId, resolvedChannelId);
         
         Map<String, String> response = new HashMap<>();
         response.put("message", "Competitor added successfully");

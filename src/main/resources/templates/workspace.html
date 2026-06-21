@@ -2,9 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{fragments/layout/layout}">
 <head>
     <title>AI Content Workspace</title>
-    <link rel="stylesheet" th:href="@{/css/components/dashboard-styles.css}">
-    <link rel="stylesheet" th:href="@{/css/components/workspace.css}">
-    <script th:src="@{/dist/workspace.js}" defer></script>
+    <link rel="stylesheet" th:href="@{/dist/workspace.css}">
+    <script th:src="@{/dist/workspace.js}" type="module" defer></script>
 </head>
 <body>
 <div layout:fragment="content" class="max-w-7xl mx-auto space-y-8 animate-fade-in">

@@ -2,16 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{fragments/layout/layout}">
 <head>
     <title>Creator Console</title>
-    <!-- CSS imports -->
-    <link rel="stylesheet" th:href="@{/css/components/dashboard-styles.css}">
-    <link rel="stylesheet" th:href="@{/css/components/dashboard-console.css}">
-    <!-- jsVectorMap CSS and JS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/jsvectormap" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js" defer></script>
-    <!-- ChartJS and custom scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
-    <script th:src="@{/dist/dashboard.js}" defer></script>
+    <link rel="stylesheet" th:href="@{/dist/dashboard-styles.css}">
+    <link rel="stylesheet" th:href="@{/dist/dashboard.css}">
+    <script th:src="@{/dist/dashboard.js}" type="module" defer></script>
 </head>
 <body>
 <div layout:fragment="content" class="max-w-7xl mx-auto animate-fade-in space-y-8">
@@ -33,6 +26,7 @@
                              class="w-full h-full object-cover rounded-[10px] md:rounded-[14px]" 
                              th:data-fallback-src="'https://ui-avatars.com/api/?name=' + ${user != null ? user.name : 'Creator'} + '&background=6366f1&color=fff'"
                              referrerpolicy="no-referrer"
+                             fetchpriority="high"
                              onerror="this.src=this.getAttribute('data-fallback-src')">
                     </div>
                     <div class="space-y-1 min-w-0">
@@ -117,6 +111,95 @@
             </div>
         </div>
 
+        <!-- Private Performance Insights (Last 30 Days) -->
+        <div class="mt-8">
+            <h2 class="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4 flex items-center gap-2">
+                <i class="ph-bold ph-shield-check text-indigo-500 text-sm"></i> Private Performance Insights (Last 30 Days)
+            </h2>
+            <!-- Case 1: Channel is successfully linked/integrated -->
+            <div th:if="${channel != null}" class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                <!-- Impressions Card -->
+                <div class="dashboard-glass-card p-4 md:p-6 relative group glow-indigo">
+                    <div class="flex items-center justify-between mb-3 md:mb-4">
+                        <div class="text-[9px] md:text-[10px] lg:text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 group-hover:text-indigo-500 transition-colors">Impressions</div>
+                        <div class="w-8 h-8 md:w-10 md:h-10 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center shrink-0 border border-indigo-100/50 dark:border-indigo-900/25">
+                            <i class="ph-fill ph-users-three text-base md:text-xl group-hover:scale-110 transition-transform duration-300"></i>
+                        </div>
+                    </div>
+                    <!-- If impressions > 0 -->
+                    <div th:if="${channel.impressions != null && channel.impressions > 0}" 
+                         class="text-xl md:text-3xl lg:text-4xl font-black text-gray-900 dark:text-white leading-none group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors duration-300"
+                         th:text="${#numbers.formatInteger(channel.impressions, 0, 'COMMA')}">1,200</div>
+                    <!-- If impressions is 0 or null -->
+                    <div th:if="${channel.impressions == null || channel.impressions == 0}" 
+                         class="text-sm font-black text-gray-400 dark:text-gray-500 leading-none py-2 uppercase tracking-wide">
+                        No recent activity
+                    </div>
+                    <div class="text-[10px] lg:text-[11px] text-gray-500 dark:text-gray-400 font-bold mt-2">Times your thumbnails were shown</div>
+                </div>
+
+                <!-- Watch Time Card -->
+                <div class="dashboard-glass-card p-4 md:p-6 relative group glow-pink">
+                    <div class="flex items-center justify-between mb-3 md:mb-4">
+                        <div class="text-[9px] md:text-[10px] lg:text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 group-hover:text-pink-500 transition-colors">Watch Time (Minutes)</div>
+                        <div class="w-8 h-8 md:w-10 md:h-10 bg-pink-50 dark:bg-pink-900/20 text-pink-600 dark:text-pink-400 rounded-xl flex items-center justify-center shrink-0 border border-pink-100/50 dark:border-pink-900/25">
+                            <i class="ph-fill ph-clock text-base md:text-xl group-hover:scale-110 transition-transform duration-300"></i>
+                        </div>
+                    </div>
+                    <!-- If watchTime > 0 -->
+                    <div th:if="${channel.watchTime != null && channel.watchTime > 0}" 
+                         class="text-xl md:text-3xl lg:text-4xl font-black text-gray-900 dark:text-white leading-none group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors duration-300"
+                         th:text="${#numbers.formatInteger(channel.watchTime, 0, 'COMMA')}">340</div>
+                    <!-- If watchTime is 0 or null -->
+                    <div th:if="${channel.watchTime == null || channel.watchTime == 0}" 
+                         class="text-sm font-black text-gray-400 dark:text-gray-500 leading-none py-2 uppercase tracking-wide">
+                        No recent activity
+                    </div>
+                    <div class="text-[10px] lg:text-[11px] text-gray-500 dark:text-gray-400 font-bold mt-2">Estimated minutes watched</div>
+                </div>
+
+                <!-- Impression CTR Card -->
+                <div class="dashboard-glass-card p-4 md:p-6 relative group glow-rose">
+                    <div class="flex items-center justify-between mb-3 md:mb-4">
+                        <div class="text-[9px] md:text-[10px] lg:text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 group-hover:text-rose-500 transition-colors">Impression CTR</div>
+                        <div class="w-8 h-8 md:w-10 md:h-10 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 rounded-xl flex items-center justify-center shrink-0 border border-rose-100/50 dark:border-rose-900/25">
+                            <i class="ph-fill ph-percent text-base md:text-xl group-hover:scale-110 transition-transform duration-300"></i>
+                        </div>
+                    </div>
+                    <!-- If CTR > 0 -->
+                    <div th:if="${channel.ctr != null && channel.ctr > 0}" 
+                         class="text-xl md:text-3xl lg:text-4xl font-black text-gray-900 dark:text-white leading-none group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors duration-300"
+                         th:text="${#numbers.formatDecimal(channel.ctr, 1, 2) + '%'}">4.2%</div>
+                    <!-- If CTR is 0 or null -->
+                    <div th:if="${channel.ctr == null || channel.ctr == 0}" 
+                         class="text-sm font-black text-gray-400 dark:text-gray-500 leading-none py-2 uppercase tracking-wide">
+                        No recent activity
+                    </div>
+                    <div class="text-[10px] lg:text-[11px] text-gray-500 dark:text-gray-400 font-bold mt-2">Views per impression percentage</div>
+                </div>
+            </div>
+
+            <!-- Case 2: Channel is not integrated -->
+            <div th:if="${channel == null}" 
+                 class="dashboard-glass-card p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 border-indigo-500/20 dark:border-indigo-500/10">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center shrink-0 border border-indigo-100/50 dark:border-indigo-900/25">
+                        <i class="ph-bold ph-lock-key text-2xl"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-black text-gray-900 dark:text-white">YouTube Analytics Integration Required</h4>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 font-bold mt-1 max-w-xl">
+                            Private metrics (Watch Time, Impressions, CTR) are protected creator insights. To view your real-time creator trajectory, please log in with your primary channel owner account and grant the YouTube Analytics read permission.
+                        </p>
+                    </div>
+                </div>
+                <a href="/oauth2/authorization/google" 
+                   class="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 whitespace-nowrap shadow-md shadow-indigo-600/10 flex items-center gap-2">
+                    <i class="ph-bold ph-key"></i> Grant Analytics Access
+                </a>
+            </div>
+        </div>
+
         <!-- Main Grid: Charts & SVG Map -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             
@@ -146,6 +229,41 @@
                 </div>
             </div>
 
+            <!-- Private Analytics Performance Chart -->
+            <div class="dashboard-widget p-6 md:p-8 flex flex-col justify-between min-h-[380px] lg:col-span-2">
+                <div class="mb-4">
+                    <h3 class="text-lg font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
+                        <i class="ph-bold ph-shield-check text-indigo-500 text-xl"></i> Private Metrics Trends
+                    </h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 font-bold mt-0.5">Impressions, CTR, and watch time trajectory (last 30 days)</p>
+                </div>
+                
+                <!-- Render chart if we have a linked channel AND non-zero private metrics -->
+                <div th:if="${channel != null && channel.watchTime != null && channel.watchTime > 0}" class="relative grow w-full min-h-[240px]">
+                    <canvas id="privateMetricsChart" th:attr="data-snapshots=${snapshotsJson}"></canvas>
+                </div>
+
+                <!-- If channel is integrated but has no trajectory data/zeros -->
+                <div th:if="${channel != null && (channel.watchTime == null || channel.watchTime == 0)}" 
+                     class="grow w-full flex flex-col items-center justify-center text-center p-6 border border-dashed border-gray-200 dark:border-gray-800 rounded-3xl bg-slate-50/50 dark:bg-slate-900/10">
+                    <i class="ph-bold ph-chart-line-up text-4xl text-gray-300 dark:text-gray-700 mb-3"></i>
+                    <h4 class="text-xs font-black text-gray-900 dark:text-white uppercase tracking-wider">No Trajectory History</h4>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 font-bold mt-1 max-w-sm">
+                        No performance history recorded for this channel. Once YouTube generates daily activity on your channel, your trajectory trends will appear here.
+                    </p>
+                </div>
+
+                <!-- If channel is not integrated at all -->
+                <div th:if="${channel == null}" 
+                     class="grow w-full flex flex-col items-center justify-center text-center p-6 border border-dashed border-gray-200 dark:border-gray-800 rounded-3xl bg-slate-50/50 dark:bg-slate-900/10">
+                    <i class="ph-bold ph-key text-4xl text-gray-300 dark:text-gray-700 mb-3"></i>
+                    <h4 class="text-xs font-black text-gray-900 dark:text-white uppercase tracking-wider">Integration Required</h4>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 font-bold mt-1 max-w-sm">
+                        Trajectory history requires active channel linking and authorized Google Analytics permissions.
+                    </p>
+                </div>
+            </div>
+
             <!-- Geographic Viewers Map -->
             <div class="dashboard-widget p-6 md:p-8 flex flex-col justify-between min-h-[380px]">
                 <div class="mb-4">
@@ -170,17 +288,17 @@
                 </div>
 
                 <!-- Add Competitor Channel Form -->
-                <form id="addCompetitorForm" class="flex gap-2">
+                <form id="addCompetitorForm" class="flex flex-col sm:flex-row gap-2">
                     <div class="relative flex-1">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                             <i class="ph-bold ph-youtube-logo text-base"></i>
                         </div>
-                        <input type="text" id="competitorIdInput" required disabled
-                               placeholder="Competitor tracking coming soon..." 
-                               class="w-full pl-10 pr-4 py-3 text-xs font-bold border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-slate-900/20 rounded-2xl focus:outline-none cursor-not-allowed opacity-60">
+                        <input type="text" id="competitorIdInput" required
+                               placeholder="Enter competitor YouTube Channel ID..." 
+                               class="w-full pl-10 pr-4 py-3 text-xs font-bold border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900/40 rounded-2xl focus:outline-none focus:border-brand-500 transition-all text-gray-900 dark:text-white">
                     </div>
-                    <button type="submit" disabled class="px-5 bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 border border-gray-200/50 dark:border-gray-700/50 rounded-2xl text-[10px] font-black uppercase tracking-wider cursor-not-allowed transition-all">
-                        Coming Soon
+                    <button type="submit" class="w-full sm:w-auto py-3 sm:py-0 px-5 bg-brand-600 hover:bg-brand-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-wider transition-all active:scale-95 cursor-pointer shadow-md">
+                        Add Channel
                     </button>
                 </form>
 

@@ -1,4 +1,9 @@
 @import "tailwindcss";
+@import "./fonts.css";
+@import "./phosphor-custom.css";
+@import "./layout-styles.css";
+@import "../components/navbar-styles.css";
+@import "../components/auth-modal.css";
 
 @variant dark (&:where(.dark, .dark *));
 
@@ -9,55 +14,68 @@
   --color-brand-200: #bfdbfe;
   --color-brand-300: #93c5fd;
   --color-brand-400: #60a5fa;
-  --color-brand-500: #3b82f6; /* Primary Light */
+  --color-brand-500: #3b82f6;
+  /* Primary Light */
   --color-brand-600: #2563eb;
   --color-brand-700: #1d4ed8;
   --color-brand-800: #1e40af;
-  --color-brand-900: #1e3a8a; /* Primary Dark */
+  --color-brand-900: #1e3a8a;
+  /* Primary Dark */
   --color-brand-950: #172554;
-  
+
   /* Shared Typography for all pages */
   --font-sans: 'Inter', 'system-ui', '-apple-system', 'sans-serif';
 
   /* Animation Utilities */
-  --animate-fade-in: fade-in 0.5s ease-in-out;
-  
+  --animate-fade-in: fade-in 0.35s ease-out;
+
   @keyframes fade-in {
-    0% { opacity: 0; transform: translateY(10px); }
-    100% { opacity: 1; transform: translateY(0); }
+    0% {
+      opacity: 0;
+    }
+
+    100% {
+      opacity: 1;
+    }
   }
 
   /* Universal Shine/Reflection Effect */
   --animate-shine: shine 0.8s forwards;
 
   @keyframes shine {
-    0% { transform: translateX(-100%) skewX(-15deg); }
-    100% { transform: translateX(200%) skewX(-15deg); }
+    0% {
+      transform: translateX(-100%) skewX(-15deg);
+    }
+
+    100% {
+      transform: translateX(200%) skewX(-15deg);
+    }
   }
 }
 
 /* Custom Component Classes with Responsive Logic */
 @layer components {
+
   /* Professional Action Button with Reflection Effect on Hover */
   .btn-primary {
     @apply relative overflow-hidden bg-brand-600 text-white hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-400 transition-all duration-300 font-bold px-6 py-3 rounded-xl shadow-lg shadow-brand-500/20 active:scale-95 flex items-center justify-center gap-2;
   }
-  
+
   /* The reflection overlay */
   .btn-primary::after {
     @apply content-[''] absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-full;
   }
-  
+
   /* Trigger reflection on hover */
   .btn-primary:hover::after {
     @apply animate-shine;
   }
-  
+
   /* Consistent Card Styling for Mobile and Desktop */
   .card-base {
     @apply bg-white dark:bg-gray-800 rounded-2xl md:rounded-3xl border border-gray-100 dark:border-gray-700 shadow-xl shadow-gray-200/50 dark:shadow-none transition-all duration-300 overflow-hidden;
   }
-  
+
   /* Responsive Input Field */
   .input-field {
     @apply w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-xl px-5 py-3 focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none transition-all text-base md:text-lg;
@@ -67,7 +85,7 @@
   .shine-overlay {
     @apply absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full pointer-events-none;
   }
-  
+
   .group:hover .shine-overlay {
     @apply animate-shine;
   }
@@ -77,3 +95,68 @@
     @apply h-1 bg-linear-to-r from-brand-500 to-purple-500;
   }
 }
+
+/* Styled Markdown Content for AI Insights */
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4 {
+  @apply font-black text-slate-900 dark:text-white mt-4 mb-2 tracking-tight block;
+}
+
+.markdown-content h1 {
+  @apply text-base;
+}
+
+.markdown-content h2 {
+  @apply text-sm;
+}
+
+.markdown-content h3 {
+  @apply text-xs uppercase tracking-wider;
+}
+
+.markdown-content h4 {
+  @apply text-[11px] uppercase tracking-widest;
+}
+
+.markdown-content p {
+  @apply text-xs leading-relaxed text-slate-700 dark:text-slate-300 font-normal mb-3 block;
+}
+
+.markdown-content strong {
+  @apply font-black text-slate-900 dark:text-white;
+}
+
+.markdown-content em {
+  @apply italic;
+}
+
+.markdown-content ul {
+  @apply list-disc list-outside space-y-2 my-3 pl-5 block;
+}
+
+.markdown-content ol {
+  @apply list-decimal list-outside space-y-2 my-3 pl-5 block;
+}
+
+.markdown-content li {
+  @apply text-xs text-slate-700 dark:text-slate-300 font-normal py-0.5;
+}
+
+.markdown-content li strong {
+  @apply font-black text-slate-900 dark:text-white;
+}
+
+.markdown-content blockquote {
+  @apply border-l-4 border-orange-500 pl-3 italic my-3 text-slate-500 dark:text-slate-400 font-medium block;
+}
+
+.markdown-content code {
+  @apply bg-slate-100 dark:bg-slate-900 px-1 py-0.5 rounded font-mono text-[10px] text-orange-600 dark:text-orange-400;
+}
+
+.markdown-content pre {
+  @apply bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800 font-mono text-[10px] overflow-x-auto my-3 block;
+}
+

@@ -16,6 +16,9 @@ public record YouTubeChannelDto(
     long subscriberCount,
     long viewCount,
     long videoCount,
+    long watchTime,
+    long impressions,
+    double ctr,
     String country,
     Map<String, Double> geoDistribution,
     List<YouTubeVideoDto> recentUploads

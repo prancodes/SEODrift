@@ -61,22 +61,26 @@
                     </div>
 
                     <div class="flex-1 min-w-0">
-                        <div class="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
-                            <div class="flex-1">
-                                <span class="inline-block py-1 px-3 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 text-xs font-black uppercase tracking-widest mb-3">Primary Result</span>
-                                <h2 class="text-base md:text-2xl lg:text-3xl font-extrabold text-gray-900 dark:text-white leading-tight" th:text="${primary.title}">Video Title</h2>
-                            </div>
+                        <div class="flex sm:items-center sm:justify-between gap-3 mb-4">
+                            <span class="inline-block py-1 px-3 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 text-xs font-black uppercase tracking-widest">Primary Result</span>
+                            <!-- Desktop Button: Visible on sm and up -->
                             <button th:data-tags="${#strings.listJoin(primary.tags, ', ')}" onclick="copyTags(this.getAttribute('data-tags'), this)"
-                                class="btn-primary w-full md:w-auto shrink-0 bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-none">
+                                class="hidden sm:inline-flex btn-primary py-2 px-3.5 text-xs sm:py-2.5 sm:text-sm bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-none">
                                 <i class="ph-bold ph-copy"></i> <span>Copy All Tags</span>
                             </button>
                         </div>
+                        <h2 class="text-lg sm:text-2xl lg:text-3xl font-extrabold text-gray-900 dark:text-white leading-tight break-all sm:break-words mb-6" th:text="${primary.title}">Video Title</h2>
+                        <!-- Mobile Button: Visible only on phone views -->
+                        <button th:data-tags="${#strings.listJoin(primary.tags, ', ')}" onclick="copyTags(this.getAttribute('data-tags'), this)"
+                            class="inline-flex sm:hidden btn-primary w-full py-2.5 text-sm bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-none justify-center mb-6">
+                            <i class="ph-bold ph-copy"></i> <span>Copy All Tags</span>
+                        </button>
 
                         <div class="p-3 md:p-6 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-700">
                             <div class="flex flex-wrap gap-2.5">
                                 <span th:each="tag : ${primary.tags}" 
                                       th:text="'#' + ${tag}"
-                                      class="inline-block px-3.5 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-700 dark:text-gray-300 font-bold select-all hover:border-brand-300 dark:hover:border-brand-700 hover:text-brand-600 dark:hover:text-brand-400 transition-all cursor-pointer">
+                                      class="inline-block px-2.5 py-1.5 sm:px-3.5 sm:py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs sm:text-sm text-gray-700 dark:text-gray-300 font-bold select-all hover:border-brand-300 dark:hover:border-brand-700 hover:text-brand-600 dark:hover:text-brand-400 transition-all cursor-pointer">
                                 </span>
                             </div>
                         </div>
@@ -102,7 +106,7 @@
                     </div>
 
                     <div class="p-4 sm:p-5 flex flex-col flex-1">
-                        <h4 class="font-extrabold text-xs md:text-sm lg:text-base text-gray-900 dark:text-white line-clamp-2 mb-2 h-12 leading-tight" th:text="${video.title}">Title</h4>
+                        <h4 class="font-extrabold text-xs md:text-sm lg:text-base text-gray-900 dark:text-white line-clamp-2 mb-2 h-12 leading-tight break-words" th:text="${video.title}">Title</h4>
                         <p class="text-xs font-bold text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-1.5 uppercase tracking-wide">
                             <i class="ph-fill ph-television text-brand-500"></i> <span th:text="${video.channelName}">Channel</span>
                         </p>
@@ -129,7 +133,6 @@
     </div>
     </turbo-frame>
 
-    <script th:src="@{/js/core/copy.js}"></script>
 </div>
 </body>
 </html>

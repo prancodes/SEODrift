@@ -7,7 +7,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
@@ -15,6 +17,14 @@ import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.JdbcOAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.encrypt.Encryptors;
+import org.springframework.security.crypto.encrypt.TextEncryptor;
 import jakarta.servlet.http.Cookie;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -27,6 +37,12 @@ import java.nio.charset.StandardCharsets;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Value("${app.security.oauth2.encrypt-key}")
+    private String encryptKey;
+
+    @Value("${app.security.oauth2.encrypt-salt}")
+    private String encryptSalt;
 
     public SecurityConfig() {
         log.info("Security Infrastructure Initialized.");
@@ -48,23 +64,41 @@ public class SecurityConfig {
      */
     @Bean
     public SecurityFilterChain securityFilterChain(
-            HttpSecurity http, 
+            HttpSecurity http,
             CustomOAuth2UserService customOAuth2UserService,
-            ClientRegistrationRepository clientRegistrationRepository)
+            ClientRegistrationRepository clientRegistrationRepository,
+            OAuth2AuthorizedClientRepository authorizedClientRepository)
             throws Exception {
         log.info("Configuring Security Filter Chain...");
 
         OAuth2AuthorizationRequestResolver resolver = authorizationRequestResolver(clientRegistrationRepository);
 
         http
+                .headers(headers -> headers
+                        .contentSecurityPolicy(csp -> csp
+                                .policyDirectives("default-src 'self'; " +
+                                        "script-src 'self' 'unsafe-inline'; " +
+                                        "style-src 'self' 'unsafe-inline'; " +
+                                        "font-src 'self'; " +
+                                        "img-src 'self' data: https://img.youtube.com https://i.ytimg.com https://*.googleusercontent.com https://ui-avatars.com https://images.unsplash.com; " +
+                                        "connect-src 'self'; " +
+                                        "frame-ancestors 'none';"))
+                        .httpStrictTransportSecurity(hsts -> hsts
+                                .includeSubDomains(true)
+                                .maxAgeInSeconds(31536000)
+                                .preload(true))
+                        .crossOriginOpenerPolicy(coop -> coop
+                                .policy(org.springframework.security.web.header.writers.CrossOriginOpenerPolicyHeaderWriter.CrossOriginOpenerPolicy.SAME_ORIGIN))
+                )
                 .authorizeHttpRequests(authorize -> authorize
                         // Publicly accessible assets and home page
                         .requestMatchers("/", "/css/**", "/js/**", "/images/**", "/webjars/**", "/favicons/**",
-                                "/api/auth/**", "/robots.txt", "/sitemap.xml")
+                                "/robots.txt", "/sitemap.xml")
                         .permitAll()
 
                         // Protected tools and user data
                         .requestMatchers("/analytics/**", "/dashboard/**", "/tags/**", "/thumbnail/**",
+                                "/trends", "/trends/**", "/keywords", "/keywords/**",
                                 "/workspace", "/workspace/**", "/history", "/history/**",
                                 "/api/gateway/youtube/**")
                         .authenticated()
@@ -72,6 +106,7 @@ public class SecurityConfig {
                         // Everything else remains public for flexibility
                         .anyRequest().permitAll())
                 .oauth2Login(oauth2 -> oauth2
+                        .authorizedClientRepository(authorizedClientRepository)
                         .authorizationEndpoint(authorization -> authorization
                                 .authorizationRequestResolver(resolver))
                         .userInfoEndpoint(userInfo -> userInfo
@@ -119,6 +154,59 @@ public class SecurityConfig {
         log.info("Security Configuration successfully applied.");
         return http.build();
     }
+    
+    /**
+     * Dedicated high-priority filter chain for static assets.
+     * Bypasses heavy security filters (session creation, security context, csrf)
+     * while retaining standard security headers (HSTS, etc.) without triggering
+     * Spring Security warnings.
+     */
+    @Bean
+    @Order(1)
+    public SecurityFilterChain staticResourceFilterChain(HttpSecurity http) throws Exception {
+        log.info("Configuring High-Priority Security Filter Chain for Static Resources...");
+        http
+                .securityMatcher(
+                        "/dist/**",
+                        "/css/**",
+                        "/js/**",
+                        "/images/**",
+                        "/webjars/**",
+                        "/favicons/**",
+                        "/robots.txt",
+                        "/sitemap.xml",
+                        "/favicon.ico"
+                )
+                .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
+                .requestCache(requestCache -> requestCache.disable())
+                .securityContext(securityContext -> securityContext.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .csrf(csrf -> csrf.disable())
+                .headers(headers -> headers.cacheControl(cache -> cache.disable()));
+        return http.build();
+    }
+
+    @Bean
+    public TextEncryptor textEncryptor() {
+        log.info("Initializing Deluxe AES-GCM TextEncryptor for OAuth2 Tokens...");
+        return Encryptors.delux(encryptKey, encryptSalt);
+    }
+
+    @Bean
+    public OAuth2AuthorizedClientService authorizedClientService(
+            JdbcTemplate jdbcTemplate,
+            ClientRegistrationRepository clientRegistrationRepository,
+            TextEncryptor textEncryptor) {
+        JdbcOAuth2AuthorizedClientService jdbcService = new JdbcOAuth2AuthorizedClientService(jdbcTemplate,
+                clientRegistrationRepository);
+        return new EncryptedOAuth2AuthorizedClientService(jdbcService, textEncryptor);
+    }
+
+    @Bean
+    public OAuth2AuthorizedClientRepository authorizedClientRepository(
+            OAuth2AuthorizedClientService authorizedClientService) {
+        return new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(authorizedClientService);
+    }
 
     private OAuth2AuthorizationRequestResolver authorizationRequestResolver(
             ClientRegistrationRepository clientRegistrationRepository) {
@@ -127,9 +215,7 @@ public class SecurityConfig {
         resolver.setAuthorizationRequestCustomizer(customizer -> customizer
                 .additionalParameters(params -> {
                     params.put("access_type", "offline");
-                    params.put("prompt", "consent");
-                })
-        );
+                }));
         return resolver;
     }
 }

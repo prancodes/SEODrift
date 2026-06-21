@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{fragments/layout/layout}">
+<head>
+    <title>Keyword Search Velocity</title>
+    <link rel="stylesheet" th:href="@{/dist/dashboard-styles.css}">
+    <link rel="stylesheet" th:href="@{/dist/dashboard.css}">
+    <script th:src="@{/dist/keywords.js}" type="module" defer></script>
+</head>
+<body>
+<div layout:fragment="content" class="max-w-7xl mx-auto animate-fade-in space-y-8">
+        
+    <!-- ========================================== -->
+    <!-- Creator Console layout -->
+    <!-- ========================================== -->
+    <div>
+        <!-- Welcome Header Section -->
+        <div class="dashboard-glass-card welcome-banner p-5 md:p-8 relative overflow-hidden group mb-8">
+            <div class="dashboard-mesh"></div>
+            <div class="shine-overlay"></div>
+            
+            <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-500 shadow-md flex items-center justify-center shrink-0 text-white">
+                        <i class="ph-bold ph-target text-2xl"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-100 dark:bg-orange-950/40 border border-orange-200/50 dark:border-orange-900/40 text-[8px] md:text-[10px] font-black uppercase tracking-widest text-orange-700 dark:text-orange-400">
+                            SEO Insights
+                        </div>
+                        <h1 class="text-xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
+                            Keyword Search Velocity
+                        </h1>
+                        <p class="text-gray-500 dark:text-gray-400 text-xs md:text-sm font-bold">
+                            Monitor tag publication growth, assess keyword competition levels, and uncover trending SEO opportunities.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3 relative z-20 shrink-0">
+                    <a href="/trends" class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-gray-950 dark:bg-white text-white dark:text-gray-950 hover:bg-brand-600 dark:hover:bg-brand-600 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-md">
+                        <i class="ph-bold ph-sword"></i> Trends & Competitors
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column: Tracker and Keyword List (Span 1) -->
+            <div class="space-y-6">
+                <!-- Add Keyword Tracker Widget -->
+                <div class="dashboard-widget p-6 flex flex-col space-y-4">
+                    <div>
+                        <h3 class="text-base font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
+                            <i class="ph-bold ph-plus-circle text-orange-500 text-lg"></i> Add Search Term
+                        </h3>
+                        <p class="text-[11px] text-gray-500 dark:text-gray-400 font-bold mt-0.5">Track publishing counts on YouTube to identify momentum</p>
+                    </div>
+
+                    <form id="addKeywordForm" class="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                        <div class="relative flex-1">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                <i class="ph-bold ph-magnifying-glass text-xs"></i>
+                            </div>
+                            <input type="text" id="keywordInput" required
+                                   placeholder="e.g. summer fashion trends" 
+                                   class="w-full pl-9 pr-4 py-3 sm:py-2.5 text-xs font-bold border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900/40 rounded-xl focus:outline-none focus:border-brand-500 transition-all text-gray-900 dark:text-white">
+                        </div>
+                        <button type="submit" class="w-full sm:w-auto px-5 py-3 sm:py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-all active:scale-95 cursor-pointer shadow-md">
+                            Track
+                        </button>
+                    </form>
+
+                    <!-- Niche Keyword Recommendations -->
+                    <div class="mt-2 space-y-2">
+                        <span class="text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-wider block">Try tracking niche long-tail terms:</span>
+                        <div class="flex flex-wrap gap-1.5" id="nicheSuggestions">
+                            <button type="button" class="suggestion-pill px-2.5 py-1 text-[9px] font-bold bg-gray-50 dark:bg-slate-900/60 border border-gray-150 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:bg-orange-50/50 dark:hover:bg-orange-950/20 hover:border-orange-200 hover:text-orange-600 dark:hover:text-orange-400 rounded-lg cursor-pointer transition-all">
+                                summer fashion trends 2026
+                            </button>
+                            <button type="button" class="suggestion-pill px-2.5 py-1 text-[9px] font-bold bg-gray-50 dark:bg-slate-900/60 border border-gray-150 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:bg-orange-50/50 dark:hover:bg-orange-950/20 hover:border-orange-200 hover:text-orange-600 dark:hover:text-orange-400 rounded-lg cursor-pointer transition-all">
+                                nextjs dashboard tutorial
+                            </button>
+                            <button type="button" class="suggestion-pill px-2.5 py-1 text-[9px] font-bold bg-gray-50 dark:bg-slate-900/60 border border-gray-150 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:bg-orange-50/50 dark:hover:bg-orange-950/20 hover:border-orange-200 hover:text-orange-600 dark:hover:text-orange-400 rounded-lg cursor-pointer transition-all">
+                                dividend investing strategy
+                            </button>
+                            <button type="button" class="suggestion-pill px-2.5 py-1 text-[9px] font-bold bg-gray-50 dark:bg-slate-900/60 border border-gray-150 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:bg-orange-50/50 dark:hover:bg-orange-950/20 hover:border-orange-200 hover:text-orange-600 dark:hover:text-orange-400 rounded-lg cursor-pointer transition-all">
+                                home workout no equipment
+                            </button>
+                            <button type="button" class="suggestion-pill px-2.5 py-1 text-[9px] font-bold bg-gray-50 dark:bg-slate-900/60 border border-gray-150 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:bg-orange-50/50 dark:hover:bg-orange-950/20 hover:border-orange-200 hover:text-orange-600 dark:hover:text-orange-400 rounded-lg cursor-pointer transition-all">
+                                unreal engine 5 beginner
+                            </button>
+                            <button type="button" class="suggestion-pill px-2.5 py-1 text-[9px] font-bold bg-gray-50 dark:bg-slate-900/60 border border-gray-150 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:bg-orange-50/50 dark:hover:bg-orange-950/20 hover:border-orange-200 hover:text-orange-600 dark:hover:text-orange-400 rounded-lg cursor-pointer transition-all">
+                                solo travel budget tips
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tracked Keywords List -->
+                <div class="dashboard-widget p-6 flex flex-col space-y-4">
+                    <div>
+                        <h3 class="text-base font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
+                            <i class="ph-bold ph-list-numbers text-brand-500 text-lg"></i> Monitored Keywords
+                        </h3>
+                        <p class="text-[11px] text-gray-500 dark:text-gray-400 font-bold mt-0.5">Select a term to view historical trajectory charts</p>
+                    </div>
+
+                    <div class="space-y-3 max-h-[480px] overflow-y-auto pr-1" id="keywordListContainer">
+                        <div th:each="trend, iter : ${keywordTrends}" 
+                             th:data-keyword="${trend.keyword}"
+                             class="keyword-row flex items-center justify-between p-3.5 border border-gray-100 dark:border-gray-800 bg-white/40 dark:bg-slate-900/10 hover:bg-orange-50/20 dark:hover:bg-slate-800/20 rounded-2xl cursor-pointer transition-all"
+                             th:classappend="${iter.index == 0 ? 'border-orange-500 dark:border-orange-500 bg-orange-50/10 dark:bg-orange-950/5 active-keyword' : ''}">
+                            <div class="min-w-0 flex-1">
+                                <div class="text-xs font-black text-gray-900 dark:text-white truncate flex items-center gap-2">
+                                    <span th:text="${trend.keyword}">keyword</span>
+                                    <!-- Competition Badge -->
+                                    <span class="px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wide shrink-0"
+                                          th:classappend="${trend.videoCountThisMonth > 500 ? 'bg-red-50 dark:bg-red-950/20 text-red-600' : (trend.videoCountThisMonth > 100 ? 'bg-amber-50 dark:bg-amber-955/20 text-amber-600' : 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600')}"
+                                          th:text="${trend.videoCountThisMonth > 500 ? 'High' : (trend.videoCountThisMonth > 100 ? 'Medium' : 'Low')}">
+                                        Low
+                                    </span>
+                                </div>
+                                <div class="text-[9px] text-gray-400 dark:text-gray-500 font-bold mt-0.5" 
+                                     th:text="${trend.videoCountThisMonth} + ' videos published this month'">0 videos</div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-black tracking-wide"
+                                      th:classappend="${trend.growthRate >= 0 ? 'bg-green-50 dark:bg-green-950/30 text-green-600' : 'bg-red-50 dark:bg-red-950/30 text-red-500'}"
+                                      th:text="${trend.growthRate >= 0 ? '+' : ''} + ${#numbers.formatDecimal(trend.growthRate, 1, 1)} + '%'">
+                                    +0.0%
+                                </span>
+                                <button class="delete-keyword-btn w-6 h-6 rounded bg-gray-50 dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-red-500 text-gray-400 transition-colors flex items-center justify-center cursor-pointer"
+                                        th:data-keyword="${trend.keyword}">
+                                    <i class="ph-bold ph-trash text-[10px]"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div th:if="${#lists.isEmpty(keywordTrends)}" class="text-center py-12 border border-dashed border-gray-200 dark:border-gray-800 rounded-2xl">
+                            <i class="ph-duotone ph-target text-3xl text-gray-300 dark:text-gray-700 mb-2"></i>
+                            <p class="text-[11px] text-gray-400 dark:text-gray-500 font-bold max-w-[200px] mx-auto">Track key tags to monitor search velocity and publication trajectories.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Trajectory Chart & Deep Insights (Span 2) -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Trajectory Chart Card -->
+                <div class="dashboard-widget p-6 md:p-8 flex flex-col justify-between min-h-[420px] relative">
+                    <div class="mb-4">
+                        <div class="flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-0">
+                            <div>
+                                <h3 class="text-base sm:text-lg font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-1.5 sm:gap-2">
+                                    <i class="ph-bold ph-chart-line text-orange-500 text-lg sm:text-xl"></i> Velocity Trajectory
+                                </h3>
+                                <p class="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold mt-0.5 sm:mt-1">Historical publication trend of the active keyword over time</p>
+                            </div>
+                            <!-- Active Term Badge -->
+                            <span id="activeKeywordBadge" class="hidden px-2.5 sm:px-3 py-1 rounded-full bg-orange-100 dark:bg-orange-950/50 border border-orange-200 dark:border-orange-900 text-[9px] sm:text-xs font-black uppercase text-orange-700 dark:text-orange-400 truncate max-w-full sm:max-w-[200px]">
+                                NONE
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Chart Canvas -->
+                    <div class="relative grow w-full min-h-[260px] flex items-center justify-center">
+                        <canvas id="keywordHistoryChart" class="hidden"></canvas>
+                        
+                        <!-- Empty / Selection State -->
+                        <div id="chartPlaceholder" class="text-center p-8 flex flex-col items-center justify-center space-y-3">
+                            <i class="ph-duotone ph-chart-line text-4xl text-gray-300 dark:text-gray-700"></i>
+                            <h4 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider">No Keyword Selected</h4>
+                            <p class="text-xs text-gray-450 dark:text-gray-555 font-bold max-w-xs">
+                                Add or select a keyword to start plotting its historical search velocity trajectory.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deep SEO Metrics & Analysis Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="insightsGrid">
+                    <!-- Competition Assessment Card -->
+                    <div class="dashboard-widget p-6 flex flex-col space-y-4">
+                        <h4 class="text-xs font-black text-gray-950 dark:text-white uppercase tracking-widest flex items-center gap-1.5">
+                            <i class="ph-bold ph-shield-check text-indigo-500"></i> Competition & Intent
+                        </h4>
+                        <div class="flex items-end justify-between border-b border-gray-100 dark:border-gray-800 pb-3">
+                            <div>
+                                <div class="text-[9px] font-black text-gray-400 uppercase">Competition Rating</div>
+                                <div id="competitionValue" class="text-xl font-black text-gray-900 dark:text-white mt-0.5">N/A</div>
+                            </div>
+                            <span id="difficultyBadge" class="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wide">N/A</span>
+                        </div>
+                        <div id="competitionAdvice" class="markdown-content text-xs leading-relaxed space-y-2">
+                            <p>Select a tracked term to generate custom difficulty analytics, search intent scores, and tag optimization recommendations.</p>
+                        </div>
+                    </div>
+
+                    <!-- SEO Recommendation Card -->
+                    <div class="dashboard-widget p-6 flex flex-col space-y-4">
+                        <h4 class="text-xs font-black text-gray-950 dark:text-white uppercase tracking-widest flex items-center gap-1.5">
+                            <i class="ph-bold ph-lightbulb text-amber-500"></i> SEO Strategy Advice
+                        </h4>
+                        <div class="flex items-end justify-between border-b border-gray-100 dark:border-gray-800 pb-3">
+                            <div>
+                                <div class="text-[9px] font-black text-gray-400 uppercase">Growth Potential</div>
+                                <div id="potentialValue" class="text-xl font-black text-gray-900 dark:text-white mt-0.5">N/A</div>
+                            </div>
+                        </div>
+                        <div id="recommendationText" class="markdown-content text-xs leading-relaxed space-y-2">
+                            <p>Velocity metrics determine whether to target this keyword directly or aim for long-tail variants to maximize publication growth.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

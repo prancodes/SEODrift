@@ -65,7 +65,7 @@ public class DashboardController {
             return "redirect:/";
         }
 
-        // Safe lookup — returns null if user authenticated via One Tap (no OAuth2 code flow)
+        // Load the authorized client (holds the user's OAuth2 access token)
         OAuth2AuthorizedClient authorizedClient = authorizedClientService
                 .loadAuthorizedClient("google", authentication.getName());
 
@@ -73,8 +73,7 @@ public class DashboardController {
         log.info("Accessing Dashboard for user: [{}]", email);
 
         userRepository.findWithCompetitorsByEmail(email).ifPresentOrElse(user -> {
-            // 1. YouTube Channel Live Data
-            // authorizedClient is null when user logged in via One Tap (no OAuth2 code flow)
+            // 1. YouTube Channel Live Data (null if OAuth2 token is not yet available)
             YouTubeChannelDto channelData = (authorizedClient != null)
                     ? youtubeChannelService.getChannelIntelligence(authorizedClient, email)
                     : null;
@@ -119,6 +118,9 @@ public class DashboardController {
                     map.put("subscriberCount", s.getSubscriberCount());
                     map.put("viewCount", s.getViewCount());
                     map.put("videoCount", s.getVideoCount());
+                    map.put("watchTime", s.getWatchTime() != null ? s.getWatchTime() : 0);
+                    map.put("impressions", s.getImpressions() != null ? s.getImpressions() : 0);
+                    map.put("ctr", s.getCtr() != null ? s.getCtr() : 0.0);
                     map.put("recordedAt", s.getRecordedAt() != null ? s.getRecordedAt().toString() : null);
                     return map;
                 }).collect(Collectors.toList());

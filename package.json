@@ -27,8 +27,13 @@
   },
   "homepage": "https://github.com/prancodes/SEODrift#readme",
   "dependencies": {
+    "@fontsource/inter": "^5.2.8",
     "@hotwired/turbo": "^8.0.23",
+    "@phosphor-icons/web": "^2.1.2",
     "@tailwindcss/postcss": "^4.1.17",
+    "chart.js": "^4.5.1",
+    "jsvectormap": "^1.7.0",
+    "marked": "^18.0.5",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.17",
     "vite": "^7.2.6"

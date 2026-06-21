@@ -1,3 +1,28 @@
+let ChartModule = null;
+let jsVectorMapModule = null;
+
+async function getChart() {
+    if (!ChartModule) {
+        const module = await import('chart.js/auto');
+        ChartModule = module.default;
+    }
+    return ChartModule;
+}
+
+async function getJsVectorMap() {
+    if (!jsVectorMapModule) {
+        const module = await import('jsvectormap');
+        await import('jsvectormap/dist/maps/world.js');
+        await import('jsvectormap/dist/jsvectormap.min.css');
+        jsVectorMapModule = module.default;
+    }
+    return jsVectorMapModule;
+}
+
+import '../../css/components/dashboard-styles.css';
+import '../../css/components/dashboard-console.css';
+import '../../css/components/guest-dashboard.css';
+
 /**
  * Dashboard Console Script
  * Initializes Chart.js and handles SVG World Map interactivity.
@@ -6,6 +31,7 @@
 let dashboardInitialized = false;
 let subscriberChartInstance = null;
 let uploadsChartInstance = null;
+let privateChartInstance = null;
 let worldMapInstance = null;
 
 function destroyDashboard() {
@@ -19,6 +45,10 @@ function destroyDashboard() {
         uploadsChartInstance.destroy();
         uploadsChartInstance = null;
     }
+    if (privateChartInstance) {
+        privateChartInstance.destroy();
+        privateChartInstance = null;
+    }
     if (worldMapInstance) {
         if (typeof worldMapInstance.destroy === 'function') {
             worldMapInstance.destroy();
@@ -30,18 +60,28 @@ function destroyDashboard() {
 }
 
 function initializeDashboard() {
-    // Check if Chart.js and jsVectorMap are loaded
-    if (typeof Chart === "undefined" || typeof jsVectorMap === "undefined") {
-        console.warn("Libraries not loaded yet. Retrying in 100ms...");
-        setTimeout(initializeDashboard, 100);
+    // Safety check: make sure we have the required container/elements for dashboard console
+    if (!document.getElementById("subscriberGrowthChart") && 
+        !document.getElementById("worldMap") && 
+        !document.getElementById("privateMetricsChart")) {
         return;
     }
 
     if (dashboardInitialized) return;
     dashboardInitialized = true;
-    initCharts();
-    initWorldMap();
-    initCompetitorForm();
+
+    // Run non-blockingly to keep main thread free during page transition
+    requestAnimationFrame(async () => {
+        await initCharts();
+        
+        setTimeout(async () => {
+            await initWorldMap();
+        }, 30);
+
+        setTimeout(() => {
+            initCompetitorForm();
+        }, 60);
+    });
 }
 
 document.addEventListener("turbo:load", () => {
@@ -49,16 +89,21 @@ document.addEventListener("turbo:load", () => {
     initializeDashboard();
 });
 
-if (document.readyState === "complete" || document.readyState === "interactive") {
-    initializeDashboard();
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+        initializeDashboard();
+    });
 } else {
-    document.addEventListener("DOMContentLoaded", initializeDashboard);
+    initializeDashboard();
 }
 
-function initCharts() {
+async function initCharts() {
     const isDark = document.documentElement.classList.contains('dark') || document.body.classList.contains('dark');
     const labelColor = isDark ? '#94a3b8' : '#64748b'; // slate-400 or slate-500
     const gridColor = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(15, 23, 42, 0.05)';
+ 
+    const Chart = await getChart();
+    if (!Chart) return;
 
     // 1. Subscriber Growth Chart
     const growthCanvas = document.getElementById("subscriberGrowthChart");
@@ -71,16 +116,7 @@ function initCharts() {
         if (rawData) {
             try {
                 const snapshots = JSON.parse(rawData);
-                // If we only have 1 snapshot, it's just a single point.
-                // To make the graph look like a growth line for first-time users, 
-                // we artificially inject a starting point of 0 from 30 days ago.
-                if (snapshots.length === 1) {
-                    const thirtyDaysAgo = new Date(new Date(snapshots[0].recordedAt).getTime() - (30 * 24 * 60 * 60 * 1000));
-                    snapshots.unshift({
-                        recordedAt: thirtyDaysAgo,
-                        subscriberCount: 0
-                    });
-                }
+                // Map raw daily snapshot data exactly as stored in the database
                 
                 const labels = snapshots.map(s => new Date(s.recordedAt).toLocaleDateString());
                 const dataPoints = snapshots.map(s => s.subscriberCount);
@@ -104,6 +140,7 @@ function initCharts() {
                         }]
                     },
                     options: {
+                        animation: false,
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
@@ -163,6 +200,7 @@ function initCharts() {
                         }]
                     },
                     options: {
+                        animation: false,
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
@@ -192,15 +230,130 @@ function initCharts() {
             }
         }
     }
+
+    // 3. Private Metrics Chart
+    const privateCanvas = document.getElementById("privateMetricsChart");
+    if (privateCanvas) {
+        if (privateChartInstance) {
+            privateChartInstance.destroy();
+            privateChartInstance = null;
+        }
+        const rawData = privateCanvas.getAttribute("data-snapshots");
+        if (rawData) {
+            try {
+                const snapshots = JSON.parse(rawData);
+                // Map raw daily snapshot data exactly as stored in the database
+                const labels = snapshots.map(s => new Date(s.recordedAt).toLocaleDateString());
+                const watchTimes = snapshots.map(s => s.watchTime || 0);
+                const impressions = snapshots.map(s => s.impressions || 0);
+                const ctrs = snapshots.map(s => s.ctr || 0.0);
+
+                privateChartInstance = new Chart(privateCanvas, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Impressions',
+                                data: impressions,
+                                borderColor: '#6366f1', // Indigo
+                                backgroundColor: isDark ? 'rgba(99, 102, 241, 0.1)' : 'rgba(99, 102, 241, 0.04)',
+                                borderWidth: 2.5,
+                                tension: 0.4,
+                                yAxisID: 'y',
+                                fill: true
+                            },
+                            {
+                                label: 'Watch Time (Min)',
+                                data: watchTimes,
+                                borderColor: '#ec4899', // Pink
+                                backgroundColor: isDark ? 'rgba(236, 72, 153, 0.1)' : 'rgba(236, 72, 153, 0.04)',
+                                borderWidth: 2.5,
+                                tension: 0.4,
+                                yAxisID: 'y',
+                                fill: true
+                            },
+                            {
+                                label: 'CTR (%)',
+                                data: ctrs,
+                                borderColor: '#f43f5e', // Rose
+                                backgroundColor: 'transparent',
+                                borderWidth: 2.5,
+                                tension: 0.4,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        animation: false,
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { 
+                                display: true,
+                                position: 'top',
+                                labels: {
+                                    color: labelColor,
+                                    font: { family: 'Inter', weight: 'bold', size: 9 }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: { 
+                                grid: { display: false },
+                                ticks: {
+                                    color: labelColor,
+                                    font: { family: 'Inter', weight: 'bold', size: 9 }
+                                }
+                            },
+                            y: { 
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                border: { display: false },
+                                grid: { color: gridColor },
+                                ticks: {
+                                    color: labelColor,
+                                    font: { family: 'Inter', weight: 'bold', size: 9 }
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                grid: { drawOnChartArea: false },
+                                ticks: {
+                                    color: labelColor,
+                                    font: { family: 'Inter', weight: 'bold', size: 9 },
+                                    callback: function(value) {
+                                        return value + '%';
+                                    }
+                                }
+                              }
+                          }
+                      }
+                  });
+              } catch (e) {
+                  console.error("Error parsing private metrics snapshot data:", e);
+              }
+          }
+      }
 }
 
-function initWorldMap() {
+async function initWorldMap() {
     const mapEl = document.getElementById("worldMap");
     if (!mapEl) return;
 
+    const jsVectorMap = await getJsVectorMap();
+    if (!jsVectorMap) return;
+
     if (worldMapInstance) {
-        if (typeof worldMapInstance.destroy === 'function') {
-            worldMapInstance.destroy();
+        try {
+            if (typeof worldMapInstance.destroy === 'function') {
+                worldMapInstance.destroy();
+            }
+        } catch (e) {
+            console.warn("jsVectorMap destroy failed (library bug ignored):", e);
         }
         worldMapInstance = null;
     }
@@ -278,7 +431,8 @@ function initWorldMap() {
 
 function initCompetitorForm() {
     const form = document.getElementById("addCompetitorForm");
-    if (!form) return;
+    if (!form || form.dataset.listenerAttached) return;
+    form.dataset.listenerAttached = "true";
 
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -312,11 +466,19 @@ function initCompetitorForm() {
                 window.location.reload();
             } else {
                 const data = await response.json();
-                alert(data.error || "Failed to add competitor");
+                if (window.showToast) {
+                    window.showToast("Failed to Add", data.error || "Failed to add competitor", "error");
+                } else {
+                    console.error(data.error || "Failed to add competitor");
+                }
             }
         } catch (error) {
             console.error(error);
-            alert("Network error occurred.");
+            if (window.showToast) {
+                window.showToast("Network Error", "Network error occurred.", "error");
+            } else {
+                console.error("Network error occurred.");
+            }
         } finally {
             input.disabled = false;
             btn.innerHTML = originalBtnText;
@@ -326,11 +488,11 @@ function initCompetitorForm() {
 }
 
 // Dynamic updates on theme changes
-document.addEventListener('theme-changed', () => {
+document.addEventListener('theme-changed', async () => {
     if (document.getElementById("worldMap") || document.getElementById("subscriberGrowthChart")) {
         console.debug("Theme toggled, dynamically updating dashboard components...");
         // Reinitialize charts and world map with updated colors
-        initCharts();
-        initWorldMap();
+        await initCharts();
+        await initWorldMap();
     }
 });

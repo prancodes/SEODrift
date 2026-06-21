@@ -1,4 +1,5 @@
 import * as Turbo from "@hotwired/turbo"
+import "../css/base/input.css";
 
 // Configure Turbo
 Turbo.start()
@@ -102,5 +103,6 @@ import './core/ui-utils.js';
 import './components/navbar-script.js';
 import './components/auth-modal.js';
 import './core/copy.js';
+import './core/theme.js';
 
 

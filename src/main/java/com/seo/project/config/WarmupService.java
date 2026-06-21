@@ -6,6 +6,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.EventListener;
+import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 import org.springframework.stereotype.Component;
@@ -96,10 +97,10 @@ public class WarmupService {
         try {
             StringRedisTemplate redisTemplate = redisTemplateProvider.getIfAvailable();
             if (redisTemplate != null) {
-                String pong = redisTemplate.getConnectionFactory()
-                        .getConnection()
-                        .ping();
-                log.info("Warmup: Redis connection established. PING -> {}", pong);
+                try (RedisConnection conn = redisTemplate.getConnectionFactory().getConnection()) {
+                    String pong = conn.ping();
+                    log.info("Warmup: Redis connection established. PING -> {}", pong);
+                }
             }
         } catch (Exception e) {
             log.warn("Warmup: Redis pre-warm skipped: {}", e.getMessage());

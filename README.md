@@ -3,9 +3,9 @@
   
   # SEODrift
   
-  > All-in-one toolkit for SEO optimization: generate tags, grab thumbnails, and analyze video performance metrics.
+  > All-in-one YouTube creator intelligence platform — competitor tracking, keyword velocity analysis, AI-powered content workspace, video publishing, and SEO analytics tools.
   
-  A modern **Spring Boot** application designed to streamline your workflow with powerful SEO optimization and analytics tools.
+  A modern **Spring Boot** application designed to streamline your YouTube workflow with powerful creator intelligence and optimization tools.
 
    <a href="https://seodrift-378036956146.us-central1.run.app">
     <img src="https://img.shields.io/badge/🌐%20Live%20Demo-%20Visit-brightblue?style=for-the-badge" alt="Live Demo">
@@ -17,11 +17,12 @@
   <div align="center">
     <img alt="Status" src="https://img.shields.io/badge/status-live-brightgreen?style=for-the-badge&logo=github">
     <img alt="Java" src="https://img.shields.io/badge/Java-25-orange?style=for-the-badge&logo=openjdk">
-    <img alt="Spring Boot" src="https://img.shields.io/badge/Spring%20Boot-4.0.6-brightgreen?style=for-the-badge&logo=springboot">
+    <img alt="Spring Boot" src="https://img.shields.io/badge/Spring%20Boot-4.0.7-brightgreen?style=for-the-badge&logo=springboot">
     <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind%20CSS-4.1.17-blue?style=for-the-badge&logo=tailwindcss">
     <img alt="PostgreSQL" src="https://img.shields.io/badge/PostgreSQL-Neon.tech-4169E1?style=for-the-badge&logo=postgresql">
     <img alt="Redis" src="https://img.shields.io/badge/Redis-Aiven%20Cloud-DC382D?style=for-the-badge&logo=redis">
-    <img alt="Docker" src="https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker">
+    <img alt="GCP" src="https://img.shields.io/badge/GCP-Cloud%20Run-4285F4?style=for-the-badge&logo=googlecloud">
+    <img alt="Docker" src="https://img.shields.io/badge/Docker-Multi--Stage-2496ED?style=for-the-badge&logo=docker">
     <img alt="License" src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge&logo=github">
   </div>
 </div>
@@ -31,22 +32,41 @@
 ## ✨ Features
 
 ### 🔐 **Google OAuth2 Authentication & User Sync**
-- Secure, frictionless login using **Google OAuth2 Authorization Code flow** with full YouTube API scope authorization.
-- Automated client-side JWT processing and server-side token verification.
-- Real-time profile database synchronization (names, emails, Google IDs, and profile images).
-- Dynamic navigation state changes based on authentication context.
-- **Google OAuth2 Verification Compliant**: Integrated custom `/privacy` and `/terms` routes with explicit API scopes disclosure (including YouTube Data API), data revocation, and contact email support (`prancoder@gmail.com`) to pass manual OAuth2 reviews.
+* Secure login via **Google OAuth2** with YouTube API scopes.
+* Real-time profile database synchronization to PostgreSQL.
+* OAuth2 tokens are **AES-GCM encrypted** before persistence.
+* **Redis-backed HTTP sessions** for stateless server scalability.
+* **Google OAuth2 Verification Compliant**: Custom `/privacy` and `/terms` routes with explicit API scope disclosures.
 
 ### ⚡ **Cache & Edge Gateway Infrastructure**
-- **Distributed Caching**: Configured Spring Cache backed by Redis (with Lettuce connection pools) to store analytics and tag queries, minimizing external API calls.
-- **Edge Routing Gateway**: Intercepts downstream YouTube search/details requests via Spring Cloud Gateway WebMVC, appending credentials securely.
-- **Sliding-Window Rate Limiting**: Employs a custom Redis-based sliding-window filter on API gateways to throttle traffic and protect YouTube API quotas.
+* **Distributed Caching**: Spring Cache backed by Redis to store analytics and tag queries.
+* **Edge Routing Gateway**: Spring Cloud Gateway WebMVC intercepts API requests and securely appends credentials.
+* **Sliding-Window Rate Limiting**: Redis filter limits traffic to protect YouTube API quotas.
 
-### 📊 **Personalized User Dashboard & History**
-- **Search History Tracking**: Automatically persists SEO audits to PostgreSQL (Neon.tech) for logged-in users.
-- **Aggregated Analytics**: Displays user metrics including total audits performed, average SEO health scores, and overall audience engagement rates.
-- **Smart Channel Evaluation**: Evaluates channel health status based on historical audits (Excellent, Needs Work, Critical).
-- **Asynchronous Data Feed**: History items are lazy-loaded via Thymeleaf fragments and Turbo frames.
+### 📊 **Creator Console Dashboard**
+- **Live Channel Intelligence**: Fetches subscriber count, views, watch time, impressions, and CTR via YouTube Data API and YouTube Analytics API.
+- **Geographic Audience Map**: World map of top-10 country view distributions — falls back to the channel's registered country.
+- **Historical Growth Charts**: Channel snapshots (taken at most once per 12 hours) plotted as time-series for subscriber, view, and video count growth.
+- **Recent Uploads Table**: Lists the 10 latest videos with per-video SEO score, engagement rate, views, and likes.
+- **DB Cache Fallback**: Serves last-cached metrics from the `users` table when YouTube API is unavailable.
+
+### 🕵️ **Competitor Intel**
+* **Track Competitor Channels** by channel ID or `@handle`.
+* **Daily Automated Scraping**: ShedLock-protected cron job (2 AM daily) prevents duplicate Cloud Run scrapes.
+* **Posting Rhythm Analysis**: Day-of-week and hour-of-day upload distributions.
+* **Topic Momentum Engine**: Ranks keywords from competitor titles to surface trending themes.
+* **Subscriber Benchmarking**: Chart.js time-series comparing your channel against competitors.
+
+### 📈 **Keyword Search Velocity**
+* **Keyword Tracking**: Monthly video publication count time-series.
+* **Growth Rate Engine**: Computes velocity using rolling 30-day YouTube Search API windows.
+* **AI-Powered SEO Analysis** (Gemini): Difficulty rating and actionable SEO tips, cached in the database.
+
+### 🤖 **AI Content Workspace** (Gemini)
+* **Topic-Driven Generation**: Fetches live competitor context to generate optimized metadata.
+* **Full Metadata Package**: Returns titles, descriptions, scripts, tags, and chapter markers.
+* **Draft Management**: Save drafts to PostgreSQL and reload them instantly.
+* **Publishing Integration**: Draft to publish in a single flow.
 
 ### 🏷️ **SEO Tags Generator**
 - Extract high-ranking tags from competitor videos or generate optimized ones based on keywords.
@@ -67,21 +87,23 @@
 
 ### 🚀 **Direct YouTube Publishing Hub (Publishing Gatekeeper)**
 - **Direct YouTube Upload**: Publish videos directly to YouTube from the SEODrift dashboard.
-- **SEO Ready Verification**: Seamlessly integrates with the AI Workspace to ensure metadata (Titles, Descriptions, Tags) is perfectly optimized before uploading.
-- **Privacy Controls**: Native support for mapping Video Privacy Status (Private, Public, Unlisted).
-- **Resumable Uploads**: Enterprise-grade chunked uploading via Google API `MediaHttpUploader` with real-time internal status tracking.
+- **SEO Readiness Scoring**: Blocks upload if title, description, tags, links, and chapters don't meet the 70/100 threshold.
+- **Privacy Controls**: Native support for Video Privacy Status (Private, Public, Unlisted).
+- **Resumable Uploads**: Chunked uploading via Google API `MediaHttpUploader` with real-time progress tracking.
 
 ---
 
 ## 🚀 Tech Stack
 
 ### Backend
-- **Java 25** - Utilizing modern language features and optimized runtimes.
-- **Spring Boot 4.0.6** - Standardized application framework.
+- **Java 25** - JDK 25 AOT Cache (JEP 483/514) for fast serverless cold starts.
+- **Spring Boot 4.0.7** - Standardized application framework.
 - **Spring Cloud Gateway (WebMVC)** - Handles edge API routing and proxying.
-- **Spring Security 7** - Robust security posture handling session management and OAuth2/OIDC.
+- **Spring Security 7** - OAuth2/OIDC login, AES-GCM token encryption, Redis session management.
 - **Spring Data JPA** - Repository layer for PostgreSQL database mapping.
-- **Spring WebFlux** - Non-blocking WebClient for high-performance external API calls.
+- **Spring WebFlux** - Non-blocking WebClient for YouTube/Analytics API calls.
+- **Spring AI (Google GenAI)** - Gemini integration for workspace content generation and keyword analysis.
+- **ShedLock** - Distributed scheduler lock backed by PostgreSQL for single-node cron execution.
 - **Thymeleaf & Layout Dialect** - Server-side templates utilizing master layouts and fragments.
 
 ### Frontend
@@ -93,11 +115,12 @@
 
 ### Database & DevOps
 - **PostgreSQL** - Production-ready storage hosted on Neon.tech.
-- **Aiven Redis** - Managed cloud cache and rate limiting database.
-- **Flyway** - Database schema version control.
+- **Aiven Redis** - Managed cloud cache, session store, and rate limiter.
+- **Flyway** - Database schema version control (V1–V6 migrations).
 - **HikariCP** - Highly optimized connection pooling configured for serverless scaling.
-- **Docker** - Multi-stage containerization compiling assets and packing the app.
-- **JLink** - Custom lean Java Runtime (using zip-9 maximum compression) resulting in minimal image footprint.
+- **GCP Cloud Run** - Serverless container hosting with auto-scaling.
+- **Docker** - 3-stage containerization: Node (Vite) → Maven + JLink + AOT training → Alpine runtime.
+- **JLink** - Custom lean Java Runtime (zip-9 maximum compression, ~40MB).
 
 ---
 
@@ -192,6 +215,10 @@ SEODrift/
    REDIS_PASSWORD=your_redis_password
    REDIS_SSL_ENABLED=true
 
+   # OAuth2 Token Encryption
+   OAUTH2_ENCRYPT_KEY=your_16char_secret_key
+   OAUTH2_ENCRYPT_SALT=your_16char_hex_salt
+
    # Spring Configuration
    SPRING_PROFILES_ACTIVE=dev
    PORT=8080
@@ -257,7 +284,7 @@ docker compose down
 ### Advanced Dockerfile Features
 - **Multi-Stage Compilation**: Splits Node (Vite/Tailwind) compiling and Maven backend packing into separate stages.
 - **Lean JRE (JLink)**: Cuts away unused Java modules and uses `zip-9` maximum compression to output a tailored JVM runtime (~40MB).
-- **GCP-Tuned JVM Flags**: `-XX:+UseSerialGC`, `-XX:MaxRAMPercentage=75.0`, and `-Djava.security.egd=file:/dev/./urandom` for fast cold-start on Cloud Run.
+- **GCP-Tuned JVM Flags**: `-XX:AOTCache=app.aot` (JDK 25 AOT cache), `-XX:+UseG1GC`, `-XX:MaxRAMPercentage=75.0`, and `-Djava.security.egd=file:/dev/./urandom` for fast cold-start on Cloud Run.
 - **Non-Root Execution**: Runs under user `spring` to limit host vulnerabilities.
 - **Actuator Health Checks**: Docker health status via `wget` on `/actuator/health`.
 
@@ -268,13 +295,17 @@ docker compose down
 ### Backend
 | Group ID / Artifact ID | Version | Description |
 |------------------------|---------|-------------|
-| `org.springframework.boot:spring-boot-starter-web` | `4.0.6` | REST endpoints & Web MVC support |
-| `org.springframework.boot:spring-boot-starter-webflux` | `4.0.6` | Non-blocking HTTP WebClient |
-| `org.springframework.boot:spring-boot-starter-security` | `4.0.6` | Security infrastructure |
-| `org.springframework.boot:spring-boot-starter-oauth2-client`| `4.0.6` | Google OAuth2 and OpenID Connect client |
-| `org.springframework.boot:spring-boot-starter-data-jpa` | `4.0.6` | ORM database connection |
+| `org.springframework.boot:spring-boot-starter-webmvc` | `4.0.7` | REST endpoints & Web MVC support |
+| `org.springframework.boot:spring-boot-starter-webflux` | `4.0.7` | Non-blocking HTTP WebClient |
+| `org.springframework.boot:spring-boot-starter-security` | `4.0.7` | Security infrastructure |
+| `org.springframework.boot:spring-boot-starter-oauth2-client` | `4.0.7` | Google OAuth2 and OpenID Connect client |
+| `org.springframework.boot:spring-boot-starter-data-jpa` | `4.0.7` | ORM database connection |
+| `org.springframework.boot:spring-boot-starter-data-redis` | `4.0.7` | Lettuce Redis client |
+| `org.springframework.boot:spring-boot-starter-session-data-redis` | `4.0.7` | Redis-backed HTTP sessions |
+| `org.springframework.cloud:spring-cloud-starter-gateway-server-webmvc` | `2025.1.0` | API proxy & Redis rate limiter |
+| `org.springframework.ai:spring-ai-starter-model-google-genai` | `1.1.7` | Gemini AI integration |
+| `net.javacrumbs.shedlock:shedlock-spring` | `5.16.0` | Distributed scheduler locking |
 | `org.postgresql:postgresql` | `Runtime` | PostgreSQL JDBC driver |
-| `com.google.api-client:google-api-client` | `2.7.0` | Google Identity Services JWT verifiers |
 | `com.google.apis:google-api-services-youtube` | `v3-rev20260602-2.0.0` | YouTube Data API v3 & Resumable MediaHttpUploader |
 
 ### Frontend
@@ -292,14 +323,14 @@ docker compose down
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+4. Push to branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
 ---
 

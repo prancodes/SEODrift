@@ -9,8 +9,10 @@ import com.seo.project.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import tools.jackson.databind.JsonNode;
 
 import java.time.LocalDateTime;
@@ -44,6 +46,7 @@ public class YouTubeChannelService {
      * Orchestrates the retrieval of user channel intelligence.
      * Uses OAuth2 tokens to fetch live data. Uses DB fallback if the API fails or quota is exceeded.
      */
+    @Cacheable(value = "channelIntelligence", key = "#userEmail", unless = "#result == null")
     public YouTubeChannelDto getChannelIntelligence(OAuth2AuthorizedClient authorizedClient, String userEmail) {
         Optional<User> userOpt = userRepository.findByEmail(userEmail);
         if (userOpt.isEmpty()) {
@@ -53,39 +56,69 @@ public class YouTubeChannelService {
         User user = userOpt.get();
         String accessToken = authorizedClient.getAccessToken().getTokenValue();
 
+        YouTubeChannelDto channelDto = null;
         try {
-            // 1. Fetch channel details
-            YouTubeChannelDto channelDto = fetchChannelData(accessToken);
-            
-            if (channelDto != null) {
-                // 2. Fetch recent uploads
-                List<YouTubeVideoDto> recentUploads = fetchRecentUploads(accessToken, channelDto.uploadsPlaylistId());
-                
-                // 3. Try to fetch Analytics (Geo distribution)
-                Map<String, Double> geoData = fetchGeoDemographics(accessToken, channelDto.country());
-                
-                // Update the DTO with uploads and geo data
-                channelDto = new YouTubeChannelDto(
-                        channelDto.channelId(),
-                        channelDto.title(),
-                        channelDto.customUrl(),
-                        channelDto.avatarUrl(),
-                        channelDto.uploadsPlaylistId(),
-                        channelDto.subscriberCount(),
-                        channelDto.viewCount(),
-                        channelDto.videoCount(),
-                        channelDto.country(),
-                        geoData,
-                        recentUploads
-                );
-
-                // 4. Save/Update cache and snapshots
-                updateUserCacheAndSnapshots(user, channelDto);
-                
-                return channelDto;
-            }
+            // 1. Fetch channel details (Base data)
+            channelDto = fetchChannelData(accessToken);
         } catch (Exception e) {
-            log.warn("Failed to fetch live YouTube data for {}: {}. Falling back to database cache.", userEmail, e.getMessage());
+            log.warn("Failed to fetch live YouTube channel details for {}: {}", userEmail, e.getMessage());
+        }
+
+        if (channelDto != null) {
+            List<YouTubeVideoDto> recentUploads = new ArrayList<>();
+            try {
+                if (channelDto.uploadsPlaylistId() != null && !channelDto.uploadsPlaylistId().isEmpty()) {
+                    recentUploads = fetchRecentUploads(accessToken, channelDto.uploadsPlaylistId());
+                }
+            } catch (Exception e) {
+                log.warn("Failed to fetch recent uploads for {}: {}", userEmail, e.getMessage());
+            }
+
+            Map<String, Double> geoData = new HashMap<>();
+            try {
+                geoData = fetchGeoDemographics(accessToken, channelDto.country());
+            } catch (Exception e) {
+                log.warn("Failed to fetch geo demographics for {}: {}", userEmail, e.getMessage());
+            }
+
+            long watchTime = 0;
+            long impressions = 0;
+            double ctr = 0.0;
+            try {
+                PrivateMetrics privateMetrics = fetchPrivateMetrics(accessToken, channelDto.viewCount());
+                watchTime = privateMetrics.watchTime();
+                impressions = privateMetrics.impressions();
+                ctr = privateMetrics.ctr();
+            } catch (Exception e) {
+                log.warn("Failed to fetch private metrics for {}: {}", userEmail, e.getMessage());
+            }
+
+            // Update the DTO with whatever data we successfully retrieved
+            channelDto = new YouTubeChannelDto(
+                    channelDto.channelId(),
+                    channelDto.title(),
+                    channelDto.customUrl(),
+                    channelDto.avatarUrl(),
+                    channelDto.uploadsPlaylistId(),
+                    channelDto.subscriberCount(),
+                    channelDto.viewCount(),
+                    channelDto.videoCount(),
+                    watchTime,
+                    impressions,
+                    ctr,
+                    channelDto.country(),
+                    geoData,
+                    recentUploads
+            );
+
+            try {
+                // Save/Update cache and snapshots
+                updateUserCacheAndSnapshots(user, channelDto);
+            } catch (Exception e) {
+                log.warn("Failed to update cache/snapshots for user {}: {}", userEmail, e.getMessage());
+            }
+
+            return channelDto;
         }
 
         // Fallback to database cache if API fails
@@ -132,7 +165,7 @@ public class YouTubeChannelService {
             String country = snippet.has("country") ? snippet.get("country").asString() : "";
 
             return new YouTubeChannelDto(channelId, title, customUrl, avatarUrl, uploadsPlaylistId, 
-                    subscriberCount, viewCount, videoCount, country, new HashMap<>(), new ArrayList<>());
+                    subscriberCount, viewCount, videoCount, 0, 0, 0.0, country, new HashMap<>(), new ArrayList<>());
         }
         return null;
     }
@@ -262,6 +295,9 @@ public class YouTubeChannelService {
         user.setYoutubeSubscriberCount(dto.subscriberCount());
         user.setYoutubeViewCount(dto.viewCount());
         user.setYoutubeVideoCount(dto.videoCount());
+        user.setYoutubeWatchTime(dto.watchTime());
+        user.setYoutubeImpressions(dto.impressions());
+        user.setYoutubeCtr(dto.ctr());
         user.setYoutubeLastUpdatedAt(LocalDateTime.now());
         
         userRepository.save(user);
@@ -275,6 +311,9 @@ public class YouTubeChannelService {
                     .subscriberCount(dto.subscriberCount())
                     .viewCount(dto.viewCount())
                     .videoCount(dto.videoCount())
+                    .watchTime(dto.watchTime())
+                    .impressions(dto.impressions())
+                    .ctr(dto.ctr())
                     .build();
             snapshotRepository.save(snapshot);
             log.info("Recorded new channel metrics snapshot for user {}", user.getEmail());
@@ -296,10 +335,49 @@ public class YouTubeChannelService {
                 user.getYoutubeSubscriberCount() != null ? user.getYoutubeSubscriberCount() : 0,
                 user.getYoutubeViewCount() != null ? user.getYoutubeViewCount() : 0,
                 user.getYoutubeVideoCount() != null ? user.getYoutubeVideoCount() : 0,
+                user.getYoutubeWatchTime() != null ? user.getYoutubeWatchTime() : 0,
+                user.getYoutubeImpressions() != null ? user.getYoutubeImpressions() : 0,
+                user.getYoutubeCtr() != null ? user.getYoutubeCtr() : 0.0,
                 "", // No country in user cache entity
                 new HashMap<>(), // Can't cache geo data easily in the user table, return empty
                 new ArrayList<>() // Can't cache recent uploads easily in the user table, return empty
         );
+    }
+
+    private record PrivateMetrics(long watchTime, long impressions, double ctr) {}
+
+    private PrivateMetrics fetchPrivateMetrics(String accessToken, long viewCount) {
+        long watchTime = 0;
+        long impressions = 0;
+        double ctr = 0.0;
+        try {
+            String today = java.time.LocalDate.now().toString();
+            String lastMonth = java.time.LocalDate.now().minusDays(30).toString();
+            
+            String analyticsUrl = "https://youtubeanalytics.googleapis.com/v2/reports?ids=channel==MINE" +
+                    "&startDate=" + lastMonth + "&endDate=" + today +
+                    "&metrics=estimatedMinutesWatched";
+
+            JsonNode root = webClient.get()
+                    .uri(analyticsUrl)
+                    .headers(headers -> headers.setBearerAuth(accessToken))
+                    .retrieve()
+                    .bodyToMono(JsonNode.class)
+                    .block();
+
+            if (root != null && root.has("rows") && !root.get("rows").isEmpty()) {
+                JsonNode row = root.get("rows").get(0);
+                watchTime = row.get(0).asLong();
+            }
+        } catch (WebClientResponseException e) {
+            log.warn("YouTube Analytics API private metrics fetch failed: {} - Response Body: {}", e.getMessage(), e.getResponseBodyAsString());
+        } catch (Exception e) {
+            log.warn("YouTube Analytics API private metrics fetch failed: {}", e.getMessage());
+        }
+
+        // If real watchTime is fetched, return it. Impressions and CTR are left as 0 since they are not supported by the real-time API.
+
+        return new PrivateMetrics(watchTime, impressions, ctr);
     }
 
     private long parseLong(JsonNode node, String field) {

@@ -19,6 +19,7 @@ import static org.springframework.cloud.gateway.server.mvc.filter.BeforeFilterFu
 import static org.springframework.cloud.gateway.server.mvc.filter.BeforeFilterFunctions.uri;
 import static org.springframework.cloud.gateway.server.mvc.handler.GatewayRouterFunctions.route;
 import static org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions.http;
+import static org.springframework.web.servlet.function.RequestPredicates.path;
 
 /**
  * GatewayConfig defines Spring Cloud Gateway WebMVC edge routing rules.
@@ -47,8 +48,12 @@ public class GatewayConfig {
      */
     @Bean
     public RouterFunction<ServerResponse> gatewayRouter() {
+        return buildGatewayRoute();
+    }
+
+    private RouterFunction<ServerResponse> buildGatewayRoute() {
         return route("youtube_proxy")
-                .route(req -> req.path().startsWith("/api/gateway/youtube/"), http())
+                .route(path("/api/gateway/youtube/**"), http())
                 .before(uri("https://www.googleapis.com"))
                 .before(rewritePath("/api/gateway/youtube/(?<segment>.*)", "/youtube/v3/${segment}"))
                 .before(addApiKey(apiKey))
@@ -92,6 +97,11 @@ public class GatewayConfig {
             if (currentCount == 1) {
                 // Initialize sliding window of 60 seconds on first request
                 redisTemplate.expire(rateLimitKey, Duration.ofSeconds(60));
+            } else {
+                Long ttl = redisTemplate.getExpire(rateLimitKey);
+                if (ttl != null && ttl == -1) {
+                    redisTemplate.expire(rateLimitKey, Duration.ofSeconds(60));
+                }
             }
 
             int limit = 10; // Enforce 10 requests per minute limit

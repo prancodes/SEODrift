@@ -60,74 +60,75 @@ public class YouTubePublishService {
                 ? dto.getPrivacyStatus().toLowerCase() : "private");
         video.setStatus(status);
 
-        // 3. Prepare media source
-        InputStream is = new BufferedInputStream(dto.getFile().getInputStream());
-        InputStreamContent mediaContent = new InputStreamContent(
-                dto.getFile().getContentType() != null ? dto.getFile().getContentType() : "video/mp4",
-                is
-        );
-        mediaContent.setLength(dto.getFile().getSize());
+        // 3. Prepare media source and execute upload
+        try (InputStream is = new BufferedInputStream(dto.getFile().getInputStream())) {
+            InputStreamContent mediaContent = new InputStreamContent(
+                    dto.getFile().getContentType() != null ? dto.getFile().getContentType() : "video/mp4",
+                    is
+            );
+            mediaContent.setLength(dto.getFile().getSize());
 
-        log.info("Executing YouTube Video Insert request. File size: {} bytes", dto.getFile().getSize());
+            log.info("Executing YouTube Video Insert request. File size: {} bytes", dto.getFile().getSize());
 
-        YouTube.Videos.Insert insertRequest = youtubeService.videos().insert(
-                List.of("snippet", "status"),
-                video,
-                mediaContent
-        );
+            YouTube.Videos.Insert insertRequest = youtubeService.videos().insert(
+                    List.of("snippet", "status"),
+                    video,
+                    mediaContent
+            );
 
-        // Enable resumable uploads for reliability
-        insertRequest.getMediaHttpUploader().setDirectUploadEnabled(false);
-        // Set chunk size to 5MB (must be multiple of 256KB)
-        insertRequest.getMediaHttpUploader().setChunkSize(5 * 1024 * 1024);
+            // Enable resumable uploads for reliability
+            insertRequest.getMediaHttpUploader().setDirectUploadEnabled(false);
+            // Set chunk size to 5MB (must be multiple of 256KB)
+            insertRequest.getMediaHttpUploader().setChunkSize(5 * 1024 * 1024);
 
-        // Setup real-time server upload progress listener
-        insertRequest.getMediaHttpUploader().setProgressListener(uploader -> {
-            try {
-                switch (uploader.getUploadState()) {
-                    case INITIATION_STARTED:
-                        log.info("YouTube Upload Initiation Started...");
-                        break;
-                    case INITIATION_COMPLETE:
-                        log.info("YouTube Upload Initiation Complete.");
-                        break;
-                    case MEDIA_IN_PROGRESS:
-                        log.info("YouTube Upload in progress: {}% complete", (int) (uploader.getProgress() * 100));
-                        break;
-                    case MEDIA_COMPLETE:
-                        log.info("YouTube Upload Complete!");
-                        break;
-                    case NOT_STARTED:
-                        log.info("YouTube Upload not started.");
-                        break;
+            // Setup real-time server upload progress listener
+            insertRequest.getMediaHttpUploader().setProgressListener(uploader -> {
+                try {
+                    switch (uploader.getUploadState()) {
+                        case INITIATION_STARTED:
+                            log.info("YouTube Upload Initiation Started...");
+                            break;
+                        case INITIATION_COMPLETE:
+                            log.info("YouTube Upload Initiation Complete.");
+                            break;
+                        case MEDIA_IN_PROGRESS:
+                            log.info("YouTube Upload in progress: {}% complete", (int) (uploader.getProgress() * 100));
+                            break;
+                        case MEDIA_COMPLETE:
+                            log.info("YouTube Upload Complete!");
+                            break;
+                        case NOT_STARTED:
+                            log.info("YouTube Upload not started.");
+                            break;
+                    }
+                } catch (Exception ex) {
+                    log.warn("Error getting upload progress: {}", ex.getMessage());
                 }
-            } catch (Exception ex) {
-                log.warn("Error getting upload progress: {}", ex.getMessage());
-            }
-        });
+            });
 
-        log.info("Uploading video to YouTube...");
-        try {
-            Video returnedVideo = insertRequest.execute();
-            if (returnedVideo != null && returnedVideo.getId() != null) {
-                log.info("Video successfully published to YouTube! Video ID: {}", returnedVideo.getId());
-                return returnedVideo.getId();
-            } else {
-                throw new RuntimeException("Upload completed, but YouTube API did not return a Video ID.");
-            }
-        } catch (GoogleJsonResponseException e) {
-            log.error("Google API Exception during upload: status={}, message={}", e.getStatusCode(), e.getMessage(), e);
-            if (e.getDetails() != null && e.getDetails().getErrors() != null) {
-                for (ErrorInfo error : e.getDetails().getErrors()) {
-                    if ("channelNotFound".equalsIgnoreCase(error.getReason())) {
-                        throw new RuntimeException("No associated YouTube channel found for your Google account. Please visit YouTube.com, create a channel, and try again.");
+            log.info("Uploading video to YouTube...");
+            try {
+                Video returnedVideo = insertRequest.execute();
+                if (returnedVideo != null && returnedVideo.getId() != null) {
+                    log.info("Video successfully published to YouTube! Video ID: {}", returnedVideo.getId());
+                    return returnedVideo.getId();
+                } else {
+                    throw new RuntimeException("Upload completed, but YouTube API did not return a Video ID.");
+                }
+            } catch (GoogleJsonResponseException e) {
+                log.error("Google API Exception during upload: status={}, message={}", e.getStatusCode(), e.getMessage(), e);
+                if (e.getDetails() != null && e.getDetails().getErrors() != null) {
+                    for (ErrorInfo error : e.getDetails().getErrors()) {
+                        if ("channelNotFound".equalsIgnoreCase(error.getReason())) {
+                            throw new RuntimeException("No associated YouTube channel found for your Google account. Please visit YouTube.com, create a channel, and try again.");
+                        }
                     }
                 }
+                throw new RuntimeException("YouTube API Error: " + e.getMessage(), e);
+            } catch (Exception e) {
+                log.error("Generic Exception during upload", e);
+                throw e;
             }
-            throw new RuntimeException("YouTube API Error: " + e.getMessage(), e);
-        } catch (Exception e) {
-            log.error("Generic Exception during upload", e);
-            throw e;
         }
     }
 }

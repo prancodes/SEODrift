@@ -1,87 +1,48 @@
-{"properties": [
-  {
-    "name": "youtube.api.key",
-    "type": "java.lang.String",
-    "description": "API Key for accessing YouTube Data API."
-  },
-  {
-    "name": "base.url",
-    "type": "java.lang.String",
-    "description": "Google API base URL for YouTube services."
-  },
-  {
-    "name": "spring.datasource.url",
-    "type": "java.lang.String",
-    "description": "A description for 'spring.datasource.url'"
-  },
-  {
-    "name": "spring.jpa.hibernate.ddl-auto",
-    "type": "java.lang.String",
-    "description": "A description for 'spring.jpa.hibernate.ddl-auto'"
-  },
-  {
-    "name": "spring.jpa.properties.hibernate.dialect",
-    "type": "java.lang.String",
-    "description": "A description for 'spring.jpa.properties.hibernate.dialect'"
-  },
-  {
-    "name": "spring.jpa.show-sql",
-    "type": "java.lang.String",
-    "description": "A description for 'spring.jpa.show-sql'"
-  },
-  {
-    "name": "app.base-url",
-    "type": "java.lang.String",
-    "description": "A description for 'app.base-url'"
-  },
-  {
-    "name": "spring.cache.type",
-    "type": "java.lang.String",
-    "description": "A description for 'spring.cache.type'"
-  },
-  {
-    "name": "app.redis.ssl.disable-peer-verification",
-    "type": "java.lang.String",
-    "description": "A description for 'app.redis.ssl.disable-peer-verification'"
-  },
-  {
-    "name": "DB_USER",
-    "type": "java.lang.String",
-    "description": "A description for 'DB_USER'"
-  },
-  {
-    "name": "DB_PASSWORD",
-    "type": "java.lang.String",
-    "description": "A description for 'DB_PASSWORD'"
-  },
-  {
-    "name": "GOOGLE_CLIENT_ID",
-    "type": "java.lang.String",
-    "description": "A description for 'GOOGLE_CLIENT_ID'"
-  },
-  {
-    "name": "YT_API_KEY",
-    "type": "java.lang.String",
-    "description": "A description for 'YT_API_KEY'"
-  },
-  {
-    "name": "GEMINI_API_KEY",
-    "type": "java.lang.String",
-    "description": "A description for 'GEMINI_API_KEY'"
-  },
-  {
-    "name": "GEMINI_MODEL",
-    "type": "java.lang.String",
-    "description": "A description for 'GEMINI_MODEL'"
-  },
-  {
-    "name": "spring.flyway.enabled",
-    "type": "java.lang.String",
-    "description": "A description for 'spring.flyway.enabled'"
-  },
-  {
-    "name": "server.tomcat.max-post-size",
-    "type": "java.lang.String",
-    "description": "A description for 'server.tomcat.max-post-size'"
-  }
-]}
+{
+  "properties": [
+    {
+      "name": "youtube.api.key",
+      "type": "java.lang.String",
+      "description": "API Key for accessing YouTube Data API v3. Maps to YT_API_KEY environment variable.",
+      "sourceType": "com.seo.project.service.CompetitorScraperService"
+    },
+    {
+      "name": "base.url",
+      "type": "java.lang.String",
+      "description": "Base URL for Google YouTube API calls. Default: https://www.googleapis.com/youtube/v3. Maps to BASE_URL environment variable.",
+      "defaultValue": "https://www.googleapis.com/youtube/v3",
+      "sourceType": "com.seo.project.service.YouTubeChannelService"
+    },
+    {
+      "name": "app.base-url",
+      "type": "java.lang.String",
+      "description": "Public-facing base URL of the SEODrift application. Used for OAuth2 redirect URIs and template links. Maps to APP_URL environment variable.",
+      "defaultValue": "http://localhost:8080",
+      "sourceType": "com.seo.project.config.GlobalControllerAdvice"
+    },
+    {
+      "name": "app.security.oauth2.encrypt-key",
+      "type": "java.lang.String",
+      "description": "AES-GCM encryption key used to encrypt OAuth2 access/refresh tokens before persisting to the oauth2_authorized_client table. Maps to OAUTH2_ENCRYPT_KEY environment variable.",
+      "sourceType": "com.seo.project.config.SecurityConfig"
+    },
+    {
+      "name": "app.security.oauth2.encrypt-salt",
+      "type": "java.lang.String",
+      "description": "Hex-encoded salt used together with app.security.oauth2.encrypt-key for AES-GCM token encryption. Must be a 16-character hex string. Maps to OAUTH2_ENCRYPT_SALT environment variable.",
+      "sourceType": "com.seo.project.config.SecurityConfig"
+    },
+    {
+      "name": "spring.cache.type",
+      "type": "java.lang.String",
+      "description": "Cache provider type. Set to 'redis' in production for distributed Redis caching, or 'none' to disable caching (used during AOT cache training).",
+      "defaultValue": "redis"
+    },
+    {
+      "name": "server.tomcat.max-post-size",
+      "type": "java.lang.Number",
+      "description": "Maximum size of the HTTP POST request body that Tomcat will accept, in bytes. Set to -1 to disable the limit. Used to allow large video file uploads for YouTube publishing.",
+      "defaultValue": "-1"
+    }
+  ]
+}

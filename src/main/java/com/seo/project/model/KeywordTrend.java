@@ -31,4 +31,16 @@ public class KeywordTrend {
 
     @Column(nullable = false)
     private LocalDate recordedDate;
+
+    @Column(name = "ai_difficulty", length = 50)
+    private String aiDifficulty;
+
+    @Column(name = "ai_competition_advice", columnDefinition = "TEXT")
+    private String aiCompetitionAdvice;
+
+    @Column(name = "ai_growth_potential", length = 150)
+    private String aiGrowthPotential;
+
+    @Column(name = "ai_seo_advice", columnDefinition = "TEXT")
+    private String aiSeoAdvice;
 }
