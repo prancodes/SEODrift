@@ -38,6 +38,16 @@ services:
       - OAUTH2_ENCRYPT_KEY=${OAUTH2_ENCRYPT_KEY}
       - OAUTH2_ENCRYPT_SALT=${OAUTH2_ENCRYPT_SALT}
 
+      # SaaS Monetization & Email Engine
+      - DODO_PAYMENTS_API_KEY=${DODO_PAYMENTS_API_KEY}
+      - DODO_PRO_PRODUCT_ID=${DODO_PRO_PRODUCT_ID}
+      - DODO_ENVIRONMENT=${DODO_ENVIRONMENT:-live}
+      - DODO_WEBHOOK_SECRET=${DODO_WEBHOOK_SECRET}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+
     networks:
       - seodrift-network
     # Healthcheck (optional but recommended)

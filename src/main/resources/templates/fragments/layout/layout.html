@@ -72,7 +72,7 @@
     
 </head>
 
-<body th:data-authenticated="${#authorization.expression('isAuthenticated()')}"
+<body th:data-authenticated="${#authentication != null and #authentication.name != 'anonymousUser'}"
       class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 flex flex-col min-h-screen transition-colors duration-300 selection:bg-brand-500 selection:text-white">
 
     <div th:replace="~{fragments/layout/navbar :: navbar}"></div>
@@ -88,5 +88,6 @@
     <!-- Auth Modal - Integrated non-intrusively -->
     <div th:replace="~{fragments/components/login-modal :: login-modal}"></div>
     
+    <th:block layout:fragment="scripts"></th:block>
 </body>
 </html>

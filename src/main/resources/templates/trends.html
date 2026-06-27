@@ -1,9 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{fragments/layout/layout}">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{fragments/layout/layout}">
 <head>
     <title>Trends & Competitor Intel</title>
-    <link rel="stylesheet" th:href="@{/dist/dashboard-styles.css}">
-    <link rel="stylesheet" th:href="@{/dist/dashboard.css}">
     <script th:src="@{/dist/trends.js}" type="module" defer></script>
 </head>
 <body>
@@ -37,8 +35,8 @@
                 </div>
                 
                 <div class="flex items-center gap-3 relative z-20 shrink-0">
-                    <a href="/dashboard" class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-gray-950 dark:bg-white text-white dark:text-gray-950 hover:bg-brand-600 dark:hover:bg-brand-600 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-md">
-                        <i class="ph-bold ph-layout"></i> Creator Dashboard
+                    <a href="/keywords" class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 hover:bg-orange-200 dark:hover:bg-orange-900/50 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-sm">
+                        <i class="ph-bold ph-target"></i> Keyword Console
                     </a>
                 </div>
             </div>
@@ -165,6 +163,58 @@
                         
                         <div th:if="${#lists.isEmpty(momentum)}" class="text-center py-6 text-xs text-gray-400 font-bold">
                             No video titles found to analyze.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Viral Outliers -->
+                <div class="dashboard-widget p-6 md:p-8 flex flex-col space-y-4 glow-orange">
+                    <div>
+                        <h3 class="text-base sm:text-lg font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-1.5 sm:gap-2">
+                            <i class="ph-bold ph-fire text-orange-500 text-lg sm:text-xl animate-pulse"></i> Viral Outliers
+                        </h3>
+                        <p class="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold mt-0.5 sm:mt-1">Competitor videos going viral right now</p>
+                    </div>
+                    
+                    <div class="space-y-3.5 pt-2">
+                        <div sec:authorize="hasAuthority('ROLE_PRO')">
+                            <div th:if="${#lists.isEmpty(viralOutliers)}" class="text-xs text-gray-400">No recent outliers detected.</div>
+                            <div th:each="outlier : ${viralOutliers}" class="flex items-center justify-between p-3.5 border border-gray-100 dark:border-gray-800 bg-white/40 dark:bg-slate-900/10 hover:bg-orange-50/20 dark:hover:bg-slate-800/20 rounded-2xl transition-all">
+                                <div class="min-w-0 flex-1">
+                                    <div class="text-[11px] font-black text-gray-900 dark:text-white truncate">
+                                        <span th:text="${outlier.title}">Outlier Video Title</span>
+                                    </div>
+                                    <div class="text-[9px] text-gray-400 dark:text-gray-500 font-bold mt-0.5 truncate" th:text="${outlier.competitorTitle}">Channel Name</div>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0 ml-3">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-black tracking-wide bg-orange-50 dark:bg-orange-950/30 text-orange-600 dark:text-orange-400"
+                                          th:text="${outlier.multiplier} + 'x'">
+                                        3.5x
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div sec:authorize="!hasAuthority('ROLE_PRO')" class="p-8 rounded-3xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900/80 dark:to-slate-900/40 border border-gray-200/60 dark:border-gray-800/60 text-center space-y-4 shadow-inner relative overflow-hidden group">
+                            <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9IiNjdXJyZW50Q29sb3IiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] [mask-image:linear-gradient(0deg,transparent,black)] pointer-events-none"></div>
+                            
+                            <div class="relative z-10 flex flex-col items-center justify-center space-y-4">
+                                <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-orange-100 to-amber-50 dark:from-orange-900/30 dark:to-amber-900/10 flex items-center justify-center border border-orange-200/50 dark:border-orange-800/50 shadow-sm group-hover:scale-110 transition-transform duration-500">
+                                    <i class="ph-fill ph-lock-key text-3xl text-orange-500"></i>
+                                </div>
+                                <div class="space-y-2 max-w-sm mx-auto">
+                                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-100 dark:bg-orange-900/40 text-[10px] font-black uppercase tracking-widest text-orange-600 dark:text-orange-400 border border-orange-200/50 dark:border-orange-800/40">
+                                        <i class="ph-bold ph-lightning"></i> PRO Feature
+                                    </div>
+                                    <h4 class="text-base font-black text-gray-900 dark:text-white">Discover Viral Formats</h4>
+                                    <p class="text-xs font-bold text-gray-500 dark:text-gray-400 leading-relaxed">
+                                        Upgrade to PRO to automatically detect which competitor videos are getting <strong class="text-gray-700 dark:text-gray-300">3x more views</strong> compared to their normal videos. Don't miss out on trending topics!
+                                    </p>
+                                </div>
+                                <a href="/pro" class="mt-2 inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:from-orange-600 hover:to-amber-600 transition-all shadow-lg shadow-orange-500/20 active:scale-95">
+                                    <i class="ph-bold ph-sparkle"></i> Unlock Intelligence
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>

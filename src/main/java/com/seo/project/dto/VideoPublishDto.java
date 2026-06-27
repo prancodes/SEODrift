@@ -11,4 +11,5 @@ public class VideoPublishDto {
     private String privacyStatus;
     private String categoryId;
     private MultipartFile file;
+    private String scheduledPublishTime;
 }

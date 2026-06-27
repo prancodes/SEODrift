@@ -1,5 +1,9 @@
 import * as Turbo from "@hotwired/turbo"
 import "../css/base/input.css";
+import "../css/components/dashboard-styles.css";
+import "../css/components/workspace.css";
+import "../css/components/dashboard-console.css";
+import "../css/components/guest-dashboard.css";
 
 // Configure Turbo
 Turbo.start()

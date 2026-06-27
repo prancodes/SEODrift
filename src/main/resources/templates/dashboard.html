@@ -2,8 +2,6 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{fragments/layout/layout}">
 <head>
     <title>Creator Console</title>
-    <link rel="stylesheet" th:href="@{/dist/dashboard-styles.css}">
-    <link rel="stylesheet" th:href="@{/dist/dashboard.css}">
     <script th:src="@{/dist/dashboard.js}" type="module" defer></script>
 </head>
 <body>
@@ -309,8 +307,8 @@
                              class="flex items-center justify-between p-3 border border-gray-100 dark:border-gray-700/50 bg-white/45 dark:bg-slate-900/20 backdrop-blur-md rounded-2xl transition-all hover:bg-white/70 dark:hover:bg-slate-900/40">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-xl overflow-hidden shrink-0 border border-gray-150 dark:border-gray-800">
-                                    <img th:src="${comp.thumbnailUrl != null ? comp.thumbnailUrl : 'https://ui-avatars.com/api/?name=' + comp.title + '&background=f3f4f6&color=4b5563'}" 
-                                         width="40" height="40"
+                                    <img th:src="${comp.thumbnailUrl != null && !comp.thumbnailUrl.isEmpty() ? comp.thumbnailUrl : 'https://ui-avatars.com/api/?name=' + comp.title + '&background=f3f4f6&color=4b5563'}" 
+                                         alt="Competitor Icon"
                                          class="w-full h-full object-cover">
                                 </div>
                                 <div class="min-w-0">

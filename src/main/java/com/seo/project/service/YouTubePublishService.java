@@ -47,7 +47,7 @@ public class YouTubePublishService {
 
         if (dto.getTags() != null && !dto.getTags().trim().isEmpty()) {
             List<String> tagsList = Arrays.stream(dto.getTags().split(","))
-                    .map(String::trim)
+                    .map(s -> s.trim())
                     .filter(s -> !s.isEmpty())
                     .collect(Collectors.toList());
             snippet.setTags(tagsList);
@@ -56,8 +56,14 @@ public class YouTubePublishService {
 
         // 2. Set Video Status (Privacy)
         VideoStatus status = new VideoStatus();
-        status.setPrivacyStatus(dto.getPrivacyStatus() != null && !dto.getPrivacyStatus().isEmpty() 
-                ? dto.getPrivacyStatus().toLowerCase() : "private");
+        
+        if (dto.getScheduledPublishTime() != null && !dto.getScheduledPublishTime().trim().isEmpty()) {
+            status.setPrivacyStatus("private");
+            status.setPublishAt(new com.google.api.client.util.DateTime(dto.getScheduledPublishTime()));
+        } else {
+            status.setPrivacyStatus(dto.getPrivacyStatus() != null && !dto.getPrivacyStatus().isEmpty() 
+                    ? dto.getPrivacyStatus().toLowerCase() : "private");
+        }
         video.setStatus(status);
 
         // 3. Prepare media source and execute upload

@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{fragments/layout/layout}">
 <head>
     <title>AI Content Workspace</title>
-    <link rel="stylesheet" th:href="@{/dist/workspace.css}">
+    <!-- workspace.css is in global main.css -->
     <script th:src="@{/dist/workspace.js}" type="module" defer></script>
 </head>
 <body>
@@ -92,11 +92,20 @@
                     </div>
                     
                     <!-- Generate Button -->
-                    <button id="btnGenerate" class="w-full py-3.5 bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-500 hover:to-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-purple-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                    <button id="btnGenerate" th:disabled="${!isPro && trialsLeft <= 0}" class="w-full py-3.5 bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-500 hover:to-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-purple-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100">
                         <i class="ph-bold ph-lightning text-base"></i>
                         <span>Generate Ideas</span>
                         <div id="spinnerGenerate" class="hidden animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
                     </button>
+                    
+                    <div th:unless="${isPro}" class="text-center pt-2">
+                        <p class="text-[10px] font-black uppercase tracking-widest" th:classappend="${trialsLeft > 0 ? 'text-gray-500 dark:text-gray-400' : 'text-red-500'}">
+                            Free Trials Left: <span th:text="${trialsLeft}">3</span>/3
+                        </p>
+                        <p th:if="${trialsLeft <= 0}" class="text-[10px] font-black text-orange-500 uppercase tracking-widest mt-1">
+                            <a href="/pro" class="hover:text-orange-400 transition-colors">Upgrade to PRO for Unlimited <i class="ph-bold ph-arrow-right"></i></a>
+                        </p>
+                    </div>
                 </div>
             </div>
             

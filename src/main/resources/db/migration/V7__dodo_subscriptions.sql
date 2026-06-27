@@ -1,0 +1,4 @@
+ALTER TABLE users
+ADD COLUMN dodo_customer_id VARCHAR(255),
+ADD COLUMN dodo_subscription_id VARCHAR(255),
+ADD COLUMN role VARCHAR(50) DEFAULT 'ROLE_USER';

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Time to Post</title>
+</head>
+<body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f5; margin: 0;">
+    <div style="max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <h2 style="color: #4f46e5; font-size: 24px; margin-bottom: 20px; font-weight: 900; text-align: center;">⏰ Time to Post!</h2>
+        
+        <p style="color: #374151; font-size: 16px; line-height: 1.5;">Hi <b th:text="${userName}">Creator</b>,</p>
+        <p style="color: #4b5563; font-size: 16px; line-height: 1.5;">It looks like you haven't published a video in a while. Consistency is key for YouTube growth and maintaining algorithm traction.</p>
+        
+        <div style="background: #eef2ff; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #4f46e5; text-align: center;">
+            <p style="margin: 0; color: #3730a3; font-size: 16px; font-weight: bold; margin-bottom: 15px;">Why not jump into the AI Workspace and find your next Content Goldmine today?</p>
+            <a th:href="${baseUrl + '/workspace'}" style="display: inline-block; padding: 12px 24px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px;">Explore AI Workspace</a>
+        </div>
+        
+        <div style="margin-top: 30px; border-top: 1px solid #e5e7eb; padding-top: 20px;">
+            <p style="color: #9ca3af; font-size: 14px;">Best regards,<br/><b style="color: #4f46e5;">SEODrift Intelligence Engine</b></p>
+        </div>
+    </div>
+</body>
+</html>

@@ -274,22 +274,22 @@ function initTrendsAddCompetitorForm() {
             });
 
             if (response.ok) {
-                // Reload
-                window.location.reload();
-            } else {
                 const data = await response.json();
-                if (window.showToast) {
-                    window.showToast("Failed to Add", data.error || "Failed to add competitor", "error");
+                if (data.error) {
+                    if (window.showToast) {
+                        window.showToast("Failed to Add", data.error, "error");
+                    }
                 } else {
-                    alert(data.error || "Failed to add competitor");
+                    window.location.reload();
+                }
+            } else {
+                if (window.showToast) {
+                    window.showToast("Failed to Add", "An unexpected error occurred.", "error");
                 }
             }
         } catch (error) {
-            console.error(error);
             if (window.showToast) {
                 window.showToast("Network Error", "Network error occurred.", "error");
-            } else {
-                alert("Network error occurred.");
             }
         } finally {
             input.disabled = false;

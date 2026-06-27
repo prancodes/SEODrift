@@ -104,6 +104,17 @@ public class TrendsController {
         List<Map<String, Object>> momentum = competitorAnalyticsService.calculateTopicMomentum(user.getCompetitorChannels());
         model.addAttribute("momentum", momentum);
 
+        boolean isPro = "ROLE_PRO".equals(user.getRole());
+        model.addAttribute("isPro", isPro);
+
+        // 7. Viral Outliers Engine (Task 1.1)
+        if (isPro) {
+            List<Map<String, Object>> outliers = competitorAnalyticsService.findViralOutliers(user.getCompetitorChannels());
+            model.addAttribute("viralOutliers", outliers);
+        } else {
+            model.addAttribute("viralOutliers", Collections.emptyList());
+        }
+
         return "trends";
     }
 }

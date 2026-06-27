@@ -70,9 +70,39 @@ public class User {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @Column(name = "dodo_customer_id")
+    private String dodoCustomerId;
+
+    @Column(name = "dodo_subscription_id")
+    private String dodoSubscriptionId;
+
+    @Builder.Default
+    @Column(name = "role")
+    private String role = "ROLE_USER";
+
+    @Builder.Default
+    @Column(name = "email_notifications_enabled")
+    private Boolean emailNotificationsEnabled = true;
+
+    @Builder.Default
+    @Column(name = "ai_generations_used")
+    private Integer aiGenerationsUsed = 0;
+
     @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<VideoAnalysis> analyses = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SavedKeyword> savedKeywords = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserChannelSnapshot> channelSnapshots = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notification> notifications = new ArrayList<>();
 
     @Builder.Default
     @ManyToMany

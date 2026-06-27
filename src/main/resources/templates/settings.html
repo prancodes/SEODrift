@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{fragments/layout/layout}">
+<head>
+    <title>Profile Settings</title>
+    <script th:src="@{/dist/settings.js}" type="module" defer></script>
+</head>
+<body>
+<div layout:fragment="content" class="max-w-4xl mx-auto animate-fade-in space-y-8">
+    
+    <!-- Alert Notification Banners -->
+    <div th:if="${message}" class="p-4 mb-6 border border-emerald-500/20 bg-emerald-50/60 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-400 rounded-2xl flex items-center gap-3 shadow-sm animate-fade-in">
+        <div class="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+            <i class="ph-bold ph-check-circle text-lg"></i>
+        </div>
+        <p class="text-xs font-black" th:text="${message}">Success message text</p>
+    </div>
+    
+    <div th:if="${error}" class="p-4 mb-6 border border-red-500/20 bg-red-50/60 dark:bg-red-950/20 text-red-800 dark:text-red-400 rounded-2xl flex items-center gap-3 shadow-sm animate-fade-in">
+        <div class="w-8 h-8 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400 shrink-0">
+            <i class="ph-bold ph-warning-circle text-lg"></i>
+        </div>
+        <p class="text-xs font-black" th:text="${error}">Error message text</p>
+    </div>
+    
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-12 h-12 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-2xl flex items-center justify-center shrink-0 border border-gray-200 dark:border-gray-700 shadow-sm">
+            <i class="ph-bold ph-gear text-2xl"></i>
+        </div>
+        <div>
+            <h1 class="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight">Profile Settings</h1>
+            <p class="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1">Manage your account preferences and subscription</p>
+        </div>
+    </div>
+
+    <div class="space-y-6">
+        
+        <!-- Profile Information Card -->
+        <div class="dashboard-glass-card p-6 md:p-8">
+            <h3 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest mb-6 flex items-center gap-2">
+                <i class="ph-bold ph-user-circle text-brand-500 text-lg"></i> Account Details
+            </h3>
+            
+            <div class="flex items-center gap-6">
+                <div class="relative w-20 h-20 rounded-2xl overflow-hidden p-0.5 bg-gradient-to-tr from-brand-500 via-purple-500 to-indigo-500 shadow-md shrink-0">
+                    <img th:src="${user != null && user.pictureUrl != null && user.pictureUrl != '' ? user.pictureUrl : 'https://ui-avatars.com/api/?name=' + (user != null ? user.name : 'Creator') + '&background=6366f1&color=fff'}" 
+                         alt="Creator Profile picture"
+                         class="w-full h-full object-cover rounded-[14px]">
+                </div>
+                <div class="space-y-1">
+                    <div class="text-sm text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">Connected Google Account</div>
+                    <div class="text-xl font-black text-gray-900 dark:text-white" th:text="${user.name}">Creator Name</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400 font-bold" th:text="${user.email}">creator@gmail.com</div>
+                    
+                    <div th:if="${user.youtubeChannelId == null}" class="pt-3">
+                        <a th:href="@{/oauth2/authorization/google(prompt='consent')}" data-turbo="false" class="inline-flex items-center gap-2 px-5 py-2.5 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/40 rounded-xl text-xs font-black uppercase tracking-widest transition-all active:scale-95 border border-rose-200 dark:border-rose-800">
+                            <i class="ph-bold ph-youtube-logo text-base"></i> Link YouTube Channel
+                        </a>
+                        <p class="text-xs font-bold text-gray-500 mt-2 max-w-sm">If you forgot to check the YouTube permissions box during login, click above to re-authenticate.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subscription & Billing Card -->
+        <div class="dashboard-glass-card p-6 md:p-8">
+            <h3 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest mb-6 flex items-center gap-2">
+                <i class="ph-bold ph-credit-card text-emerald-500 text-lg"></i> Subscription Status
+            </h3>
+            
+            <div th:if="${isPro}" class="p-5 border border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-900/10 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-6">
+                <div>
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-[10px] font-black uppercase tracking-widest text-emerald-700 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/40 mb-2">
+                        <i class="ph-fill ph-seal-check"></i> Active Plan
+                    </div>
+                    <h4 class="text-lg font-black text-gray-900 dark:text-white">SEODrift PRO</h4>
+                    <p class="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1">You have full access to Velocity Outliers, AI Style Injection, and Content Goldmines.</p>
+                </div>
+                <form th:action="@{/settings/cancel-subscription}" method="post" 
+                      onsubmit="return confirm('Are you sure you want to cancel your PRO subscription? You will lose PRO access immediately.')"
+                      class="shrink-0">
+                    <button type="submit" class="px-6 py-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-600 hover:text-white dark:hover:bg-red-600 rounded-xl text-xs font-black uppercase tracking-widest transition-all active:scale-95 border border-red-200 dark:border-red-800 cursor-pointer shadow-sm">
+                        Cancel Subscription
+                    </button>
+                </form>
+            </div>
+            
+            <div th:unless="${isPro}" class="p-5 border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/20 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-6">
+                <div>
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 mb-2">
+                        Free Tier
+                    </div>
+                    <h4 class="text-lg font-black text-gray-900 dark:text-white">Basic Access</h4>
+                    <p class="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1">Upgrade to PRO to unlock advanced competitor intelligence and AI generation limits.</p>
+                </div>
+                <a href="/pro" class="px-6 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-lg shadow-orange-500/20 whitespace-nowrap">
+                    <i class="ph-bold ph-lightning"></i> Upgrade to PRO
+                </a>
+            </div>
+        </div>
+        
+        <!-- App Preferences -->
+        <div class="dashboard-glass-card p-6 md:p-8">
+            <h3 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest mb-6 flex items-center gap-2">
+                <i class="ph-bold ph-sliders text-blue-500 text-lg"></i> App Configurations
+            </h3>
+            
+            <div class="space-y-4">
+                <div class="flex items-center justify-between p-5 border border-gray-100 dark:border-gray-800 rounded-2xl bg-white/40 dark:bg-gray-900/40">
+                    <div>
+                        <h4 class="text-base font-black text-gray-900 dark:text-white">Email Notifications</h4>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 font-bold mt-1">Receive alerts for viral outliers and consistency nudges.</p>
+                    </div>
+                    <button id="email-toggle-btn" class="w-11 h-6 rounded-full relative cursor-pointer transition-colors duration-300 shrink-0"
+                            th:classappend="${user.emailNotificationsEnabled != false} ? 'bg-brand-500' : 'bg-gray-300 dark:bg-gray-700'">
+                        <div class="absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-300"
+                             th:classappend="${user.emailNotificationsEnabled != false} ? 'translate-x-6' : 'translate-x-1'"></div>
+                    </button>
+                </div>
+                
+                <div class="flex items-center justify-between p-5 border border-gray-100 dark:border-gray-800 rounded-2xl bg-white/40 dark:bg-gray-900/40">
+                    <div>
+                        <h4 class="text-base font-black text-gray-900 dark:text-white">Dark Mode Preference</h4>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 font-bold mt-1">Toggle app appearance (uses system default currently).</p>
+                    </div>
+                    <div class="px-3 py-1 bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400 rounded-lg text-[10px] font-black uppercase tracking-widest">
+                        Use Navbar
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="dashboard-glass-card p-6 md:p-8 border-red-500/20 dark:border-red-500/20 bg-red-50/30 dark:bg-red-900/5">
+            <h3 class="text-sm font-black text-red-600 dark:text-red-500 uppercase tracking-widest mb-6 flex items-center gap-2">
+                <i class="ph-bold ph-warning-octagon text-lg"></i> Danger Zone
+            </h3>
+            
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 border border-red-200 dark:border-red-900/50 rounded-2xl bg-white/60 dark:bg-gray-900/40">
+                <div>
+                    <h4 class="text-base font-black text-gray-900 dark:text-white">Delete Account</h4>
+                    <p class="text-sm font-bold text-gray-500 dark:text-gray-400 mt-2 max-w-lg">
+                        Permanently delete your account, saved competitors, historical snapshots, and AI workspace drafts. This action cannot be undone.
+                    </p>
+                </div>
+                
+                <button type="button" onclick="document.getElementById('deleteAccountModal').classList.remove('hidden')" class="shrink-0 px-6 py-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-600 hover:text-white dark:hover:bg-red-600 rounded-xl text-xs font-black uppercase tracking-widest transition-all active:scale-95 border border-red-200 dark:border-red-800 cursor-pointer shadow-sm">
+                    Delete Account
+                </button>
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- Delete Account Confirmation Modal -->
+    <div id="deleteAccountModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/60 dark:bg-gray-900/80 backdrop-blur-sm animate-fade-in">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-6 md:p-8 max-w-md w-full mx-4 border border-red-100 dark:border-red-900/30 relative">
+            
+            <button type="button" onclick="document.getElementById('deleteAccountModal').classList.add('hidden')" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer">
+                <i class="ph-bold ph-x"></i>
+            </button>
+            
+            <div class="w-16 h-16 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-500 mb-6 mx-auto">
+                <i class="ph-fill ph-warning-circle text-3xl"></i>
+            </div>
+            
+            <h3 class="text-xl font-black text-gray-900 dark:text-white text-center mb-2 tracking-tight">Delete Account Permanently?</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 text-center font-bold mb-6">
+                This action is irreversible. All your SEO data, competitors, and AI drafts will be permanently removed. To confirm, please type your email address below.
+            </p>
+            
+            <form th:action="@{/settings/delete-account}" method="post" id="deleteAccountForm">
+                <div class="mb-6">
+                    <label class="block text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">Confirm Email</label>
+                    <input type="email" id="confirmEmailInput" required autocomplete="off"
+                           th:placeholder="${user.email}"
+                           class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all text-sm font-bold text-gray-900 dark:text-white">
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <button type="button" onclick="document.getElementById('deleteAccountModal').classList.add('hidden')" class="flex-1 px-4 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-xl text-xs font-black uppercase tracking-widest transition-all cursor-pointer">
+                        Cancel
+                    </button>
+                    <button type="submit" id="confirmDeleteBtn" disabled class="flex-1 px-4 py-3 bg-red-500 hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all active:scale-95 shadow-md shadow-red-500/20 cursor-pointer">
+                        Delete
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="scripts">
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        window.userEmailForDelete = /*[[${user.email}]]*/ 'email@example.com';
+        /*]]>*/
+    </script>
+</th:block>
+</body>
+</html>

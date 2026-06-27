@@ -16,8 +16,11 @@ import reactor.core.publisher.Mono;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.JsonNodeFactory;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * AnalyticsService provides the core logic for harvesting video intelligence data
@@ -32,6 +35,7 @@ public class AnalyticsService {
     private final ThumbnailService thumbnailService;
     private final VideoAnalysisRepository videoAnalysisRepository;
     private final UserRepository userRepository;
+    private final AiWorkspaceService aiWorkspaceService;
 
     private final AnalyticsService self;
 
@@ -48,11 +52,13 @@ public class AnalyticsService {
                             ThumbnailService thumbnailService,
                             VideoAnalysisRepository videoAnalysisRepository,
                             UserRepository userRepository,
+                            AiWorkspaceService aiWorkspaceService,
                             @Lazy AnalyticsService self) {
         this.webClient = builder.build();
         this.thumbnailService = thumbnailService;
         this.videoAnalysisRepository = videoAnalysisRepository;
         this.userRepository = userRepository;
+        this.aiWorkspaceService = aiWorkspaceService;
         this.self = self;
     }
 
@@ -73,6 +79,19 @@ public class AnalyticsService {
         }
 
         log.debug("Starting analysis pipeline for video ID: [{}]", videoId);
+
+        // Rate Limiting Logic for Free Users
+        if (userEmail != null) {
+            userRepository.findByEmail(userEmail).ifPresent(user -> {
+                if (!"ROLE_PRO".equals(user.getRole())) {
+                    LocalDateTime startOfDay = LocalDateTime.now().with(LocalTime.MIN);
+                    long count = videoAnalysisRepository.countByUserAndAnalyzedAtAfterAndVideoUrlNotLike(user, startOfDay, "ai-draft:%");
+                    if (count >= 3) {
+                        throw new RuntimeException("FREE_LIMIT_EXCEEDED");
+                    }
+                }
+            });
+        }
 
         // Invoke through proxy self-reference to trigger Spring AOP caching interception
         VideoAnalytics analytics = self.getCachedVideoAnalytics(videoId, url);
@@ -130,16 +149,20 @@ public class AnalyticsService {
                     sentiment = (likes + dislikes) > 0 ? ((double) likes / (likes + dislikes)) * 100 : 0.0;
                 }
 
-                // Perform SEO Audit
-                List<AuditResult> audits = performAudit(title, desc, tags);
-                int seoScore = (int) audits.stream().filter(AuditResult::passed).count() * (100 / Math.max(audits.size(), 1));
+                // Perform Dynamic AI SEO Audit using Gemini
+                com.seo.project.dto.VideoAiAuditDto aiAudit = aiWorkspaceService.generateVideoAudit(title, desc, tags);
+                
+                // Map from Ai Audit Item to VideoAnalytics.AuditResult
+                List<AuditResult> audits = aiAudit.audits().stream()
+                        .map(auditItem -> new AuditResult(auditItem.passed(), auditItem.message()))
+                        .collect(Collectors.toList());
 
                 return new VideoAnalytics(
                     videoId, title, snippet.get("channelTitle").asString(),
                     snippet.get("thumbnails").get("high").get("url").asString(),
                     snippet.get("publishedAt").asString().substring(0, 10),
                     views, likes, dislikes, comments,
-                    engagementRate, sentiment, likesHidden, seoScore, audits
+                    engagementRate, sentiment, likesHidden, aiAudit.seoScore(), audits
                 );
             }).block();
     }
@@ -150,7 +173,7 @@ public class AnalyticsService {
     private void persistAnalysisToUserHistory(String userEmail, VideoAnalytics analytics, String url) {
         log.debug("Persisting analysis history for user: {}", userEmail);
         userRepository.findByEmail(userEmail).ifPresentOrElse(user -> {
-            VideoAnalysis entity = videoAnalysisRepository.findByUserAndVideoId(user, analytics.videoId())
+            VideoAnalysis entity = videoAnalysisRepository.findByUserAndVideoIdAndIsDeletedFalse(user, analytics.videoId())
                     .map(existing -> {
                         existing.setTitle(analytics.title());
                         existing.setChannelTitle(analytics.channelName());
@@ -159,7 +182,7 @@ public class AnalyticsService {
                         existing.setSeoScore(analytics.seoScore());
                         existing.setEngagementRate(analytics.engagementRate());
                         existing.setSentimentScore(analytics.sentimentScore());
-                        existing.setAnalyzedAt(java.time.LocalDateTime.now());
+                        existing.setAnalyzedAt(LocalDateTime.now());
                         return existing;
                     })
                     .orElseGet(() -> VideoAnalysis.builder()
@@ -198,35 +221,7 @@ public class AnalyticsService {
                 .onErrorReturn(JsonNodeFactory.instance.objectNode());
     }
 
-    /**
-     * Core SEO heuristic audit logic.
-     */
-    private List<AuditResult> performAudit(String title, String desc, List<String> tags) {
-        List<AuditResult> results = new ArrayList<>();
 
-        // 1. Title Length Heuristic
-        boolean titleLength = title.length() >= 20 && title.length() <= 70;
-        results.add(new AuditResult(titleLength, titleLength ? "Title length is optimized." : "Title should be between 20-70 characters."));
-
-        // 2. Tag Meta-data Check
-        boolean hasTags = !tags.isEmpty();
-        results.add(new AuditResult(hasTags, hasTags ? "Video uses tags." : "No tags found. Add tags to improve reach."));
-
-        // 3. Keyword Synergy Check
-        long matchCount = 0;
-        if (hasTags) {
-            String lowerTitle = title.toLowerCase();
-            matchCount = tags.stream().filter(t -> lowerTitle.contains(t.toLowerCase())).count();
-        }
-        boolean synergy = matchCount >= 1;
-        results.add(new AuditResult(synergy, synergy ? "Title keywords found in tags." : "Include your main title keywords in your tags."));
-
-        // 4. CTA (Call To Action) Check
-        boolean hasLinks = desc.contains("http://") || desc.contains("https://");
-        results.add(new AuditResult(hasLinks, hasLinks ? "Description contains links (CTAs)." : "Add links to your description (Socials/Products)."));
-
-        return results;
-    }
 
     private long parseLong(JsonNode node, String field) {
         return node.has(field) ? node.get(field).asLong() : 0;

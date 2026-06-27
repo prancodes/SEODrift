@@ -11,6 +11,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.header.writers.CrossOriginOpenerPolicyHeaderWriter.CrossOriginOpenerPolicy;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
@@ -19,6 +20,7 @@ import org.springframework.security.oauth2.client.web.DefaultOAuth2Authorization
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.JdbcOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -26,8 +28,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  * SecurityConfig orchestrates the application's security posture,
@@ -67,7 +73,8 @@ public class SecurityConfig {
             HttpSecurity http,
             CustomOAuth2UserService customOAuth2UserService,
             ClientRegistrationRepository clientRegistrationRepository,
-            OAuth2AuthorizedClientRepository authorizedClientRepository)
+            OAuth2AuthorizedClientRepository authorizedClientRepository,
+            OAuth2AuthorizedClientService authorizedClientService)
             throws Exception {
         log.info("Configuring Security Filter Chain...");
 
@@ -80,7 +87,7 @@ public class SecurityConfig {
                                         "script-src 'self' 'unsafe-inline'; " +
                                         "style-src 'self' 'unsafe-inline'; " +
                                         "font-src 'self'; " +
-                                        "img-src 'self' data: https://img.youtube.com https://i.ytimg.com https://*.googleusercontent.com https://ui-avatars.com https://images.unsplash.com; " +
+                                        "img-src 'self' data: https://*.youtube.com https://*.ytimg.com https://*.ggpht.com https://*.googleusercontent.com https://ui-avatars.com https://images.unsplash.com; " +
                                         "connect-src 'self'; " +
                                         "frame-ancestors 'none';"))
                         .httpStrictTransportSecurity(hsts -> hsts
@@ -88,12 +95,13 @@ public class SecurityConfig {
                                 .maxAgeInSeconds(31536000)
                                 .preload(true))
                         .crossOriginOpenerPolicy(coop -> coop
-                                .policy(org.springframework.security.web.header.writers.CrossOriginOpenerPolicyHeaderWriter.CrossOriginOpenerPolicy.SAME_ORIGIN))
+                                .policy(CrossOriginOpenerPolicy.SAME_ORIGIN))
                 )
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/dodo/webhook"))
                 .authorizeHttpRequests(authorize -> authorize
                         // Publicly accessible assets and home page
                         .requestMatchers("/", "/css/**", "/js/**", "/images/**", "/webjars/**", "/favicons/**",
-                                "/robots.txt", "/sitemap.xml")
+                                "/robots.txt", "/sitemap.xml", "/error", "/api/dodo/webhook")
                         .permitAll()
 
                         // Protected tools and user data
@@ -113,8 +121,49 @@ public class SecurityConfig {
                                 .userService(customOAuth2UserService)
                                 .oidcUserService(customOAuth2UserService::loadOidcUser))
                         .successHandler((request, response, authentication) -> {
-                            String redirectUrl = null;
+                            boolean reconsentAttempted = false;
                             Cookie[] cookies = request.getCookies();
+                            if (cookies != null) {
+                                for (Cookie cookie : cookies) {
+                                    if ("reconsent_attempted".equals(cookie.getName())) {
+                                        reconsentAttempted = "true".equals(cookie.getValue());
+                                        break;
+                                    }
+                                }
+                            }
+
+                            OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(
+                                    "google", authentication.getName());
+
+                            if (authorizedClient != null && authorizedClient.getRefreshToken() == null) {
+                                if (reconsentAttempted) {
+                                    log.warn("Already attempted re-consent but refresh token is still null for user {}. Proceeding anyway.", authentication.getName());
+                                    Cookie clearReconsent = new Cookie("reconsent_attempted", null);
+                                    clearReconsent.setPath("/");
+                                    clearReconsent.setMaxAge(0);
+                                    response.addCookie(clearReconsent);
+                                } else {
+                                    log.warn("Refresh token is null for user {}. Forcing re-consent login.", authentication.getName());
+                                    authorizedClientService.removeAuthorizedClient("google", authentication.getName());
+
+                                    Cookie reconsentCookie = new Cookie("reconsent_attempted", "true");
+                                    reconsentCookie.setPath("/");
+                                    reconsentCookie.setMaxAge(300); // 5 minutes
+                                    response.addCookie(reconsentCookie);
+
+                                    request.logout();
+                                    response.sendRedirect("/oauth2/authorization/google?prompt=consent");
+                                    return;
+                                }
+                            } else {
+                                Cookie clearReconsent = new Cookie("reconsent_attempted", null);
+                                clearReconsent.setPath("/");
+                                clearReconsent.setMaxAge(0);
+                                response.addCookie(clearReconsent);
+                            }
+
+                            String redirectUrl = null;
+                            cookies = request.getCookies();
                             if (cookies != null) {
                                 for (Cookie cookie : cookies) {
                                     if ("seodrift_login_redirect".equals(cookie.getName())) {
@@ -129,6 +178,30 @@ public class SecurityConfig {
                             clearCookie.setPath("/");
                             clearCookie.setMaxAge(0);
                             response.addCookie(clearCookie);
+
+                            if (redirectUrl != null && !redirectUrl.isEmpty()) {
+                                // Security: only allow relative redirects (starting with / but not //)
+                                // OR absolute URLs that point back to the current request's host/domain
+                                boolean isSafe = false;
+                                if (redirectUrl.startsWith("/") && !redirectUrl.startsWith("//")) {
+                                    isSafe = true;
+                                } else {
+                                    String host = request.getHeader("Host");
+                                    if (host != null) {
+                                        String httpPrefix = "http://" + host + "/";
+                                        String httpsPrefix = "https://" + host + "/";
+                                        if (redirectUrl.startsWith(httpPrefix) || redirectUrl.startsWith(httpsPrefix)) {
+                                            isSafe = true;
+                                        }
+                                    }
+                                }
+
+                                if (!isSafe) {
+                                    log.warn("Blocked suspicious login redirect cookie value: {}", redirectUrl);
+                                    response.sendRedirect("/error?reason=invalid_redirect");
+                                    return;
+                                }
+                            }
 
                             if (redirectUrl != null && !redirectUrl.isEmpty()) {
                                 log.info("OAuth2 login successful. Redirecting directly to: {}", redirectUrl);
@@ -215,6 +288,14 @@ public class SecurityConfig {
         resolver.setAuthorizationRequestCustomizer(customizer -> customizer
                 .additionalParameters(params -> {
                     params.put("access_type", "offline");
+                    
+                    RequestAttributes requestObj = RequestContextHolder.getRequestAttributes();
+                    if (requestObj instanceof ServletRequestAttributes) {
+                        HttpServletRequest request = ((ServletRequestAttributes) requestObj).getRequest();
+                        if ("consent".equals(request.getParameter("prompt"))) {
+                            params.put("prompt", "consent");
+                        }
+                    }
                 }));
         return resolver;
     }

@@ -1,9 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{fragments/layout/layout}">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{fragments/layout/layout}">
 <head>
     <title>Keyword Search Velocity</title>
-    <link rel="stylesheet" th:href="@{/dist/dashboard-styles.css}">
-    <link rel="stylesheet" th:href="@{/dist/dashboard.css}">
     <script th:src="@{/dist/keywords.js}" type="module" defer></script>
 </head>
 <body>
@@ -92,6 +90,32 @@
                             <button type="button" class="suggestion-pill px-2.5 py-1 text-[9px] font-bold bg-gray-50 dark:bg-slate-900/60 border border-gray-150 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:bg-orange-50/50 dark:hover:bg-orange-950/20 hover:border-orange-200 hover:text-orange-600 dark:hover:text-orange-400 rounded-lg cursor-pointer transition-all">
                                 solo travel budget tips
                             </button>
+                        </div>
+                    </div>
+
+                    <!-- Content Goldmines (Gaps) -->
+                    <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 space-y-2">
+                        <span class="text-[9px] font-black text-amber-500 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="ph-bold ph-star"></i> Content Goldmines (High Demand, Low Coverage)
+                        </span>
+                        
+                        <div sec:authorize="hasAuthority('ROLE_PRO')">
+                            <div th:if="${#lists.isEmpty(contentGaps)}" class="text-xs text-gray-400">No active goldmines detected.</div>
+                            <div class="flex flex-col gap-2">
+                                <div th:each="gap : ${contentGaps}" class="flex items-center justify-between p-2 rounded-lg bg-amber-50/50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/30">
+                                    <span class="text-[10px] font-bold text-gray-800 dark:text-gray-200" th:text="${gap.keyword}">Keyword</span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[9px] text-gray-500" th:text="${gap.searchVelocity} + ' searches'"></span>
+                                        <span class="px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400 text-[8px] font-black" th:text="${gap.competitorCoverage} + ' videos'">0 videos</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div sec:authorize="!hasAuthority('ROLE_PRO')" class="p-4 rounded-xl bg-gray-50 dark:bg-slate-900/50 border border-gray-100 dark:border-gray-800 text-center space-y-2">
+                            <i class="ph-fill ph-lock-key text-xl text-gray-400"></i>
+                            <p class="text-[10px] font-bold text-gray-500">Upgrade to PRO to automatically detect high-demand keywords with zero competitor coverage.</p>
+                            <a href="/pro" class="inline-block mt-2 px-3 py-1.5 bg-orange-500 text-white rounded text-[9px] font-black uppercase tracking-wider hover:bg-orange-600 transition">Unlock Goldmines</a>
                         </div>
                     </div>
                 </div>

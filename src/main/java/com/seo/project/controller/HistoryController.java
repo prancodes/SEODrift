@@ -66,7 +66,7 @@ public class HistoryController {
         }
         
         var user = userOpt.get();
-        List<VideoAnalysis> history = videoAnalysisRepository.findByUserOrderByAnalyzedAtDesc(user);
+        List<VideoAnalysis> history = videoAnalysisRepository.findByUserAndIsDeletedFalseOrderByAnalyzedAtDesc(user);
         long auditCount = history != null ? history.size() : 0;
         double avgSeo = history != null ? history.stream()
                 .mapToInt(a -> a.getSeoScore() != null ? a.getSeoScore() : 0)
@@ -126,8 +126,10 @@ public class HistoryController {
             return ResponseEntity.status(403).body(Map.of("error", "Forbidden"));
         }
 
-        videoAnalysisRepository.delete(analysis);
-        log.info("User [{}] deleted history item [{}]", email, id);
+        analysis.setIsDeleted(true);
+        videoAnalysisRepository.save(analysis);
+
+        log.info("User [{}] soft deleted history item [{}]", email, id);
 
         return ResponseEntity.ok(Map.of("status", "success", "message", "Item deleted successfully"));
     }

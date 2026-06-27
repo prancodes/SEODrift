@@ -14,4 +14,5 @@ public interface UserChannelSnapshotRepository extends JpaRepository<UserChannel
     List<UserChannelSnapshot> findByUserOrderByRecordedAtAsc(User user);
     Optional<UserChannelSnapshot> findFirstByUserOrderByRecordedAtDesc(User user);
     boolean existsByUserAndRecordedAtAfter(User user, LocalDateTime recordedAt);
+    void deleteAllByUser(User user);
 }
