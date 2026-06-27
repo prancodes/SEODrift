@@ -33,7 +33,12 @@ public class VideoAnalysis {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(name = "analyzed_at", nullable = false)
     private LocalDateTime analyzedAt;
+
+    @Column(name = "is_deleted", nullable = false)
+    @Builder.Default
+    private Boolean isDeleted = false;
 
     @PrePersist
     protected void onAnalyze() {

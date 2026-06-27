@@ -4,12 +4,13 @@ import com.seo.project.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.jpa.repository.EntityGraph;
 
 @Lazy
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
     Optional<User> findByGoogleId(String googleId);
 
-    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"competitorChannels"})
+    @EntityGraph(attributePaths = {"competitorChannels"})
     Optional<User> findWithCompetitorsByEmail(String email);
 }

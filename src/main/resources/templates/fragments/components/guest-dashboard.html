@@ -149,6 +149,13 @@
                                 </li>
                             </ul>
                         </div>
+                        
+                        <div class="pt-2">
+                            <a th:href="@{/oauth2/authorization/google(prompt='consent')}" data-turbo="false" class="w-full flex items-center justify-center gap-2 px-5 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-brand-600 dark:hover:bg-brand-600 hover:text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all active:scale-95 shadow-md">
+                                <i class="ph-bold ph-plugs text-sm md:text-base"></i> Re-authenticate with Google
+                            </a>
+                            <p class="text-center text-xs text-gray-500 dark:text-gray-400 mt-3 font-bold">Make sure to check all permission boxes on the consent screen.</p>
+                        </div>
                     </div>
                 </div>
 

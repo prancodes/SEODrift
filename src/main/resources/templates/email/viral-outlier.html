@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Viral Outlier Detected</title>
+</head>
+<body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f5; margin: 0;">
+    <div style="max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <h2 style="color: #ea580c; font-size: 24px; margin-bottom: 20px; font-weight: 900; text-align: center;">🔥 Viral Outlier Detected!</h2>
+        
+        <p style="color: #374151; font-size: 16px; line-height: 1.5;">Hi <b th:text="${userName}">Creator</b>,</p>
+        <p style="color: #4b5563; font-size: 16px; line-height: 1.5;">Our intelligence engine detected new viral outliers in your competitor's recent uploads:</p>
+        
+        <div th:each="outlier : ${outliers}" style="background: #fff7ed; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #f97316;">
+            <h3 style="margin: 0 0 10px 0; color: #111827; font-size: 16px; font-weight: bold;" th:text="${outlier.title}">Video Title</h3>
+            <p style="margin: 0; color: #6b7280; font-size: 14px;">Channel: <b th:text="${outlier.competitorTitle}">Competitor</b></p>
+            <p style="margin: 5px 0 0 0; color: #ea580c; font-weight: bold; font-size: 14px;">Performance: <span th:text="${outlier.multiplier}">5.0</span>x the channel's average views!</p>
+        </div>
+        
+        <p style="color: #4b5563; font-size: 16px; line-height: 1.5;">This is a massive signal that the topic is in high demand. We strongly recommend covering this topic in your next video.</p>
+        
+        <div style="margin-top: 30px; border-top: 1px solid #e5e7eb; padding-top: 20px;">
+            <p style="color: #9ca3af; font-size: 14px;">Best regards,<br/><b style="color: #4f46e5;">SEODrift Intelligence Engine</b></p>
+            <a th:href="${baseUrl + '/workspace'}" style="display: inline-block; margin-top: 15px; padding: 10px 20px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px;">Open AI Workspace</a>
+        </div>
+    </div>
+</body>
+</html>

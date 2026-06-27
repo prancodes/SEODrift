@@ -72,8 +72,12 @@ public class AnalyticsController {
                 model.addAttribute("error", "Invalid YouTube URL or unable to fetch data.");
             }
         } catch (Exception e) {
-            log.error("Unexpected error during video analysis process: {}", e.getMessage(), e);
-            model.addAttribute("error", "An internal error occurred. Please try again later.");
+            if ("FREE_LIMIT_EXCEEDED".equals(e.getMessage())) {
+                model.addAttribute("error", "Free tier limit reached (3 analytics per day). Please upgrade to PRO to unlock unlimited analytics.");
+            } else {
+                log.error("Unexpected error during video analysis process: {}", e.getMessage(), e);
+                model.addAttribute("error", "An internal error occurred. Please try again later.");
+            }
         }
         return "analytics";
     }

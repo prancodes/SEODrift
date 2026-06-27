@@ -9,8 +9,16 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.seo.project.model.User;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * CustomOAuth2UserService manages user identity synchronization between OAuth2/OIDC providers
@@ -45,9 +53,15 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         String googleId = oauth2User.getAttribute("sub");
         String pictureUrl = oauth2User.getAttribute("picture");
         
-        userService.processAndSyncUser(email, name, googleId, pictureUrl);
+        User dbUser = userService.processAndSyncUser(email, name, googleId, pictureUrl);
         
-        return oauth2User;
+        Set<GrantedAuthority> mappedAuthorities = new HashSet<>(oauth2User.getAuthorities());
+        mappedAuthorities.add(new SimpleGrantedAuthority(dbUser.getRole()));
+        
+        String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails()
+                .getUserInfoEndpoint().getUserNameAttributeName();
+                
+        return new DefaultOAuth2User(mappedAuthorities, oauth2User.getAttributes(), userNameAttributeName);
     }
 
     /**
@@ -64,8 +78,11 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         String googleId = oidcUser.getAttribute("sub");
         String pictureUrl = oidcUser.getAttribute("picture");
         
-        userService.processAndSyncUser(email, name, googleId, pictureUrl);
+        User dbUser = userService.processAndSyncUser(email, name, googleId, pictureUrl);
         
-        return oidcUser;
+        Set<GrantedAuthority> mappedAuthorities = new HashSet<>(oidcUser.getAuthorities());
+        mappedAuthorities.add(new SimpleGrantedAuthority(dbUser.getRole()));
+        
+        return new DefaultOidcUser(mappedAuthorities, oidcUser.getIdToken(), oidcUser.getUserInfo());
     }
 }

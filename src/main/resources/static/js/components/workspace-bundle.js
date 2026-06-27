@@ -1,7 +1,6 @@
 import './workspace-core.js';
 import './workspace-editor.js';
-import '../../css/components/dashboard-styles.css';
-import '../../css/components/workspace.css';
+// dashboard-styles.css and workspace.css are now imported globally in main.js
 import './workspace-audit.js';
 import './workspace-api.js';
 import './workspace-publish.js';

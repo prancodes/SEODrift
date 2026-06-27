@@ -6,6 +6,8 @@ import com.seo.project.model.CompetitorVideo;
 import com.seo.project.repository.CompetitorChannelRepository;
 import com.seo.project.repository.CompetitorSnapshotRepository;
 import com.seo.project.repository.CompetitorVideoRepository;
+import com.seo.project.repository.UserRepository;
+import com.seo.project.model.User;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,8 +19,10 @@ import tools.jackson.databind.JsonNode;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -28,6 +32,9 @@ public class CompetitorScraperService {
     private final CompetitorChannelRepository competitorChannelRepository;
     private final CompetitorSnapshotRepository competitorSnapshotRepository;
     private final CompetitorVideoRepository competitorVideoRepository;
+    private final UserRepository userRepository;
+    private final NotificationService notificationService;
+    private final CompetitorAnalyticsService competitorAnalyticsService;
 
     @Value("${youtube.api.key}")
     private String apiKey;
@@ -38,11 +45,17 @@ public class CompetitorScraperService {
     public CompetitorScraperService(WebClient.Builder webClientBuilder,
                                      CompetitorChannelRepository competitorChannelRepository,
                                      CompetitorSnapshotRepository competitorSnapshotRepository,
-                                     CompetitorVideoRepository competitorVideoRepository) {
+                                     CompetitorVideoRepository competitorVideoRepository,
+                                     UserRepository userRepository,
+                                     NotificationService notificationService,
+                                     CompetitorAnalyticsService competitorAnalyticsService) {
         this.webClient = webClientBuilder.build();
         this.competitorChannelRepository = competitorChannelRepository;
         this.competitorSnapshotRepository = competitorSnapshotRepository;
         this.competitorVideoRepository = competitorVideoRepository;
+        this.userRepository = userRepository;
+        this.notificationService = notificationService;
+        this.competitorAnalyticsService = competitorAnalyticsService;
     }
 
     /**
@@ -65,6 +78,37 @@ public class CompetitorScraperService {
             }
         }
         log.info("Finished scheduled competitor scraping.");
+        
+        // After scraping, trigger user notifications for Outliers and Consistency
+        triggerUserNotifications();
+    }
+
+    private void triggerUserNotifications() {
+        log.info("Triggering user notifications for Viral Outliers and Consistency Nudges...");
+        List<User> allUsers = userRepository.findAll();
+        for (User user : allUsers) {
+            try {
+                // 1. Consistency Nudge (Hasn't posted in 10 days)
+                if (user.getYoutubeLastUpdatedAt() != null) {
+                    long daysSinceLastUpdate = ChronoUnit.DAYS.between(user.getYoutubeLastUpdatedAt(), LocalDateTime.now());
+                    if (daysSinceLastUpdate >= 10) {
+                        notificationService.sendConsistencyNudge(user);
+                    }
+                }
+
+                // 2. Viral Outliers (ROLE_PRO Only)
+                if ("ROLE_PRO".equals(user.getRole())) {
+                    if (user.getCompetitorChannels() != null && !user.getCompetitorChannels().isEmpty()) {
+                        List<Map<String, Object>> outliers = competitorAnalyticsService.findViralOutliers(user.getCompetitorChannels());
+                        if (!outliers.isEmpty()) {
+                            notificationService.sendViralOutlierAlerts(user, outliers);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Failed to process notifications for user {}: {}", user.getEmail(), e.getMessage());
+            }
+        }
     }
 
     /**

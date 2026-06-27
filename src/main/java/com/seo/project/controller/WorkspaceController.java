@@ -21,6 +21,7 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -127,6 +128,14 @@ public class WorkspaceController {
 
         model.addAttribute("user", user);
 
+        boolean isPro = "ROLE_PRO".equals(user.getRole()) || "ROLE_ADMIN".equals(user.getRole());
+        model.addAttribute("isPro", isPro);
+
+        int trialsLeft = 3;
+        if (user.getAiGenerationsUsed() != null) {
+            trialsLeft = Math.max(0, 3 - user.getAiGenerationsUsed());
+        }
+        model.addAttribute("trialsLeft", trialsLeft);
         if (draftId != null) {
             Optional<VideoAnalysis> analysisOpt = videoAnalysisRepository.findById(draftId);
             if (analysisOpt.isPresent()) {
@@ -201,6 +210,13 @@ public class WorkspaceController {
             return ResponseEntity.badRequest().body(Map.of("error", "Topic is required"));
         }
 
+        boolean isPro = "ROLE_PRO".equals(user.getRole()) || "ROLE_ADMIN".equals(user.getRole());
+        int used = user.getAiGenerationsUsed() != null ? user.getAiGenerationsUsed() : 0;
+        
+        if (!isPro && used >= 3) {
+            return ResponseEntity.status(403).body(Map.of("error", "You have reached your limit of 3 free AI generations. Upgrade to PRO to generate unlimited content."));
+        }
+
         try {
             List<String> competitorTitles = new ArrayList<>();
             List<String> competitorTags = new ArrayList<>();
@@ -228,17 +244,47 @@ public class WorkspaceController {
             List<String> cleanTitles = competitorTitles.stream().filter(Objects::nonNull).distinct().collect(Collectors.toList());
             List<String> cleanTags = competitorTags.stream().filter(Objects::nonNull).distinct().collect(Collectors.toList());
 
+            // 1.5 Fetch Style Context from previous user drafts (ROLE_PRO depth gating)
+            int maxDepth = "ROLE_PRO".equals(user.getRole()) ? 5 : 0;
+            
+            List<VideoAnalysis> pastDrafts = videoAnalysisRepository.findByUserAndIsDeletedFalseOrderByAnalyzedAtDesc(user);
+            StringBuilder styleContextBuilder = new StringBuilder();
+            int count = 0;
+            for (VideoAnalysis pastDraft : pastDrafts) {
+                if (count >= maxDepth) break;
+                if (pastDraft.getVideoUrl() != null && pastDraft.getVideoUrl().startsWith("ai-draft:")) {
+                    try {
+                        String jsonContent = pastDraft.getVideoUrl().substring("ai-draft:".length());
+                        WorkspaceDraftDto dto = objectMapper.readValue(jsonContent, WorkspaceDraftDto.class);
+                        if (dto.title() != null && dto.description() != null) {
+                            styleContextBuilder.append("Title: ").append(dto.title()).append("\n");
+                            styleContextBuilder.append("Description: ").append(dto.description()).append("\n\n");
+                            count++;
+                        }
+                    } catch (Exception e) {
+                        log.warn("Failed to parse past draft for style context: {}", e.getMessage());
+                    }
+                }
+            }
+            String creatorStyleContext = styleContextBuilder.toString().trim();
+
             // 2. Call Gemini
             String channelTitle = user.getYoutubeChannelTitle() != null ? user.getYoutubeChannelTitle() : user.getName();
-            AiGenerationDto generated = aiWorkspaceService.generateWorkspaceContent(
+            AiGenerationDto generatedContent = aiWorkspaceService.generateWorkspaceContent(
                     request.topic(),
                     request.tone(),
                     cleanTitles,
                     cleanTags,
-                    channelTitle
+                    channelTitle,
+                    creatorStyleContext
             );
+            // Increment usage if successful and not PRO
+            if (!isPro && generatedContent != null) {
+                user.setAiGenerationsUsed(used + 1);
+                userRepository.save(user);
+            }
 
-            return ResponseEntity.ok(generated);
+            return ResponseEntity.ok(generatedContent);
 
         } catch (Exception e) {
             log.error("AI Generation failed for topic [{}]: {}", request.topic(), e.getMessage());
@@ -267,6 +313,14 @@ public class WorkspaceController {
         User user = userOpt.get();
 
         try {
+            if (!"ROLE_PRO".equals(user.getRole())) {
+                LocalDateTime startOfDay = LocalDateTime.now().with(LocalTime.MIN);
+                long savedDraftsCount = videoAnalysisRepository.countByUserAndAnalyzedAtAfterAndVideoUrlLike(user, startOfDay, "ai-draft:%");
+                if (savedDraftsCount >= 1) {
+                    return ResponseEntity.status(429).body(Map.of("error", "Free tier daily limit reached (1 AI draft per day). Please upgrade to PRO for unlimited access."));
+                }
+            }
+
             // Serialize request payload to store inside the text column (except the draftId)
             WorkspaceDraftDto draftContent = new WorkspaceDraftDto(
                     null,

@@ -23,6 +23,7 @@ export default defineConfig({
         dashboard: path.resolve(__dirname, 'src/main/resources/static/js/components/dashboard-console.js'),
         trends: path.resolve(__dirname, 'src/main/resources/static/js/components/trends-console.js'),
         keywords: path.resolve(__dirname, 'src/main/resources/static/js/components/keywords-console.js'),
+        settings: path.resolve(__dirname, 'src/main/resources/static/js/components/settings-console.js')
       },
       output: {
         entryFileNames: '[name].js',

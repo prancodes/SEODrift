@@ -1,6 +1,7 @@
 package com.seo.project.controller;
 
 import com.seo.project.repository.UserRepository;
+import com.seo.project.model.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -134,7 +135,7 @@ public class DashboardController {
             model.addAttribute("recentUploadsJson", "[]");
             model.addAttribute("geoDistributionJson", "{}");
             model.addAttribute("snapshotsJson", "[]");
-            model.addAttribute("user", com.seo.project.model.User.builder()
+            model.addAttribute("user", User.builder()
                     .name(oauth2User.getAttribute("name"))
                     .email(email)
                     .build());

@@ -15,6 +15,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import tools.jackson.databind.JsonNode;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -244,8 +245,8 @@ public class YouTubeChannelService {
         try {
             // YouTube Analytics API Call
             // Note: Requires https://www.googleapis.com/auth/yt-analytics.readonly scope
-            String today = java.time.LocalDate.now().toString();
-            String lastMonth = java.time.LocalDate.now().minusDays(30).toString();
+            String today = LocalDate.now().toString();
+            String lastMonth = LocalDate.now().minusDays(30).toString();
             
             String analyticsUrl = "https://youtubeanalytics.googleapis.com/v2/reports?ids=channel==MINE" +
                     "&startDate=" + lastMonth + "&endDate=" + today +
@@ -351,8 +352,8 @@ public class YouTubeChannelService {
         long impressions = 0;
         double ctr = 0.0;
         try {
-            String today = java.time.LocalDate.now().toString();
-            String lastMonth = java.time.LocalDate.now().minusDays(30).toString();
+            String today = LocalDate.now().toString();
+            String lastMonth = LocalDate.now().minusDays(30).toString();
             
             String analyticsUrl = "https://youtubeanalytics.googleapis.com/v2/reports?ids=channel==MINE" +
                     "&startDate=" + lastMonth + "&endDate=" + today +

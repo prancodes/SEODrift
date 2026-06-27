@@ -52,7 +52,7 @@ public class ChannelHealthEvaluator {
         if (uploads.isEmpty()) return 0;
         
         double avgSeoScore = uploads.stream()
-                .mapToInt(YouTubeVideoDto::seoScore)
+                .mapToInt(v -> v.seoScore())
                 .average()
                 .orElse(0.0);
                 
@@ -64,7 +64,7 @@ public class ChannelHealthEvaluator {
         
         // Calculate average views vs subscribers (Expected 10-15% for a healthy channel)
         double avgViews = uploads.stream()
-                .mapToDouble(YouTubeVideoDto::views)
+                .mapToDouble(v -> v.views())
                 .average()
                 .orElse(0.0);
                 

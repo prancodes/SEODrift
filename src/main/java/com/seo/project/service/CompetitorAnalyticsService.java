@@ -243,4 +243,95 @@ public class CompetitorAnalyticsService {
             return keywordTrendRepository.save(zeroTrend);
         }
     }
+
+    /**
+     * Calculates baseline average views for competitor channels and identifies viral outliers
+     * (Performance Multiplier > 3.0x).
+     */
+    public List<Map<String, Object>> findViralOutliers(List<CompetitorChannel> competitors) {
+        List<Map<String, Object>> outliers = new ArrayList<>();
+        
+        for (CompetitorChannel competitor : competitors) {
+            List<CompetitorVideo> videos = competitorVideoRepository.findByCompetitorChannelOrderByPublishedAtDesc(competitor);
+            if (videos.isEmpty()) continue;
+            
+            // Calculate baseline average views
+            double totalViews = 0;
+            int validVideos = 0;
+            for (CompetitorVideo video : videos) {
+                if (video.getViewCount() != null) {
+                    totalViews += video.getViewCount();
+                    validVideos++;
+                }
+            }
+            
+            if (validVideos == 0) continue;
+            double averageViews = totalViews / validVideos;
+            
+            // Find outliers
+            for (CompetitorVideo video : videos) {
+                if (video.getViewCount() != null && averageViews > 0) {
+                    double multiplier = video.getViewCount() / averageViews;
+                    if (multiplier >= 3.0) {
+                        Map<String, Object> outlierMap = new HashMap<>();
+                        outlierMap.put("videoId", video.getVideoId());
+                        outlierMap.put("title", video.getTitle());
+                        outlierMap.put("competitorTitle", competitor.getTitle());
+                        outlierMap.put("viewCount", video.getViewCount());
+                        outlierMap.put("publishedAt", video.getPublishedAt());
+                        outlierMap.put("multiplier", String.format("%.1fx", multiplier));
+                        outlierMap.put("rawMultiplier", multiplier);
+                        outliers.add(outlierMap);
+                    }
+                }
+            }
+        }
+        
+        // Sort by multiplier descending
+        outliers.sort((a, b) -> Double.compare(
+                (Double) b.get("rawMultiplier"),
+                (Double) a.get("rawMultiplier")
+        ));
+        
+        return outliers.stream().limit(10).collect(Collectors.toList());
+    }
+
+    /**
+     * Cross-references keyword search velocity with competitor video titles.
+     * Identifies terms with high demand but low competitor coverage as Content Goldmines.
+     */
+    public List<Map<String, Object>> findContentGaps(User user, List<String> savedKeywords) {
+        List<Map<String, Object>> gaps = new ArrayList<>();
+        List<CompetitorChannel> competitors = user.getCompetitorChannels();
+        
+        if (competitors == null || competitors.isEmpty()) return gaps;
+
+        for (String keyword : savedKeywords) {
+            // Get latest trend
+            List<KeywordTrend> trends = keywordTrendRepository.findByKeywordOrderByRecordedDateDesc(keyword);
+            if (trends.isEmpty()) continue;
+            
+            KeywordTrend latestTrend = trends.get(0);
+            
+            // Criteria for "High Demand"
+            if (latestTrend.getVideoCountThisMonth() > 500 || latestTrend.getGrowthRate() > 20.0) {
+                // Check competitor coverage
+                long coverage = competitorVideoRepository.countByCompetitorChannelInAndTitleContainingIgnoreCase(competitors, keyword);
+                
+                // If coverage is low
+                if (coverage <= 1) {
+                    Map<String, Object> gap = new HashMap<>();
+                    gap.put("keyword", keyword);
+                    gap.put("searchVelocity", latestTrend.getVideoCountThisMonth());
+                    gap.put("growthRate", String.format("%.1f", latestTrend.getGrowthRate()));
+                    gap.put("competitorCoverage", coverage);
+                    gaps.add(gap);
+                }
+            }
+        }
+        
+        // Sort gaps by highest search velocity
+        gaps.sort((a, b) -> Integer.compare((Integer) b.get("searchVelocity"), (Integer) a.get("searchVelocity")));
+        return gaps;
+    }
 }

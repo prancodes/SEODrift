@@ -48,7 +48,23 @@ public class CompetitorApiController {
         String channelId = request.get("channelId");
         
         if (channelId == null || channelId.isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Channel ID or Handle is required"));
+            return ResponseEntity.ok().body(Map.of("error", "Channel ID or Handle is required"));
+        }
+
+        // Fast check before calling YouTube API to prevent duplicate scraper runs & snapshot spam
+        String cleanInput = channelId.trim();
+        boolean alreadyTrackingPreCheck = false;
+        if (cleanInput.startsWith("UC") && cleanInput.length() == 24) {
+            alreadyTrackingPreCheck = user.getCompetitorChannels().stream()
+                    .anyMatch(c -> c.getChannelId().equalsIgnoreCase(cleanInput));
+        } else {
+            String handle = cleanInput.startsWith("@") ? cleanInput : "@" + cleanInput;
+            alreadyTrackingPreCheck = user.getCompetitorChannels().stream()
+                    .anyMatch(c -> c.getCustomUrl() != null && c.getCustomUrl().equalsIgnoreCase(handle));
+        }
+
+        if (alreadyTrackingPreCheck) {
+            return ResponseEntity.ok().body(Map.of("error", "Already tracking this competitor"));
         }
 
         // Fetch and resolve competitor channel (supports UC... ID and @handle)
@@ -56,10 +72,10 @@ public class CompetitorApiController {
         try {
             competitor = competitorScraperService.getOrCreateCompetitor(channelId);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.ok().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             log.error("Failed to fetch competitor: ", e);
-            return ResponseEntity.status(500).body(Map.of("error", "Failed to retrieve competitor details from YouTube. Please verify the channel handle/ID."));
+            return ResponseEntity.ok().body(Map.of("error", "Failed to retrieve competitor details from YouTube. Please verify the channel handle/ID."));
         }
 
         // Check if already tracking the resolved competitor channel ID
@@ -68,7 +84,12 @@ public class CompetitorApiController {
                 .anyMatch(c -> c.getChannelId().equals(resolvedChannelId));
                 
         if (alreadyTracking) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Already tracking this competitor"));
+            return ResponseEntity.ok().body(Map.of("error", "Already tracking this competitor"));
+        }
+
+        // Limit free tier users to 1 competitor
+        if (!"ROLE_PRO".equals(user.getRole()) && user.getCompetitorChannels().size() >= 1) {
+            return ResponseEntity.ok().body(Map.of("error", "Free tier is limited to 1 competitor. Upgrade to PRO for unlimited tracking."));
         }
 
         user.getCompetitorChannels().add(competitor);

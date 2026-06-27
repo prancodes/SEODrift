@@ -19,9 +19,7 @@ async function getJsVectorMap() {
     return jsVectorMapModule;
 }
 
-import '../../css/components/dashboard-styles.css';
-import '../../css/components/dashboard-console.css';
-import '../../css/components/guest-dashboard.css';
+// dashboard-styles.css, dashboard-console.css, guest-dashboard.css are now imported globally in main.js
 
 /**
  * Dashboard Console Script
@@ -50,8 +48,12 @@ function destroyDashboard() {
         privateChartInstance = null;
     }
     if (worldMapInstance) {
-        if (typeof worldMapInstance.destroy === 'function') {
-            worldMapInstance.destroy();
+        try {
+            if (typeof worldMapInstance.destroy === 'function') {
+                worldMapInstance.destroy();
+            }
+        } catch (e) {
+            // Silent catch to suppress library-level selector destroy bugs
         }
         worldMapInstance = null;
     }
@@ -353,7 +355,7 @@ async function initWorldMap() {
                 worldMapInstance.destroy();
             }
         } catch (e) {
-            console.warn("jsVectorMap destroy failed (library bug ignored):", e);
+            // Silent catch to suppress library-level selector destroy bugs
         }
         worldMapInstance = null;
     }
@@ -462,22 +464,22 @@ function initCompetitorForm() {
             });
 
             if (response.ok) {
-                // Reload via Turbo
-                window.location.reload();
-            } else {
                 const data = await response.json();
-                if (window.showToast) {
-                    window.showToast("Failed to Add", data.error || "Failed to add competitor", "error");
+                if (data.error) {
+                    if (window.showToast) {
+                        window.showToast("Failed to Add", data.error, "error");
+                    }
                 } else {
-                    console.error(data.error || "Failed to add competitor");
+                    window.location.reload();
+                }
+            } else {
+                if (window.showToast) {
+                    window.showToast("Failed to Add", "An unexpected error occurred.", "error");
                 }
             }
         } catch (error) {
-            console.error(error);
             if (window.showToast) {
                 window.showToast("Network Error", "Network error occurred.", "error");
-            } else {
-                console.error("Network error occurred.");
             }
         } finally {
             input.disabled = false;

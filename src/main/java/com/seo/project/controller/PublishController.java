@@ -49,6 +49,7 @@ public class PublishController {
         dto.setTags(multipartRequest.getParameter("tags"));
         dto.setPrivacyStatus(multipartRequest.getParameter("privacyStatus"));
         dto.setCategoryId(multipartRequest.getParameter("categoryId"));
+        dto.setScheduledPublishTime(multipartRequest.getParameter("scheduledPublishTime"));
         dto.setFile(multipartRequest.getFile("file"));
 
         log.info("Received request to publish video: {}", dto.getTitle());

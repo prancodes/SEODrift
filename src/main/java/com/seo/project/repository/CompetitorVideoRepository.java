@@ -11,4 +11,5 @@ import org.springframework.context.annotation.Lazy;
 public interface CompetitorVideoRepository extends JpaRepository<CompetitorVideo, Long> {
     Optional<CompetitorVideo> findByVideoId(String videoId);
     List<CompetitorVideo> findByCompetitorChannelOrderByPublishedAtDesc(CompetitorChannel competitorChannel);
+    long countByCompetitorChannelInAndTitleContainingIgnoreCase(List<CompetitorChannel> competitorChannels, String title);
 }

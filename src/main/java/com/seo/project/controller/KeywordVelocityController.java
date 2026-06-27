@@ -81,6 +81,18 @@ public class KeywordVelocityController {
         }
         model.addAttribute("keywordTrends", trendsList);
 
+        boolean isPro = "ROLE_PRO".equals(user.getRole());
+        model.addAttribute("isPro", isPro);
+
+        // 3. Find Content Gaps (Only for PRO users)
+        if (isPro) {
+            List<String> keywordStrings = savedKeywords.stream().map(k -> k.getKeyword()).collect(Collectors.toList());
+            List<Map<String, Object>> contentGaps = competitorAnalyticsService.findContentGaps(user, keywordStrings);
+            model.addAttribute("contentGaps", contentGaps);
+        } else {
+            model.addAttribute("contentGaps", Collections.emptyList());
+        }
+
         return "keywords";
     }
 
@@ -132,7 +144,7 @@ public class KeywordVelocityController {
 
         List<SavedKeyword> savedKeywords = savedKeywordRepository.findByUserOrderBySavedAtDesc(user);
         List<String> keywords = savedKeywords.stream()
-                .map(SavedKeyword::getKeyword)
+                .map(k -> k.getKeyword())
                 .collect(Collectors.toList());
 
         if (keywords.isEmpty()) {
@@ -142,7 +154,7 @@ public class KeywordVelocityController {
         List<KeywordTrend> allTrends = keywordTrendRepository.findByKeywordInOrderByRecordedDateDesc(keywords);
         
         Map<String, List<KeywordTrend>> grouped = allTrends.stream()
-                .collect(Collectors.groupingBy(KeywordTrend::getKeyword));
+                .collect(Collectors.groupingBy(t -> t.getKeyword()));
 
         Map<String, List<Map<String, Object>>> result = new HashMap<>();
         for (String kw : keywords) {
@@ -192,6 +204,13 @@ public class KeywordVelocityController {
         Optional<SavedKeyword> existing = savedKeywordRepository.findByUserAndKeyword(user, keyword);
         if (existing.isPresent()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Keyword is already saved"));
+        }
+
+        if (!"ROLE_PRO".equals(user.getRole())) {
+            long currentCount = savedKeywordRepository.findByUserOrderBySavedAtDesc(user).size();
+            if (currentCount >= 3) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Free tier is limited to 3 saved keywords. Please upgrade to PRO for unlimited keywords."));
+            }
         }
 
         SavedKeyword savedKeyword = SavedKeyword.builder()
@@ -250,8 +269,18 @@ public class KeywordVelocityController {
                                                                      @PathVariable String keyword,
                                                                      @RequestParam int volume,
                                                                      @RequestParam double growth) {
-        if (authentication == null) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof OAuth2User oauth2User)) {
             return ResponseEntity.status(401).build();
+        }
+
+        String email = oauth2User.getAttribute("email");
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            return ResponseEntity.status(404).build();
+        }
+
+        if (!"ROLE_PRO".equals(user.getRole())) {
+            return ResponseEntity.status(403).build();
         }
 
         String cleanedKeyword = keyword.trim().toLowerCase();

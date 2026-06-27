@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{fragments/layout/layout}">
+<head>
+    <title>Upgrade to SEODrift PRO</title>
+</head>
+<body>
+<div layout:fragment="content" class="max-w-4xl mx-auto animate-fade-in space-y-8 mt-10">
+    <div class="dashboard-glass-card welcome-banner p-8 md:p-12 text-center relative overflow-hidden group mb-8">
+        <div class="dashboard-mesh"></div>
+        <div class="shine-overlay"></div>
+        
+        <div class="relative z-10 space-y-6">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-orange-500/20 to-amber-500/20 border border-orange-500/30 text-orange-600 dark:text-orange-400 text-xs font-black uppercase tracking-widest">
+                <i class="ph-fill ph-lightning"></i> SEODrift PRO
+            </div>
+            
+            <h1 class="text-3xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight">
+                Unlock Unfair Advantages
+            </h1>
+            <p class="text-gray-500 dark:text-gray-400 text-sm md:text-base font-bold max-w-2xl mx-auto leading-relaxed">
+                Get ahead of the competition with our Velocity Outlier Engine, Content Gap Analytics, and Deep AI Context. 
+                Identify viral trends before they peak.
+            </p>
+            
+            <div class="pt-8 flex justify-center">
+                <div th:if="${isPro}" class="px-8 py-4 bg-green-500/10 border border-green-500/20 rounded-2xl shadow-[0_0_15px_rgba(34,197,94,0.2)]">
+                    <h3 class="text-green-600 dark:text-green-400 font-black text-lg flex items-center gap-2">
+                        <i class="ph-bold ph-check-circle"></i> You are a PRO member!
+                    </h3>
+                </div>
+                <div th:unless="${isPro}">
+                    <a sec:authorize="isAuthenticated()" href="/dodo/checkout" class="inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-xl shadow-orange-500/20">
+                        <i class="ph-bold ph-rocket-launch text-lg"></i> Upgrade Now - $9/mo
+                    </a>
+                    <a sec:authorize="isAnonymous()" href="javascript:showLoginModal()" class="inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-xl shadow-orange-500/20">
+                        <i class="ph-bold ph-user text-lg"></i> Log In to Upgrade - $9/mo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PRO Features Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-12">
+        <div class="dashboard-widget p-6 flex flex-col glow-blue">
+            <div class="h-12 w-12 bg-blue-500/10 text-blue-500 rounded-xl flex items-center justify-center mb-4 text-2xl">
+                <i class="ph-bold ph-users-three"></i>
+            </div>
+            <h3 class="text-base font-black text-gray-900 dark:text-white mb-2">Unlimited Competitors</h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Free users can only track 1 competitor. As a PRO, track UNLIMITED competitors across your entire niche to build a massive intelligence network.</p>
+        </div>
+
+        <div class="dashboard-widget p-6 flex flex-col glow-orange">
+            <div class="h-12 w-12 bg-orange-500/10 text-orange-500 rounded-xl flex items-center justify-center mb-4 text-2xl">
+                <i class="ph-bold ph-fire"></i>
+            </div>
+            <h3 class="text-base font-black text-gray-900 dark:text-white mb-2">Viral Outlier Detection</h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Instantly spot when a competitor's video gets 3x more views than their channel average. Copy their viral formats before anyone else.</p>
+        </div>
+
+        <div class="dashboard-widget p-6 flex flex-col glow-amber">
+            <div class="h-12 w-12 bg-amber-500/10 text-amber-500 rounded-xl flex items-center justify-center mb-4 text-2xl">
+                <i class="ph-bold ph-star"></i>
+            </div>
+            <h3 class="text-base font-black text-gray-900 dark:text-white mb-2">Content Goldmines (Gaps)</h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">We match trending search terms with your competitors' recent videos to find Goldmines: topics with massive search demand but zero or very low competition. Discover exactly what your audience wants before anyone else makes a video about it.</p>
+        </div>
+
+        <div class="dashboard-widget p-6 flex flex-col glow-purple">
+            <div class="h-12 w-12 bg-purple-500/10 text-purple-500 rounded-xl flex items-center justify-center mb-4 text-2xl">
+                <i class="ph-bold ph-brain"></i>
+            </div>
+            <h3 class="text-base font-black text-gray-900 dark:text-white mb-2">Deep AI Style Injection</h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Basic AI gives generic titles. PRO AI scans your past 5 high-performing videos and perfectly mimics your tone, pacing, and formatting.</p>
+        </div>
+
+        <div class="dashboard-widget p-6 flex flex-col md:col-span-2 border border-brand-500/20 bg-gradient-to-r from-brand-500/5 to-purple-500/5">
+            <div class="flex items-start gap-4">
+                <div class="h-12 w-12 bg-brand-500/10 text-brand-500 rounded-xl flex items-center justify-center text-2xl shrink-0">
+                    <i class="ph-bold ph-envelope-open"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-black text-gray-900 dark:text-white mb-2">Automated Background Alerts</h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 font-medium max-w-2xl">Our servers run daily scans on your niche. If a competitor drops a viral video or you haven't posted in 10 days, we'll send you a priority email alert. You never have to manually check for trends again.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
